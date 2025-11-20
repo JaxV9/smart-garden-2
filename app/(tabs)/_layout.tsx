@@ -1,35 +1,53 @@
-import { Tabs } from 'expo-router';
-import React from 'react';
+import { Image } from "expo-image";
+import { Tabs } from "expo-router";
 
-import { HapticTab } from '@/components/haptic-tab';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
-
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
-
+//Test1234!!
+export default function RootLayout() {
   return (
-    <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        headerShown: false,
-        tabBarButton: HapticTab,
-      }}>
-      <Tabs.Screen
-        name="index"
+    <Tabs screenOptions={{
+      headerShown: false,
+      animation: 'none',
+    }}>
+      <Tabs.Screen name="home/index"
         options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="explore"
+          title: "Home",
+          tabBarIcon: ({ color }) => (
+            <Image
+              source={require('@/assets/icons/home.svg')}
+              style={{ width: 28, height: 28, tintColor: color }}
+            />
+          )
+        }} />
+      <Tabs.Screen name="search/index"
         options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
-        }}
-      />
+          title: "Search",
+          tabBarIcon: ({ color }) => (
+            <Image
+              source={require('@/assets/icons/search.svg')}
+              style={{ width: 28, height: 28, tintColor: color }}
+            />
+          )
+        }} />
+      <Tabs.Screen name="garden/index"
+        options={{
+          title: "Garden",
+          tabBarIcon: ({ color }) => (
+            <Image
+              source={require('@/assets/icons/garden.svg')}
+              style={{ width: 25, height: 28, tintColor: color }}
+            />
+          )
+        }} />
+      <Tabs.Screen name="profile/index"
+        options={{
+          title: "Profile",
+          tabBarIcon: ({ color }) => (
+            <Image
+              source={require('@/assets/icons/profil.svg')}
+              style={{ width: 20, height: 28, tintColor: color }}
+            />
+          )
+        }} />
     </Tabs>
   );
 }

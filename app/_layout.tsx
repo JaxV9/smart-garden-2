@@ -1,24 +1,22 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
-
-import { useColorScheme } from '@/hooks/use-color-scheme';
-
-export const unstable_settings = {
-  anchor: '(tabs)',
-};
+import { BottomSheetProvider } from "@/contexts/bottomSheetContext";
+import { GardenProvider } from "@/contexts/garden.context";
+import { UserProvider } from "@/contexts/user.context";
+import { VegetablesProvider } from "@/contexts/vegetables.context";
+import { Stack } from "expo-router";
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
-
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <UserProvider>
+      <BottomSheetProvider>
+        <GardenProvider>
+          <VegetablesProvider>
+            <Stack screenOptions={{
+              headerShown: false,
+              animation: 'none',
+            }} />
+          </VegetablesProvider>
+        </GardenProvider>
+      </BottomSheetProvider>
+    </UserProvider>
   );
 }
