@@ -37,7 +37,6 @@ export function UserProvider({ children }: { children: ReactNode }) {
             }
             return response.status
         } catch (error) {
-            console.error("User don't exists:", error);
             return "Failure";
         }
     }
@@ -50,7 +49,6 @@ export function UserProvider({ children }: { children: ReactNode }) {
                 const data = response.payload as LoginInfos
 
                 const isTokenAlreadyExists = await getToken('authToken');
-                console.log(isTokenAlreadyExists)
                 if (isTokenAlreadyExists !== null) {
                     await deleteToken('authToken');
                 }

@@ -5,11 +5,14 @@ import { useEffect } from "react";
 
 export default function Index() {
 
-  const { getUser } = useUserContext()
+  const { getUser, isLogin } = useUserContext()
   const { getToken } = useStorage()
 
   const checkToken = async () => {
     const hasToken = await getToken('authToken');
+    if (isLogin) {
+      return router.replace('/home')
+    }
     if (hasToken) {
       const user = await getUser()
       if (user !== "Failure") {
