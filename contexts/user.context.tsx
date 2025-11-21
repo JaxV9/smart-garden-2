@@ -5,7 +5,6 @@ import { Success } from "@jaslay/http";
 import { router } from "expo-router";
 import { createContext, ReactNode, useContext, useState } from "react";
 
-
 interface UserContextType {
     user: User | undefined;
     isLogin: boolean;

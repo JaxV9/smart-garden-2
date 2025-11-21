@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "smart-garden",
-    "slug": "smart-garden",
+    "slug": "potager",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -9,9 +9,11 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.jaxv9.smartgardenpie"
     },
     "android": {
+      "package": "com.jaxv9.smartgardenpie",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -43,6 +45,13 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "b2b148cd-a974-41ac-9cbd-31bb7e6a49a9"
+      }
+    },
+    "owner": "jaxv9"
   }
 }
