@@ -1,18 +1,23 @@
 import { useUserContext } from "@/contexts/user.context";
+import { useStorage } from "@/hooks/useStorage";
 import { router } from "expo-router";
 import { useEffect } from "react";
 
 export default function Index() {
 
-  const { isLogin } = useUserContext()
+  const { getUser } = useUserContext()
+  const { getToken } = useStorage()
 
   const checkToken = async () => {
-    const hasToken = await isLogin;
+    const hasToken = await getToken('authToken');
     if (hasToken) {
-      router.replace('/home');
-    } else {
-      router.replace('/login');
+      const user = await getUser()
+      if (user !== "Failure") {
+        return router.replace('/home');
+      }
+      return router.replace('/login');
     }
+    router.replace('/login');
   };
 
   useEffect(() => {

@@ -5,10 +5,10 @@ import { Success } from "@jaslay/http";
 import { router } from "expo-router";
 import { createContext, ReactNode, useContext, useState } from "react";
 
-
 interface UserContextType {
     user: User | undefined;
     isLogin: boolean;
+    getUser: () => Promise<"Success" | "Failure">;
     login: (payload: LoginUserPayload) => Promise<"Success" | "Failure">;
     createUser: (payload: CreateUserPayload) => Promise<"Success" | "Failure">;
     logout: () => Promise<Success>
@@ -22,6 +22,26 @@ export function UserProvider({ children }: { children: ReactNode }) {
     const { httpClient } = useFetch()
     const { putToken, getToken, deleteToken } = useStorage()
 
+    async function getUser(): Promise<"Success" | "Failure"> {
+        try {
+            const http = await httpClient
+            const response = await http.get('/api/user');
+            if (response.status !== 'Failure') {
+                const data = response.payload as User
+                setIsLogin(true)
+                const userInfos: User = {
+                    name: data.name,
+                    email: data.email,
+                };
+                setUser(userInfos)
+            }
+            return response.status
+        } catch (error) {
+            console.error("User don't exists:", error);
+            return "Failure";
+        }
+    }
+
     async function login(payload: LoginUserPayload): Promise<"Success" | "Failure"> {
         try {
             const http = await httpClient
@@ -30,6 +50,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
                 const data = response.payload as LoginInfos
 
                 const isTokenAlreadyExists = await getToken('authToken');
+                console.log(isTokenAlreadyExists)
                 if (isTokenAlreadyExists !== null) {
                     await deleteToken('authToken');
                 }
@@ -81,6 +102,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
         <UserContext.Provider value={{
             user,
             isLogin,
+            getUser,
             login,
             createUser,
             logout
