@@ -66,7 +66,15 @@ export type AddVegetableToGardenResponse = {
 export type Month = 'january' | 'february' | 'march'
   | 'april' | 'may' | 'june' | 'july' | 'august' | 'september' | 'october' | 'november' | 'december'
 
+
+export type VegetablePlannification = 'sowing' | 'plantation' | 'harvest'
+
+export type VegetableMonth = {
+  vegetable: Vegetable,
+  type: VegetablePlannification
+}
+
 export type Calendar = {
   month: Month
-  vegetables: []
+  vegetables: VegetableMonth[]
 }[]
