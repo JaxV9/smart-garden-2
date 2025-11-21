@@ -10,7 +10,7 @@ export default function RootLayout() {
     }}>
       <Tabs.Screen name="home/index"
         options={{
-          title: "Home",
+          title: "Accueil",
           tabBarIcon: ({ color }) => (
             <Image
               source={require('@/assets/icons/home.svg')}
@@ -20,7 +20,7 @@ export default function RootLayout() {
         }} />
       <Tabs.Screen name="search/index"
         options={{
-          title: "Search",
+          title: "Plantes",
           tabBarIcon: ({ color }) => (
             <Image
               source={require('@/assets/icons/search.svg')}
@@ -28,9 +28,9 @@ export default function RootLayout() {
             />
           )
         }} />
-      <Tabs.Screen name="garden/index"
+      <Tabs.Screen name="social/index"
         options={{
-          title: "Garden",
+          title: "Social",
           tabBarIcon: ({ color }) => (
             <Image
               source={require('@/assets/icons/garden.svg')}
@@ -40,7 +40,7 @@ export default function RootLayout() {
         }} />
       <Tabs.Screen name="profile/index"
         options={{
-          title: "Profile",
+          title: "Profil",
           tabBarIcon: ({ color }) => (
             <Image
               source={require('@/assets/icons/profil.svg')}
