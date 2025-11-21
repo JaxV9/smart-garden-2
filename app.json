@@ -10,7 +10,10 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.jaxv9.smartgardenpie"
+      "bundleIdentifier": "com.jaxv9.smartgardenpie",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "package": "com.jaxv9.smartgardenpie",
