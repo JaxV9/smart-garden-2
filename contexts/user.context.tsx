@@ -26,8 +26,6 @@ export function UserProvider({ children }: { children: ReactNode }) {
         try {
             const http = await httpClient
             const response = await http.post('/api/login', payload);
-            console.log('Raw response:', response); // Voir la réponse complète
-            console.log('Response type:', typeof response); // Vérifier le type
             if (response.status !== 'Failure') {
                 const data = response.payload as LoginInfos
 

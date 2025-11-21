@@ -36,7 +36,6 @@ export default function RegisterScreen() {
             password
         };
         const response: Success | Failure = await login(userData);
-        console.log(response)
         if (response === "Failure") {
             setError('Impossible de se connecter');
             return setLoading(false)
