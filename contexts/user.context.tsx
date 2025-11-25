@@ -28,12 +28,12 @@ export function UserProvider({ children }: { children: ReactNode }) {
             const response = await http.get('/api/user');
             if (response.status !== 'Failure') {
                 const data = response.payload as User
-                setIsLogin(true)
                 const userInfos: User = {
                     name: data.name,
                     email: data.email,
                 };
                 setUser(userInfos)
+                setIsLogin(true)
             }
             return response.status
         } catch (error) {
