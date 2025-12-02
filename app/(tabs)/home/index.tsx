@@ -1,7 +1,8 @@
 import { CalendarComp } from '@/components/new/calendar/calendar';
 import { HomeSection, NavBarGardenSection } from '@/components/new/navGardenSection/navbar';
+import { useVegetablesContext } from '@/contexts/vegetables.context';
 import { useCalendar } from '@/hooks/useCalendar';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 
@@ -9,6 +10,12 @@ export default function Index() {
 
     const [currentSection, setCurrentSection] = useState<HomeSection>('calendar')
     const { calendar } = useCalendar()
+    const { loadVegetables } = useVegetablesContext()
+
+    useEffect(() => {
+        loadVegetables()
+    }, [])
+
     return (
         <View style={styles.container}>
             <NavBarGardenSection currentSectionProps={currentSection}
