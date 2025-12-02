@@ -1,6 +1,6 @@
 import { useCalendar } from "@/hooks/useCalendar";
-import { Calendar } from "@/models/models";
-import { Dimensions, ScrollView, StyleSheet, View } from "react-native";
+import { Calendar, Month } from "@/models/models";
+import { Dimensions, ScrollView, StyleSheet, Text, View } from "react-native";
 
 interface CalendarProps {
     calendarProp: Calendar
@@ -9,12 +9,21 @@ interface CalendarProps {
 export function CalendarComp({ calendarProp }: CalendarProps) {
     const { monthToFrench } = useCalendar()
 
+    function formatText(text: Month) {
+        const frenchMonth = monthToFrench(text);
+        return frenchMonth.charAt(0).toUpperCase() + frenchMonth.slice(1)
+    }
+
     return (
         <>
             <ScrollView style={styles.scrollContainer}>
                 <View style={styles.container}>
                     {calendarProp.map((month, index) => (
-                        <View key={index} style={styles.month}>
+                        <View key={index} style={styles.monthContainer}>
+                            <Text style={styles.monthText}>{formatText(month.month)}</Text>
+                            {month.vegetables.length === 0 &&
+                                <Text style={styles.subInfo}>Aucune activité</Text>
+                            }
                         </View>
                     ))}
                 </View>
@@ -40,9 +49,10 @@ const styles = StyleSheet.create({
         gap: gap,
         padding: containerPadding,
     },
-    month: {
+    monthContainer: {
         width: cardWidth,
-        height: 120,
+        height: 'auto',
+        padding: 12,
         backgroundColor: '#FFF',
         borderRadius: 12,
         borderWidth: 2,
@@ -55,5 +65,13 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowRadius: 3,
         elevation: 3,
+    },
+    monthText: {
+        fontSize: 16,
+        fontWeight: 500,
+        marginBottom: 16
+    },
+    subInfo: {
+        color: '#99A1AF'
     }
 });
