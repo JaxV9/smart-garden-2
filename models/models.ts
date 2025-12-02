@@ -55,3 +55,11 @@ export type AddVegetableToGardenPayload = {
 export type AddVegetableToGardenResponse = {
   gardenVegetableId: string;
 };
+
+export type Month = 'january' | 'february' | 'march'
+  | 'april' | 'may' | 'june' | 'july' | 'august' | 'september' | 'october' | 'november' | 'december'
+
+export type Calendar = {
+  month: Month
+  vegetables: []
+}[]
