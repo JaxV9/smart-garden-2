@@ -19,7 +19,7 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 export function UserProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<User>();
     const [isLogin, setIsLogin] = useState<boolean>(false);
-    const { httpClient } = useFetch()
+    const { httpClient } = useFetch(undefined)
     const { putToken, getToken, deleteToken } = useStorage()
 
     async function getUser(): Promise<"Success" | "Failure"> {

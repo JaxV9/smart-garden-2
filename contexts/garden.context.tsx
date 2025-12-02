@@ -14,7 +14,7 @@ const GardenContext = createContext<GardenContextType | undefined>(undefined);
 
 export function GardenProvider({ children }: { children: ReactNode }) {
     const [gardenVegetables, setGardenVegetables] = useState<GardenVegetable[]>([]);
-    const { httpClient } = useFetch()
+    const { httpClient } = useFetch(undefined)
 
     async function loadGardenVegetables(): Promise<"Success" | "Failure"> {
         const http = await httpClient
