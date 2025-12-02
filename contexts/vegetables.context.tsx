@@ -1,4 +1,3 @@
-import { useFetch } from "@/hooks/useFetch";
 import { Vegetable } from "@/models/models";
 import { createContext, ReactNode, useContext, useState } from "react";
 
@@ -12,17 +11,19 @@ const VegetablesContext = createContext<VegetablesContextType | undefined>(undef
 
 export function VegetablesProvider({ children }: { children: ReactNode }) {
     const [vegetablesContext, setVegetablesContext] = useState<Vegetable[]>([]);
-    const { httpClient } = useFetch()
 
     async function loadVegetables(): Promise<void> {
         try {
-            const http = await httpClient
+            const url = 'https://outamtvthkoviplxcznc.supabase.co/storage/v1/object/public/vegetables/trefleapi_plants_30.json';
+            const response = await fetch(url);
 
-            const response = await http.get('/api/vegetables');
-            if (response.status !== 'Failure') {
-                const data = response.payload as Vegetable[]
-                setVegetablesContext(data)
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
+
+            const data = await response.json() as Vegetable[];
+            console.log('Vegetables loaded:', data);
+            setVegetablesContext(data);
         } catch (error) {
             console.error("Failed to load vegetables:", error);
         }
