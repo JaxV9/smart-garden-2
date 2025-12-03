@@ -4,7 +4,7 @@ import { createContext, ReactNode, useContext, useState } from "react";
 
 interface VegetablesContextType {
     vegetablesContext: Vegetable[];
-    loadVegetables: () => Promise<void>;
+    setVegetablesContext: React.Dispatch<React.SetStateAction<Vegetable[]>>
 }
 
 const VegetablesContext = createContext<VegetablesContextType | undefined>(undefined);
@@ -12,28 +12,9 @@ const VegetablesContext = createContext<VegetablesContextType | undefined>(undef
 export function VegetablesProvider({ children }: { children: ReactNode }) {
     const [vegetablesContext, setVegetablesContext] = useState<Vegetable[]>([]);
 
-    async function loadVegetables(): Promise<void> {
-        try {
-            const url = 'https://outamtvthkoviplxcznc.supabase.co/storage/v1/object/public/vegetables/trefleapi_plants_30.json';
-            const response = await fetch(url);
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            const data = await response.json() as Vegetable[];
-            console.log('Vegetables loaded:', data);
-            setVegetablesContext(data);
-        } catch (error) {
-            console.error("Failed to load vegetables:", error);
-        }
-    }
-
-
     return (
         <VegetablesContext.Provider value={{
-            vegetablesContext,
-            loadVegetables
+            vegetablesContext, setVegetablesContext
         }}>
             {children}
         </VegetablesContext.Provider>

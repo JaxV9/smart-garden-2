@@ -10,14 +10,14 @@ export default function RootLayout() {
     <UserProvider>
       <ThemeProvider>
         <BottomSheetProvider>
-          <GardenProvider>
-            <VegetablesProvider>
+          <VegetablesProvider>
+            <GardenProvider>
               <Stack screenOptions={{
                 headerShown: false,
                 animation: 'none',
               }} />
-            </VegetablesProvider>
-          </GardenProvider>
+            </GardenProvider>
+          </VegetablesProvider>
         </BottomSheetProvider>
       </ThemeProvider>
     </UserProvider>
