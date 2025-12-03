@@ -18,6 +18,13 @@ export type Vegetable = {
   images: string[];
 };
 
+export interface GardenVegetablePayload {
+  id: string,
+  vegetableId: string,
+  createdAt: string,
+  userId: string
+}
+
 export interface GardenVegetable extends Vegetable {
   gardenVegetableId: string;
 }
