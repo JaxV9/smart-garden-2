@@ -1,34 +1,51 @@
-import { useCalendar } from "@/hooks/useCalendar";
-import { Calendar, Month } from "@/models/models";
+import { Calendar, Month, VegetableMonth } from "@/models/models";
+import { useState } from "react";
 import { Dimensions, ScrollView, StyleSheet, Text, View } from "react-native";
+import { CalendarModal } from "./calendarModal/calendarModal";
+import { CalendarMonthCard } from "./calendarMonthCard/calendarMonthCard";
+import { CalendarVegetable } from "./calendarVegetable/calendarVegetable";
 
 interface CalendarProps {
     calendarProp: Calendar
 }
 
 export function CalendarComp({ calendarProp }: CalendarProps) {
-    const { monthToFrench } = useCalendar()
-
-    function formatText(text: Month) {
-        const frenchMonth = monthToFrench(text);
-        return frenchMonth.charAt(0).toUpperCase() + frenchMonth.slice(1)
-    }
+    const [monthModal, setMonthModal] = useState<{
+        month: Month
+        vegetables: VegetableMonth[]
+    }>();
 
     return (
-        <>
+        <View style={{ flex: 1 }}>
             <ScrollView style={styles.scrollContainer}>
                 <View style={styles.container}>
                     {calendarProp.map((month, index) => (
-                        <View key={index} style={styles.monthContainer}>
-                            <Text style={styles.monthText}>{formatText(month.month)}</Text>
+                        <CalendarMonthCard key={index} callback={() => setMonthModal({ month: month.month, vegetables: month.vegetables })}
+                            month={month.month} cardWidth={cardWidth}>
+                            {
+                                month.vegetables.slice(0, 3).map((vegetable, index) => (
+                                    <CalendarVegetable key={index} vegetable={vegetable.vegetable}
+                                        type={vegetable.type} />
+                                ))
+                            }
+                            {month.vegetables.length > 3 &&
+                                <Text style={styles.subInfo}>
+                                    + {month.vegetables.length - 3}
+                                </Text>
+                            }
                             {month.vegetables.length === 0 &&
                                 <Text style={styles.subInfo}>Aucune activité</Text>
                             }
-                        </View>
+                        </CalendarMonthCard>
                     ))}
                 </View>
+
             </ScrollView>
-        </>
+            {monthModal &&
+                <CalendarModal vegetables={monthModal.vegetables} month={monthModal.month}
+                    callback={() => setMonthModal(undefined)} />
+            }
+        </View>
     )
 }
 
@@ -49,29 +66,7 @@ const styles = StyleSheet.create({
         gap: gap,
         padding: containerPadding,
     },
-    monthContainer: {
-        width: cardWidth,
-        height: 'auto',
-        padding: 12,
-        backgroundColor: '#FFF',
-        borderRadius: 12,
-        borderWidth: 2,
-        borderColor: '#00000018',
-        shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
-        shadowOpacity: 0.1,
-        shadowRadius: 3,
-        elevation: 3,
-    },
-    monthText: {
-        fontSize: 16,
-        fontWeight: 500,
-        marginBottom: 16
-    },
     subInfo: {
         color: '#99A1AF'
-    }
+    },
 });
