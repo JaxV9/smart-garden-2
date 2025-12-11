@@ -1,5 +1,3 @@
-// models/models.ts
-
 export type User = {
   name: string;
   email: string;

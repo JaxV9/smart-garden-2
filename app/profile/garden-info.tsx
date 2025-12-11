@@ -36,7 +36,7 @@ export default function GardenInfoScreen() {
   };
 
   const handleSave = () => {
-    // Plus tard : appele API / GardenContext 
+    // Later: call API / GardenContext to save garden info
     console.log('Saving garden info:', {
       gardenName,
       location,
@@ -65,12 +65,12 @@ export default function GardenInfoScreen() {
           <View style={{ width: 22 }} />
         </View>
 
-        {/* Titre "Mon Jardin" */}
+        {/* Title*/}
         <Text style={styles.gardenTitle}>{gardenName || 'Mon Jardin'}</Text>
 
-        {/* Formulaire */}
+        {/* Form */}
         <View style={styles.form}>
-          {/* Nom du jardin */}
+          {/* garden name */}
           <View style={styles.field}>
             <Text style={styles.label}>Nom du jardin</Text>
             <View style={styles.inputWrapper}>
@@ -92,7 +92,7 @@ export default function GardenInfoScreen() {
             </View>
           </View>
 
-          {/* Localisation */}
+          {/* Location */}
           <View style={styles.field}>
             <Text style={styles.label}>Localisation</Text>
             <View style={styles.inputWrapper}>
@@ -114,7 +114,7 @@ export default function GardenInfoScreen() {
             </View>
           </View>
 
-          {/* Sections du jardin */}
+          {/* Garden Sections */}
           <View style={styles.field}>
             <Text style={styles.label}>Sections du jardin</Text>
             <View style={styles.chipsRow}>
@@ -126,7 +126,7 @@ export default function GardenInfoScreen() {
             </View>
           </View>
 
-          {/* Ajouter une section personnalisée */}
+          {/* Add a custom section */}
           <View style={styles.field}>
             <Text style={styles.label}>Ajouter une section personnalisée</Text>
             <View style={styles.addRow}>
@@ -159,7 +159,7 @@ export default function GardenInfoScreen() {
           </View>
         </View>
 
-        {/* Bouton ENREGISTRER */}
+        {/* Save button */}
         <TouchableOpacity
           style={styles.saveButton}
           activeOpacity={0.8}

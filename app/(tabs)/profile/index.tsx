@@ -21,10 +21,10 @@ export default function ProfileScreen() {
     ? { uri: user.avatarUri }
     : DEFAULT_AVATAR;
 
-  // état pour la popup de déconnexion
+  // state for the logout popup
   const [isLogoutModalVisible, setIsLogoutModalVisible] = useState(false);
 
-  // Pour l’instant : valeurs en dur pour le jardin
+  // For now: hard values ​​for the garden info
   const gardenName = 'Mon Jardin';
   const gardenLocation = 'Paris';
   const gardenSections = ['Potager principal'];
@@ -34,7 +34,7 @@ export default function ProfileScreen() {
   };
 
   const handleLogoutPress = () => {
-    // On ouvre la popup au lieu de déconnecter directement
+    // We open the popup instead of logging out directly.
     setIsLogoutModalVisible(true);
   };
 
@@ -54,24 +54,23 @@ export default function ProfileScreen() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
-        {/* Titre */}
+        {/* Title*/}
         <Text style={styles.title}>
           Mon <Text style={styles.titleHighlight}>Profil</Text>
         </Text>
 
-        {/* Carte profil */}
+        {/* Profile card*/}
         <View style={styles.profileCard}>
           <Image source={avatarSource} style={styles.avatar} />
 
           <View style={styles.profileTexts}>
-            {/* ✅ plus de "Marie" en dur */}
             <Text style={styles.name}>{user?.name || ''}</Text>
             <Text style={styles.email}>{user?.email || ''}</Text>
             <Text style={styles.level}>Débutante</Text>
           </View>
         </View>
 
-        {/* Bloc : infos perso + déconnexion */}
+        {/* Block: personal info + logout*/}
         <View style={styles.blockCard}>
           <TouchableOpacity
             style={styles.row}
@@ -97,7 +96,7 @@ export default function ProfileScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* Bloc : informations du jardin */}
+        {/* Block: Garden information */}
         <View style={styles.blockCard}>
           <View style={styles.gardenHeader}>
             <View style={styles.gardenHeaderLeft}>
@@ -143,7 +142,7 @@ export default function ProfileScreen() {
 
         <View style={{ height: 24 }} />
 
-        {/* MODAL DE DÉCONNEXION */}
+        {/* DISCONNECT MODE */}
         <Modal
           visible={isLogoutModalVisible}
           transparent
@@ -152,7 +151,6 @@ export default function ProfileScreen() {
         >
           <View style={styles.modalOverlay}>
             <View style={styles.modalCard}>
-              {/* bouton X */}
               <View style={styles.modalHeader}>
                 <View style={{ width: 24 }} />
                 <Text style={styles.modalTitle}>
@@ -166,7 +164,7 @@ export default function ProfileScreen() {
                 </TouchableOpacity>
               </View>
 
-              {/* Bouton rouge */}
+              {/* Red button */}
               <TouchableOpacity
                 style={styles.modalLogoutButton}
                 activeOpacity={0.8}
@@ -175,7 +173,7 @@ export default function ProfileScreen() {
                 <Text style={styles.modalLogoutButtonText}>SE DÉCONNECTER</Text>
               </TouchableOpacity>
 
-              {/* Bouton annuler */}
+              {/* Cancel button */}
               <TouchableOpacity
                 style={styles.modalCancelButton}
                 activeOpacity={0.8}
@@ -353,7 +351,7 @@ const styles = StyleSheet.create({
     color: COLORS.chipText,
   },
 
-  /* -------- MODAL DECONNEXION -------- */
+  /* -------- MODAL LOGOUT -------- */
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.45)',

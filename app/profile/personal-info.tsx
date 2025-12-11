@@ -1,5 +1,3 @@
-// app/profile/personal-info.tsx
-
 import React, { useState } from 'react';
 import {
   View,
@@ -84,7 +82,7 @@ export default function PersonalInfoScreen() {
   };
 
   const handleSave = () => {
-    // Met à jour le User dans le contexte
+    // Updates the User in context
     updateUser({
       name: pseudo || user?.name || '',
       email: email || user?.email || '',
@@ -103,7 +101,7 @@ export default function PersonalInfoScreen() {
 
   const currentAvatarSource = avatarUri ? { uri: avatarUri } : DEFAULT_AVATAR;
 
-  // ---------- Rendu ----------
+  // ---------- Rendering----------
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -124,7 +122,7 @@ export default function PersonalInfoScreen() {
           <View style={{ width: 22 }} />
         </View>
 
-        {/* Avatar + nom */}
+        {/* Avatar + name */}
         <TouchableOpacity
           style={styles.avatarContainer}
           activeOpacity={0.8}
@@ -196,7 +194,7 @@ export default function PersonalInfoScreen() {
             </View>
           </View>
 
-          {/* Niveau d'expérience */}
+          {/* Experience level */}
           <View style={styles.field}>
             <Text style={styles.label}>Niveau d&apos;expérience</Text>
 
@@ -243,7 +241,7 @@ export default function PersonalInfoScreen() {
             )}
           </View>
 
-          {/* Mot de passe*/}
+          {/* Password */}
           <View style={styles.field}>
             <Text style={styles.label}>Mot de passe</Text>
             <View style={styles.inputWrapper}>
@@ -281,7 +279,7 @@ export default function PersonalInfoScreen() {
           </View>
         </View>
 
-        {/* Bouton ENREGISTRER */}
+        {/* Save button*/}
         <TouchableOpacity
           style={styles.saveButton}
           activeOpacity={0.8}
