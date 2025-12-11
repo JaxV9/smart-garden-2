@@ -11,7 +11,9 @@ interface UserContextType {
     getUser: () => Promise<"Success" | "Failure">;
     login: (payload: LoginUserPayload) => Promise<"Success" | "Failure">;
     createUser: (payload: CreateUserPayload) => Promise<"Success" | "Failure">;
-    logout: () => Promise<Success>
+    logout: () => Promise<Success>;
+    updateUser: (updates: { name?: string; email?: string }) => void;
+    updateAvatar: (uri: string) => void;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -57,6 +59,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
                 const userInfos: User = {
                     name: data.userName,
                     email: data.email,
+                    avatarUri: null,
                 };
                 setUser(userInfos)
             }
@@ -78,6 +81,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
                 const userInfos: User = {
                     name: data.userName,
                     email: data.email,
+                    avatarUri: null,
                 };
                 setUser(userInfos)
             }
@@ -96,6 +100,21 @@ export function UserProvider({ children }: { children: ReactNode }) {
         return 'Success';
     }
 
+    function updateAvatar(uri: string) {
+        setUser(prev => prev ? { ...prev, avatarUri: uri } : prev);
+    }
+
+    function updateUser(updates: { name?: string; email?: string }) {
+        setUser((prev) =>
+        prev
+            ? {
+                ...prev,
+                ...updates,
+            }
+            : prev
+        );
+    }
+
     return (
         <UserContext.Provider value={{
             user,
@@ -103,7 +122,9 @@ export function UserProvider({ children }: { children: ReactNode }) {
             getUser,
             login,
             createUser,
-            logout
+            logout,
+            updateUser,
+            updateAvatar
         }}>
             {children}
         </UserContext.Provider>
