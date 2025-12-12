@@ -10,6 +10,12 @@ export type Vegetable = {
   name: string;
   description: string;
   specifications: string[];
+  difficulty: string;
+  watering: string;
+  sun_exposure: string;
+  season: string[];
+  temperature: string;
+  conseils: string[];
   sowing: string[];
   plantation: string[];
   harvest: string[];
