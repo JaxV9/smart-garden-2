@@ -1,26 +1,28 @@
+import { useUserContext } from '@/contexts/user.context';
+import { useUser } from '@/hooks/useUser';
+import { Feather } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
+import { router } from 'expo-router';
 import React, { useState } from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
+  Alert,
   Image,
+  ScrollView,
+  StyleSheet,
+  Text,
   TextInput,
   TouchableOpacity,
-  ScrollView,
-  Alert,
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Feather } from '@expo/vector-icons';
-import { router } from 'expo-router';
-import { useUserContext } from '@/contexts/user.context';
-import * as ImagePicker from 'expo-image-picker';
 
 const DEFAULT_AVATAR = require('@/assets/images/avatar.png');
 
 type ExperienceLevel = 'Débutant' | 'Intermédiaire' | 'Expert';
 
 export default function PersonalInfoScreen() {
-  const { user, updateAvatar, updateUser } = useUserContext(); // 🔹 on récupère updateUser ici
+  const { user } = useUserContext();
+  const { updateAvatar, updateUser } = useUser();
 
   const [pseudo, setPseudo] = useState<string>(user?.name ?? '');
   const [email, setEmail] = useState<string>(user?.email ?? '');
@@ -86,14 +88,6 @@ export default function PersonalInfoScreen() {
     updateUser({
       name: pseudo || user?.name || '',
       email: email || user?.email || '',
-    });
-
-    console.log('Saving personal infos (front):', {
-      pseudo,
-      email,
-      experience,
-      password: password || undefined,
-      avatarUri,
     });
 
     Alert.alert('Succès', 'Vos informations ont été mises à jour.');
@@ -255,7 +249,7 @@ export default function PersonalInfoScreen() {
                 style={styles.input}
                 value={password}
                 onChangeText={setPassword}
-                secureTextEntry={true} 
+                secureTextEntry={true}
                 placeholder="●●●●●●●●"
                 placeholderTextColor={COLORS.placeholder}
               />
@@ -385,13 +379,13 @@ const styles = StyleSheet.create({
   },
   changePasswordButton: {
     marginTop: 10,
-    alignSelf: 'center', 
+    alignSelf: 'center',
   },
   changePasswordText: {
     fontSize: 13,
-    color: COLORS.textMuted,    
-    textAlign: 'center',         
-    textDecorationLine: 'underline',  
+    color: COLORS.textMuted,
+    textAlign: 'center',
+    textDecorationLine: 'underline',
     fontWeight: '400',
   },
   dropdown: {

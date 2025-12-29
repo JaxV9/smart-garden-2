@@ -1,16 +1,16 @@
-import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TextInput,
-  TouchableOpacity,
-  ScrollView,
-  Alert,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { Feather } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import React, { useState } from 'react';
+import {
+  Alert,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function GardenInfoScreen() {
   const [gardenName, setGardenName] = useState('Mon Jardin');
@@ -37,11 +37,6 @@ export default function GardenInfoScreen() {
 
   const handleSave = () => {
     // Later: call API / GardenContext to save garden info
-    console.log('Saving garden info:', {
-      gardenName,
-      location,
-      sections,
-    });
     Alert.alert('Succès', 'Les informations du jardin ont été enregistrées.');
     router.back();
   };
@@ -178,10 +173,10 @@ const COLORS = {
   textMuted: '#6B7280',
   inputBg: '#F9FAFB',
   border: '#E5E7EB',
-  primary: '#4F8F46',    
+  primary: '#4F8F46',
   icon: '#9CA3AF',
   placeholder: '#9CA3AF',
-  chipBg: '#111827',    
+  chipBg: '#111827',
   chipText: '#FFFFFF',
 };
 

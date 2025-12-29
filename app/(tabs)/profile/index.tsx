@@ -1,21 +1,23 @@
-import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Image,
-  TouchableOpacity,
-  Modal,
-} from 'react-native';
+import { useUserContext } from '@/contexts/user.context';
+import { useUser } from '@/hooks/useUser';
 import { Feather } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { useUserContext } from '@/contexts/user.context';
+import React, { useState } from 'react';
+import {
+  Image,
+  Modal,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const DEFAULT_AVATAR = require('@/assets/images/avatar.png');
 
 export default function ProfileScreen() {
-  const { user, logout } = useUserContext();
+  const { user } = useUserContext();
+  const { logout } = useUser()
 
   const avatarSource = user?.avatarUri
     ? { uri: user.avatarUri }

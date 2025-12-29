@@ -13,8 +13,7 @@ export function CalendarMonthCard({ month, callback, children, cardWidth }: Cale
     const { monthToFrench } = useCalendar()
 
     function formatText(text: Month) {
-        const frenchMonth = monthToFrench(text);
-        return frenchMonth.charAt(0).toUpperCase() + frenchMonth.slice(1)
+        return monthToFrench(text)
     }
 
     return (

@@ -1,14 +1,19 @@
-import React, { useEffect, useMemo } from "react";
-import { Alert, ScrollView } from "react-native";
+import { router } from "expo-router";
+import { useEffect, useMemo } from "react";
+import { ScrollView } from "react-native";
 import {
   SafeAreaView,
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
-import { router } from "expo-router";
 
 import { useVegetablesContext } from "@/contexts/vegetables.context";
 import { useVegetable } from "@/hooks/useVegetable";
 
+import type {
+  MonthRange,
+  PlantRef,
+  Veg,
+} from "../types/types";
 import { rangeFromMonths } from "../utils/month";
 import {
   cleanImageUri,
@@ -17,44 +22,39 @@ import {
   normalize,
   seasonToString,
 } from "../utils/vegetableText";
-import type {
-  PlantRef,
-  Veg,
-  MonthRange,
-} from "../types/types";
 
 type VM =
   | { state: "loading" }
   | { state: "error"; error: string }
   | { state: "not_found" }
   | {
-      state: "ready";
-      vegetable: Veg;
-      imageUri: string;
-      family: string;
-      scientific: string;
+    state: "ready";
+    vegetable: Veg;
+    imageUri: string;
+    family: string;
+    scientific: string;
 
-      season: string;
-      watering: string;
-      sun: string;
-      temp: string;
-      conseils: string[];
+    season: string;
+    watering: string;
+    sun: string;
+    temp: string;
+    conseils: string[];
 
-      sowingRange: MonthRange;
-      plantationRange: MonthRange;
-      harvestRange: MonthRange;
+    sowingRange: MonthRange;
+    plantationRange: MonthRange;
+    harvestRange: MonthRange;
 
-      affinityPlants: PlantRef[];
-      enemyPlants: PlantRef[];
+    affinityPlants: PlantRef[];
+    enemyPlants: PlantRef[];
 
-      insets: ReturnType<typeof useSafeAreaInsets>;
-      onBack: () => void;
-      onAddToGarden: (id: string) => void;
+    insets: ReturnType<typeof useSafeAreaInsets>;
+    onBack: () => void;
+    onAddToGarden: (id: string) => void;
 
-      SafeArea: typeof SafeAreaView;
-      Scroll: typeof ScrollView;
-      contentContainerStyle: any;
-    };
+    SafeArea: typeof SafeAreaView;
+    Scroll: typeof ScrollView;
+    contentContainerStyle: any;
+  };
 
 export function useVegetableDetails(vegetableId?: string): VM {
   const { vegetablesContext } = useVegetablesContext();
