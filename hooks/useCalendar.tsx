@@ -10,83 +10,54 @@ export function useCalendar() {
 
     const [calendar, setCalendar] = useState<Calendar>([
         {
-            month: 'january',
+            month: 'January',
             vegetables: []
         },
         {
-            month: 'february',
+            month: 'February',
             vegetables: []
         },
         {
-            month: 'march',
+            month: 'March',
             vegetables: []
         },
         {
-            month: 'april',
+            month: 'April',
             vegetables: []
         },
         {
-            month: 'may',
+            month: 'May',
             vegetables: []
         },
         {
-            month: 'june',
+            month: 'June',
             vegetables: []
         },
         {
-            month: 'july',
+            month: 'July',
             vegetables: []
         },
         {
-            month: 'august',
+            month: 'August',
             vegetables: []
         },
         {
-            month: 'september',
+            month: 'September',
             vegetables: []
         },
         {
-            month: 'october',
+            month: 'October',
             vegetables: []
         },
         {
-            month: 'november',
+            month: 'November',
             vegetables: []
         },
         {
-            month: 'december',
+            month: 'December',
             vegetables: []
         },
     ]);
-
-    function monthToFrench(month: Month): string {
-        switch (month) {
-            case 'january':
-                return 'Janvier'
-            case 'february':
-                return 'Février'
-            case 'march':
-                return 'Mars'
-            case 'april':
-                return 'Avril'
-            case 'may':
-                return 'Mai'
-            case 'june':
-                return 'Juin'
-            case 'july':
-                return 'Juillet'
-            case 'august':
-                return 'Août'
-            case 'september':
-                return 'Septembre'
-            case 'october':
-                return 'Octobre'
-            case 'november':
-                return 'Novembre'
-            case 'december':
-                return 'Décembre'
-        }
-    }
 
     function monthVegetables(month: string, type: VegetablePlannification): {
         vegetable: Vegetable;
@@ -95,6 +66,7 @@ export function useCalendar() {
         const vegetables = gardenVegetables.filter((vegetable) => {
             return vegetable[type].includes(month);
         });
+
 
         return vegetables.map(vegetable => {
             return {
@@ -116,6 +88,35 @@ export function useCalendar() {
             setCalendar(calendarVegetables);
         }
     }, [gardenVegetables])
+
+    function monthToFrench(month: Month): string {
+        switch (month) {
+            case 'January':
+                return 'Janvier'
+            case 'February':
+                return 'Février'
+            case 'March':
+                return 'Mars'
+            case 'April':
+                return 'Avril'
+            case 'May':
+                return 'Mai'
+            case 'June':
+                return 'Juin'
+            case 'July':
+                return 'Juillet'
+            case 'August':
+                return 'Août'
+            case 'September':
+                return 'Septembre'
+            case 'October':
+                return 'Octobre'
+            case 'November':
+                return 'Novembre'
+            case 'December':
+                return 'Décembre'
+        }
+    }
 
     return {
         calendar,

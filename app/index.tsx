@@ -1,16 +1,28 @@
 import { useUserContext } from "@/contexts/user.context";
 import { useStorage } from "@/hooks/useStorage";
+import { useUser } from "@/hooks/useUser";
 import { router } from "expo-router";
 import { useEffect } from "react";
 
 export default function Index() {
-  const { getUser, isLogin } = useUserContext();
+  const { isLogin, user } = useUserContext();
+  const { getUser } = useUser()
   const { getToken } = useStorage();
 
+
   useEffect(() => {
+
+    const checkOnBoardingDone = async () => {
+      if (user?.level === null) {
+        router.replace('/onboarding');
+      } else {
+        router.replace('/home');
+      }
+    }
+
     const checkTokenAndRedirect = async () => {
       if (isLogin) {
-        router.replace('/home');
+        checkOnBoardingDone()
         return;
       }
 
@@ -18,7 +30,7 @@ export default function Index() {
       if (token) {
         const userStatus = await getUser();
         if (userStatus === "Success") {
-          router.replace('/home');
+          checkOnBoardingDone()
         } else {
           router.replace('/login');
         }
@@ -28,7 +40,7 @@ export default function Index() {
     };
 
     checkTokenAndRedirect();
-  }, [isLogin]);
+  }, [isLogin, user]);
 
   return null;
 }

@@ -2,6 +2,7 @@ export type User = {
   name: string;
   email: string;
   avatarUri?: string | null;
+  level: string | null
 };
 
 export type Vegetable = {
@@ -38,6 +39,7 @@ export type LoginInfos = {
   token: string;
   userName: string;
   email: string;
+  level: string | null
 };
 
 export type SensorMeasure = {
@@ -68,8 +70,8 @@ export type AddVegetableToGardenResponse = {
   gardenVegetableId: string;
 };
 
-export type Month = 'january' | 'february' | 'march'
-  | 'april' | 'may' | 'june' | 'july' | 'august' | 'september' | 'october' | 'november' | 'december'
+export type Month = 'January' | 'February' | 'March'
+  | 'April' | 'May' | 'June' | 'July' | 'August' | 'September' | 'October' | 'November' | 'December'
 
 
 export type VegetablePlannification = 'sowing' | 'plantation' | 'harvest'
@@ -83,3 +85,5 @@ export type Calendar = {
   month: Month
   vegetables: VegetableMonth[]
 }[]
+
+export type GardenerLevel = 'beginner' | 'amateur' | 'advanced' | 'enthusiast'
