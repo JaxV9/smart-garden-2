@@ -1,38 +1,20 @@
-import { useFetch } from "@/hooks/useFetch";
 import { Vegetable } from "@/models/models";
 import { createContext, ReactNode, useContext, useState } from "react";
 
 
 interface VegetablesContextType {
     vegetablesContext: Vegetable[];
-    loadVegetables: () => Promise<void>;
+    setVegetablesContext: React.Dispatch<React.SetStateAction<Vegetable[]>>
 }
 
 const VegetablesContext = createContext<VegetablesContextType | undefined>(undefined);
 
 export function VegetablesProvider({ children }: { children: ReactNode }) {
     const [vegetablesContext, setVegetablesContext] = useState<Vegetable[]>([]);
-    const { httpClient } = useFetch()
-
-    async function loadVegetables(): Promise<void> {
-        try {
-            const http = await httpClient
-
-            const response = await http.get('/api/vegetables');
-            if (response.status !== 'Failure') {
-                const data = response.payload as Vegetable[]
-                setVegetablesContext(data)
-            }
-        } catch (error) {
-            console.error("Failed to load vegetables:", error);
-        }
-    }
-
 
     return (
         <VegetablesContext.Provider value={{
-            vegetablesContext,
-            loadVegetables
+            vegetablesContext, setVegetablesContext
         }}>
             {children}
         </VegetablesContext.Provider>

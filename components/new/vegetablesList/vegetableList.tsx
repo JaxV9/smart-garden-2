@@ -16,9 +16,10 @@ export const VegetablesList = ({ children }: VegetablesListProps) => {
 
 const styles = StyleSheet.create({
     vegetablesContainer: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        justifyContent: 'space-between',
-        rowGap: "16"
+        width: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 16,
+        paddingBottom: 8,
     },
 });
