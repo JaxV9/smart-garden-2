@@ -1,22 +1,26 @@
 import React from "react";
-import { View, Text, TouchableOpacity } from "react-native";
+import { Text, TouchableOpacity, View } from "react-native";
 import { styles } from "../../../css/vegetableDetailsStyle";
 
-export function AddToGardenCTA({
+export function GardenSheetCTA({
   insetsBottom,
-  onAdd,
+  callback,
+  text,
+  isAlert
 }: {
   insetsBottom: number;
-  onAdd: () => void;
+  callback: () => void;
+  text: string,
+  isAlert: boolean
 }) {
   return (
     <View style={[styles.ctaBar, { paddingBottom: 14 + insetsBottom }]}>
       <TouchableOpacity
-        style={styles.ctaButton}
+        style={[styles.ctaButton, isAlert ? styles.red : styles.green]}
         activeOpacity={0.9}
-        onPress={onAdd}
+        onPress={callback}
       >
-        <Text style={styles.ctaText}>AJOUTER AU JARDIN</Text>
+        <Text style={styles.ctaText}>{text}</Text>
       </TouchableOpacity>
     </View>
   );

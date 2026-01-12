@@ -5,7 +5,10 @@ import { Text, View } from "react-native";
 import { styles } from "../../../css/vegetableDetailsStyle";
 import { useVegetableDetails } from "../../../hooks/useVegetableDetails";
 
-import { AddToGardenCTA } from "../../../components/new/vegetableDetail/AddToGardenCTA";
+import { useGardenContext } from "@/contexts/garden.context";
+import { useGarden } from "@/hooks/useGarden";
+import { Vegetable } from "@/models/models";
+import { GardenSheetCTA } from "../../../components/new/vegetableDetail/AddToGardenCTA";
 import { CultureCalendar } from "../../../components/new/vegetableDetail/CultureCalendar";
 import { FeatureCard } from "../../../components/new/vegetableDetail/FeatureCard";
 import { PlantGrid } from "../../../components/new/vegetableDetail/PlantGrid";
@@ -16,6 +19,23 @@ import { VegetableMeta } from "../../../components/new/vegetableDetail/Vegetable
 export default function Index() {
   const { vegetableId } = useLocalSearchParams<{ vegetableId: string }>();
   const vm = useVegetableDetails(vegetableId);
+
+  const { addVegetableToGarden, removeVegetablesFromGarden } = useGarden()
+  const { gardenVegetables } = useGardenContext()
+
+  function isInGarden(vegetable: Vegetable) {
+    if (gardenVegetables.find((gardenVegetable) => gardenVegetable.id === vegetable.id)) {
+      return true
+    }
+    return false
+  }
+
+  function removeVegetablesFromGardenHandle(vegetableId: string) {
+    const vegetableFromGarden = gardenVegetables.find(gardenVegetable => gardenVegetable.id === vegetableId);
+    if (vegetableFromGarden !== undefined) {
+      removeVegetablesFromGarden(vegetableFromGarden)
+    }
+  }
 
   if (vm.state === "loading") {
     return (
@@ -117,11 +137,19 @@ export default function Index() {
           )}
         </View>
       </vm.Scroll>
+      {
+        isInGarden(vm.vegetable) ?
+          <GardenSheetCTA
+            insetsBottom={vm.insets.bottom} text={'RETIRER DU JARDIN'}
+            callback={() => removeVegetablesFromGardenHandle(vm.vegetable.id)} isAlert={true}
+          />
+          :
+          <GardenSheetCTA
+            insetsBottom={vm.insets.bottom} text={'AJOUTER AU JARDIN'}
+            callback={() => addVegetableToGarden(vm.vegetable)} isAlert={false}
+          />
+      }
 
-      <AddToGardenCTA
-        insetsBottom={vm.insets.bottom}
-        onAdd={() => vm.onAddToGarden(vm.vegetable.id)}
-      />
     </vm.SafeArea>
   );
 }
