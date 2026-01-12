@@ -1,9 +1,11 @@
+import { useGardenContext } from '@/contexts/garden.context';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 
 export const ResumeSection = () => {
+    const { gardenVegetables } = useGardenContext()
 
 
     return (
@@ -11,7 +13,7 @@ export const ResumeSection = () => {
             <View style={styles.container}>
                 <View style={styles.squaresContainer}>
                     <View style={[styles.item, styles.plant]}>
-                        <Text style={styles.numbers}>0</Text>
+                        <Text style={styles.numbers}>{gardenVegetables.length}</Text>
                         <Text style={styles.label}>Plantes cultivées</Text>
                     </View>
                     <View style={[styles.item, styles.task]}>
