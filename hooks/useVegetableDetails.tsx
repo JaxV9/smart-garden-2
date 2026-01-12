@@ -38,7 +38,7 @@ type VM =
     watering: string;
     sun: string;
     temp: string;
-    conseils: string[];
+    advices: string[];
 
     sowingRange: MonthRange;
     plantationRange: MonthRange;
@@ -110,7 +110,7 @@ export function useVegetableDetails(vegetableId?: string): VM {
   const watering = vegetable?.watering ?? "";
   const sun = vegetable?.sun_exposure ?? "";
   const temp = vegetable?.temperature ?? "";
-  const conseils = (vegetable?.conseils ?? []) as string[];
+  const advices = (vegetable?.advices ?? []) as string[];
 
   const onBack = () => router.back();
 
@@ -135,8 +135,8 @@ export function useVegetableDetails(vegetableId?: string): VM {
     watering,
     sun,
     temp,
-    conseils: conseils.length
-      ? conseils
+    advices: advices.length
+      ? advices
       : ["Aucun conseil disponible pour le moment."],
 
     sowingRange,
