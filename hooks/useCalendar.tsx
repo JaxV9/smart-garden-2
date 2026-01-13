@@ -1,85 +1,119 @@
-import { Calendar, Month } from "@/models/models";
-import { useState } from "react";
+import { useGardenContext } from "@/contexts/garden.context";
+import { Calendar, Month, Vegetable, VegetablePlannification } from "@/models/models";
+import { useEffect, useState } from "react";
 
 
 
 export function useCalendar() {
+
+    const { gardenVegetables } = useGardenContext()
+
     const [calendar, setCalendar] = useState<Calendar>([
         {
-            month: 'january',
+            month: 'January',
             vegetables: []
         },
         {
-            month: 'february',
+            month: 'February',
             vegetables: []
         },
         {
-            month: 'march',
+            month: 'March',
             vegetables: []
         },
         {
-            month: 'april',
+            month: 'April',
             vegetables: []
         },
         {
-            month: 'may',
+            month: 'May',
             vegetables: []
         },
         {
-            month: 'june',
+            month: 'June',
             vegetables: []
         },
         {
-            month: 'july',
+            month: 'July',
             vegetables: []
         },
         {
-            month: 'august',
+            month: 'August',
             vegetables: []
         },
         {
-            month: 'september',
+            month: 'September',
             vegetables: []
         },
         {
-            month: 'october',
+            month: 'October',
             vegetables: []
         },
         {
-            month: 'november',
+            month: 'November',
             vegetables: []
         },
         {
-            month: 'december',
+            month: 'December',
             vegetables: []
         },
     ]);
 
+    function monthVegetables(month: string, type: VegetablePlannification): {
+        vegetable: Vegetable;
+        type: VegetablePlannification;
+    }[] {
+        const vegetables = gardenVegetables.filter((vegetable) => {
+            return vegetable[type].includes(month);
+        });
+
+
+        return vegetables.map(vegetable => {
+            return {
+                vegetable: vegetable,
+                type: type
+            }
+        })
+    }
+
+    useEffect(() => {
+        if (gardenVegetables.length > 0) {
+            const calendarVegetables = calendar.map((calendar) => {
+                const sowingVegetables = monthVegetables(calendar.month, 'sowing');
+                const harvestVegetables = monthVegetables(calendar.month, 'harvest');
+                const plantationVegetables = monthVegetables(calendar.month, 'plantation');
+                calendar.vegetables = [...sowingVegetables, ...harvestVegetables, ...plantationVegetables]
+                return calendar
+            })
+            setCalendar(calendarVegetables);
+        }
+    }, [gardenVegetables])
+
     function monthToFrench(month: Month): string {
         switch (month) {
-            case 'january':
+            case 'January':
                 return 'Janvier'
-            case 'february':
+            case 'February':
                 return 'Février'
-            case 'march':
+            case 'March':
                 return 'Mars'
-            case 'april':
+            case 'April':
                 return 'Avril'
-            case 'may':
+            case 'May':
                 return 'Mai'
-            case 'june':
+            case 'June':
                 return 'Juin'
-            case 'july':
+            case 'July':
                 return 'Juillet'
-            case 'august':
+            case 'August':
                 return 'Août'
-            case 'september':
+            case 'September':
                 return 'Septembre'
-            case 'october':
+            case 'October':
                 return 'Octobre'
-            case 'november':
+            case 'November':
                 return 'Novembre'
-            case 'december':
+            case 'December':
                 return 'Décembre'
         }
     }

@@ -1,8 +1,8 @@
-// models/models.ts
-
 export type User = {
   name: string;
   email: string;
+  avatarUri?: string | null;
+  level: string | null
 };
 
 export type Vegetable = {
@@ -10,6 +10,12 @@ export type Vegetable = {
   name: string;
   description: string;
   specifications: string[];
+  difficulty: string;
+  watering: string;
+  sun_exposure: string;
+  season: string[];
+  temperature: string;
+  conseils: string[];
   sowing: string[];
   plantation: string[];
   harvest: string[];
@@ -33,6 +39,7 @@ export type LoginInfos = {
   token: string;
   userName: string;
   email: string;
+  level: string | null
 };
 
 export type SensorMeasure = {
@@ -63,14 +70,6 @@ export type AddVegetableToGardenResponse = {
   gardenVegetableId: string;
 };
 
-export type Month = 'january' | 'february' | 'march'
-  | 'april' | 'may' | 'june' | 'july' | 'august' | 'september' | 'october' | 'november' | 'december'
-
-export type Calendar = {
-  month: Month
-  vegetables: []
-}[]
-
 export type TaskPriority = "LOW" | "MEDIUM" | "HIGH";
 
 export type Task = {
@@ -85,3 +84,21 @@ export type Task = {
   createdAt: string | null;
   userId: string;
 };
+
+export type Month = 'January' | 'February' | 'March'
+  | 'April' | 'May' | 'June' | 'July' | 'August' | 'September' | 'October' | 'November' | 'December'
+
+
+export type VegetablePlannification = 'sowing' | 'plantation' | 'harvest'
+
+export type VegetableMonth = {
+  vegetable: Vegetable,
+  type: VegetablePlannification
+}
+
+export type Calendar = {
+  month: Month
+  vegetables: VegetableMonth[]
+}[]
+
+export type GardenerLevel = 'beginner' | 'amateur' | 'advanced' | 'enthusiast'

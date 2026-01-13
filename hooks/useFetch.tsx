@@ -2,6 +2,7 @@ import { QuickHttp } from "@jaslay/http";
 import { useState } from "react";
 import { useStorage } from "./useStorage";
 
+
 export function useFetch(baseUrlProps: string | undefined) {
     const baseUrl = baseUrlProps !== undefined ? baseUrlProps : "https://smart-garden-api-production.up.railway.app"
     const { getToken } = useStorage()

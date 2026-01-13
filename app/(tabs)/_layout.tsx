@@ -18,12 +18,12 @@ export default function RootLayout() {
             />
           )
         }} />
-      <Tabs.Screen name="search/index"
+      <Tabs.Screen name="plante/index"
         options={{
           title: "Plantes",
           tabBarIcon: ({ color }) => (
             <Image
-              source={require('@/assets/icons/search.svg')}
+              source={require('@/assets/icons/garden.svg')}
               style={{ width: 28, height: 28, tintColor: color }}
             />
           )
@@ -43,7 +43,7 @@ export default function RootLayout() {
           title: "Social",
           tabBarIcon: ({ color }) => (
             <Image
-              source={require('@/assets/icons/garden.svg')}
+              source={require('@/assets/icons/forum.svg')}
               style={{ width: 25, height: 28, tintColor: color }}
             />
           )
