@@ -1,9 +1,10 @@
-import { View, StyleSheet, TouchableOpacity } from 'react-native';
-import { Text } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+
+export type HomeSection = 'resume' | 'plants'
 
 type NavBarGardenSectionType = {
-  currentSectionProps: string,
-  setCurrentSectionProps: React.Dispatch<React.SetStateAction<string>>
+  currentSectionProps: HomeSection,
+  setCurrentSectionProps: React.Dispatch<React.SetStateAction<HomeSection>>
 }
 
 export const NavBarGardenSection = ({ currentSectionProps, setCurrentSectionProps }: NavBarGardenSectionType) => {
@@ -12,15 +13,18 @@ export const NavBarGardenSection = ({ currentSectionProps, setCurrentSectionProp
   return (
     <>
       <View style={styles.container}>
-        <TouchableOpacity style={[styles.button, currentSectionProps === "plantes" && styles.selected]} onPress={() => setCurrentSectionProps('plantes')}>
+        {/* <TouchableOpacity style={[styles.button, currentSectionProps === "plants" && styles.selected]}
+          onPress={() => setCurrentSectionProps('plants')}>
           <Text style={styles.text}>Plantes</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.button, currentSectionProps === "calendrier" && styles.selected]} onPress={() => setCurrentSectionProps('calendrier')}>
+        <TouchableOpacity style={[styles.button, currentSectionProps === "tasks" && styles.selected]}
+          onPress={() => setCurrentSectionProps('tasks')}>
+          <Text style={styles.text}>Tâches</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={[styles.button, currentSectionProps === "calendar" && styles.selected]}
+          onPress={() => setCurrentSectionProps('calendar')}>
           <Text style={styles.text}>Calendrier</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={[styles.button, currentSectionProps === "capteurs" && styles.selected]} onPress={() => setCurrentSectionProps('capteurs')}>
-          <Text style={styles.text}>Capteurs</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
     </>
   );
@@ -28,7 +32,7 @@ export const NavBarGardenSection = ({ currentSectionProps, setCurrentSectionProp
 
 const styles = StyleSheet.create({
   container: {
-    width: '90%',
+    width: '100%',
     height: "auto",
     padding: 4,
     display: 'flex',

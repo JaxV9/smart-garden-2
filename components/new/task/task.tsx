@@ -14,7 +14,7 @@ import { Task as TaskType, TaskPriority } from "@/models/models";
 import { Formulaire } from "./formulaire";
 
 export function Task() {
-  const { loading, createTask, updateTask, deleteTask } = useTasks();
+  const { tasks, loading, createTask, updateTask, deleteTask } = useTasks();
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -70,8 +70,9 @@ export function Task() {
     setShowForm(false);
   }
 
-  const tasksToDo = tasks.filter((t) => !(t as any).completed);
-  const tasksDone = tasks.filter((t) => (t as any).completed);
+  const tasksToDo = tasks.filter((t: TaskType & { completed?: boolean }) => !t.completed);
+  const tasksDone = tasks.filter((t: TaskType & { completed?: boolean }) => t.completed);
+
 
   function openCreate() {
     setEditingId(null);

@@ -28,16 +28,6 @@ export default function RootLayout() {
             />
           )
         }} />
-        <Tabs.Screen name="jardin/taches"
-        options={{
-          title: "Jardin",
-          tabBarIcon: ({ color }) => (
-            <Image
-              source={require('@/assets/icons/garden.svg')}
-              style={{ width: 28, height: 28, tintColor: color }}
-            />
-          )
-        }} />
       <Tabs.Screen name="social/index"
         options={{
           title: "Social",
