@@ -5,10 +5,10 @@ import { Success } from "@jaslay/http";
 import { router } from "expo-router";
 import { createContext, ReactNode, useContext, useState } from "react";
 
-
 interface UserContextType {
     user: User | undefined;
     isLogin: boolean;
+    getUser: () => Promise<"Success" | "Failure">;
     login: (payload: LoginUserPayload) => Promise<"Success" | "Failure">;
     createUser: (payload: CreateUserPayload) => Promise<"Success" | "Failure">;
     logout: () => Promise<Success>
@@ -19,8 +19,27 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 export function UserProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<User>();
     const [isLogin, setIsLogin] = useState<boolean>(false);
-    const { httpClient } = useFetch()
+    const { httpClient } = useFetch(undefined)
     const { putToken, getToken, deleteToken } = useStorage()
+
+    async function getUser(): Promise<"Success" | "Failure"> {
+        try {
+            const http = await httpClient
+            const response = await http.get('/api/user');
+            if (response.status !== 'Failure') {
+                const data = response.payload as User
+                const userInfos: User = {
+                    name: data.name,
+                    email: data.email,
+                };
+                setUser(userInfos)
+                setIsLogin(true)
+            }
+            return response.status
+        } catch (error) {
+            return "Failure";
+        }
+    }
 
     async function login(payload: LoginUserPayload): Promise<"Success" | "Failure"> {
         try {
@@ -81,6 +100,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
         <UserContext.Provider value={{
             user,
             isLogin,
+            getUser,
             login,
             createUser,
             logout

@@ -18,6 +18,13 @@ export type Vegetable = {
   images: string[];
 };
 
+export interface GardenVegetablePayload {
+  id: string,
+  vegetableId: string,
+  createdAt: string,
+  userId: string
+}
+
 export interface GardenVegetable extends Vegetable {
   gardenVegetableId: string;
 }
@@ -54,4 +61,27 @@ export type AddVegetableToGardenPayload = {
 
 export type AddVegetableToGardenResponse = {
   gardenVegetableId: string;
+};
+
+export type Month = 'january' | 'february' | 'march'
+  | 'april' | 'may' | 'june' | 'july' | 'august' | 'september' | 'october' | 'november' | 'december'
+
+export type Calendar = {
+  month: Month
+  vegetables: []
+}[]
+
+export type TaskPriority = "LOW" | "MEDIUM" | "HIGH";
+
+export type Task = {
+  id: string;
+  title: string;
+  description: string | null;
+  category: string | null;
+  plant: string | null;
+  dueDate: string | null;      
+  priority: TaskPriority | null;
+  reminder: boolean | null;
+  createdAt: string | null;
+  userId: string;
 };
