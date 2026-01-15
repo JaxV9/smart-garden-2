@@ -8,10 +8,12 @@ import {
   ActivityIndicator,
   TouchableOpacity,
   Modal,
+  Platform,
 } from "react-native";
 import { useTasks } from "@/hooks/useTasks";
 import { Task as TaskType, TaskPriority } from "@/models/models";
 import { Formulaire } from "./formulaire";
+import DateTimePicker from "@react-native-community/datetimepicker";
 
 export function Task() {
   const { tasks, loading, createTask, updateTask, deleteTask } = useTasks();
@@ -27,6 +29,7 @@ export function Task() {
   const [showForm, setShowForm] = useState(false);
 
   const [menuTaskId, setMenuTaskId] = useState<string | null>(null);
+  const [showDatePicker, setShowDatePicker] = useState(false);
 
   async function onSave() {
     if (!title.trim()) return;
@@ -70,9 +73,12 @@ export function Task() {
     setShowForm(false);
   }
 
-  const tasksToDo = tasks.filter((t: TaskType & { completed?: boolean }) => !t.completed);
-  const tasksDone = tasks.filter((t: TaskType & { completed?: boolean }) => t.completed);
-
+  const tasksToDo = tasks.filter(
+    (t: TaskType & { completed?: boolean }) => !t.completed,
+  );
+  const tasksDone = tasks.filter(
+    (t: TaskType & { completed?: boolean }) => t.completed,
+  );
 
   function openCreate() {
     setEditingId(null);
@@ -100,6 +106,21 @@ export function Task() {
     setShowForm(true);
   }
 
+  const handleDateChange = (event: any, selectedDate?: Date) => {
+    if (Platform.OS === "android") {
+      setShowDatePicker(false);
+    }
+
+    if (event.type === "set" && selectedDate) {
+      setDueDate(selectedDate.toISOString().slice(0, 10));
+    }
+    
+  
+    if (Platform.OS === "ios" && event.type === "set") {
+      setShowDatePicker(false);
+    }
+  };
+
   const renderTask = ({ item }: { item: TaskType }) => {
     const completed = (item as any).completed;
 
@@ -112,7 +133,6 @@ export function Task() {
               completed && styles.checkboxDone,
             ]}
           />
-
           <View style={styles.cardText}>
             <Text
               style={[
@@ -123,7 +143,6 @@ export function Task() {
             >
               {item.title}
             </Text>
-
             {!!item.description && (
               <Text
                 style={[
@@ -135,14 +154,12 @@ export function Task() {
                 {item.description}
               </Text>
             )}
-
             <View style={styles.chipsRow}>
               {!!item.plant && (
                 <View style={[styles.chip, styles.chipPlant]}>
                   <Text style={styles.chipText}>{item.plant}</Text>
                 </View>
               )}
-
               {!!item.priority && (
                 <View
                   style={[
@@ -163,7 +180,6 @@ export function Task() {
                   </Text>
                 </View>
               )}
-
               {!!item.dueDate && (
                 <View style={[styles.chip, styles.chipDate]}>
                   <Text style={styles.chipText}>
@@ -196,7 +212,6 @@ export function Task() {
               >
                 <Text style={styles.menuItemText}>Modifier la tâche</Text>
               </TouchableOpacity>
-
               <TouchableOpacity
                 style={styles.menuItem}
                 onPress={async () => {
@@ -213,6 +228,10 @@ export function Task() {
         </View>
       </View>
     );
+  };
+
+  const handlePickDueDate = () => {
+    setShowDatePicker(true);
   };
 
   return (
@@ -274,6 +293,7 @@ export function Task() {
               setDueDate={setDueDate}
               setPriority={setPriority}
               onSave={onSave}
+              onPickDueDate={handlePickDueDate}
             />
             <TouchableOpacity
               style={styles.closeButton}
@@ -284,6 +304,16 @@ export function Task() {
           </View>
         </View>
       </Modal>
+
+      {showDatePicker && (
+        <DateTimePicker
+          value={dueDate ? new Date(dueDate) : new Date()}
+          mode="date"
+          display={Platform.OS === "ios" ? "inline" : "default"}
+          minimumDate={new Date()}
+          onChange={handleDateChange}
+        />
+      )}
     </View>
   );
 }
