@@ -70,6 +70,21 @@ export type AddVegetableToGardenResponse = {
   gardenVegetableId: string;
 };
 
+export type TaskPriority = "LOW" | "MEDIUM" | "HIGH";
+
+export type Task = {
+  id: string;
+  title: string;
+  description: string | null;
+  category: string | null;
+  plant: string | null;
+  dueDate: string | null;      
+  priority: TaskPriority | null;
+  reminder: boolean | null;
+  createdAt: string | null;
+  userId: string;
+};
+
 export type Month = 'January' | 'February' | 'March'
   | 'April' | 'May' | 'June' | 'July' | 'August' | 'September' | 'October' | 'November' | 'December'
 

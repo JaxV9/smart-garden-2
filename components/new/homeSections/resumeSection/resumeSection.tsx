@@ -31,7 +31,7 @@ export const ResumeSection = () => {
                 </View>
                 <Text style={styles.title}>Outils</Text>
                 <View style={styles.squaresContainer}>
-                    <Pressable style={styles.toolContainer}>
+                    <Pressable onPress={() => router.replace('/taches')} style={styles.toolContainer}>
                         <View style={styles.row}>
                             <Image source={require('@/assets/icons/taskIcon.svg')}
                                 style={styles.taskIcon} />
