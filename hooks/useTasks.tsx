@@ -1,7 +1,7 @@
 // hooks/useTasks.ts
-import { useEffect, useState } from "react";
-import { Task } from "@/models/models";
 import { useFetch } from "@/hooks/useFetch";
+import { Task } from "@/models/models";
+import { useEffect, useState } from "react";
 
 export function useTasks() {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -24,22 +24,22 @@ export function useTasks() {
   }
 
   async function createTask(
-  payload: Omit<Task, "id" | "createdAt" | "userId">,
-) {
-  console.log("useTasks.createTask payload", payload);
-  try {
-    const http = await httpClient;
-    console.log("useTasks.createTask http client ready");
+    payload: Omit<Task, "id" | "createdAt" | "userId">,
+  ) {
+    console.log("useTasks.createTask payload", payload);
+    try {
+      const http = await httpClient;
+      console.log("useTasks.createTask http client ready");
 
-    const response = await http.post("/api/task", payload);
-    console.log("useTasks.createTask response", response);
+      const response = await http.post("/api/task", payload);
+      console.log("useTasks.createTask response", response);
 
-    return response;
-  } catch (e) {
-    console.log("useTasks.createTask ERROR", e);
-    throw e;
+      return response;
+    } catch (e) {
+      console.log("useTasks.createTask ERROR", e);
+      throw e;
+    }
   }
-}
 
   async function updateTask(id: string, updates: Partial<Task>) {
     const http = await httpClient;
