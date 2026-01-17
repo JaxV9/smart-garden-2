@@ -1,34 +1,54 @@
 import { Ionicons } from '@expo/vector-icons';
+import { usePathname, useRouter } from 'expo-router';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 type TabType = 'social' | 'forum' | 'tutos';
 
 interface ForumTabsProps {
-    activeTab: TabType;
-    onTabChange?: (tab: TabType) => void;
+    activeTab?: TabType;
 }
 
-export default function ForumTabs({ activeTab, onTabChange }: ForumTabsProps) {
-    const tabs: { id: TabType; label: string; icon: keyof typeof Ionicons.glyphMap }[] = [
-        { id: 'social', label: 'Social', icon: 'chatbubbles-outline' },
-        { id: 'forum', label: 'Forum', icon: 'people-outline' },
-        { id: 'tutos', label: 'Tutos', icon: 'play-circle-outline' },
+export default function ForumTabs({ activeTab }: ForumTabsProps) {
+    const router = useRouter();
+    const pathname = usePathname();
+
+    const tabs: { id: TabType; label: string; icon: keyof typeof Ionicons.glyphMap; route: string }[] = [
+        { id: 'social', label: 'Social', icon: 'chatbubbles-outline', route: '/socia' },
+        { id: 'forum', label: 'Forum', icon: 'people-outline', route: '/forum' },
+        { id: 'tutos', label: 'Tutos', icon: 'play-circle-outline', route: '/tutos' },
     ];
+
+    const getCurrentTab = (): TabType => {
+        if (activeTab) return activeTab;
+        
+        if (pathname.startsWith('/socia')) return 'social';
+        if (pathname.startsWith('/forum')) return 'forum';
+        if (pathname.startsWith('/tutos')) return 'tutos';
+        
+        return 'forum';
+    };
+
+    const currentTab = getCurrentTab();
+
+    const handleTabPress = (route: string) => {
+        // @ts-ignore - Expo Router typing issue
+        router.push(route);
+    };
 
     return (
         <View style={styles.tabs}>
             {tabs.map((tab) => (
                 <TouchableOpacity
                     key={tab.id}
-                    style={[styles.tab, activeTab === tab.id && styles.tabActive]}
-                    onPress={() => onTabChange?.(tab.id)}
+                    style={[styles.tab, currentTab === tab.id && styles.tabActive]}
+                    onPress={() => handleTabPress(tab.route)}
                 >
                     <Ionicons
                         name={tab.icon}
                         size={18}
-                        color={activeTab === tab.id ? '#000' : '#666'}
+                        color={currentTab === tab.id ? '#000' : '#666'}
                     />
-                    <Text style={[styles.tabText, activeTab === tab.id && styles.tabTextActive]}>
+                    <Text style={[styles.tabText, currentTab === tab.id && styles.tabTextActive]}>
                         {tab.label}
                     </Text>
                 </TouchableOpacity>
