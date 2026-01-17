@@ -53,7 +53,11 @@ export default function TutosScreen() {
     };
 
     const handleTutorialPress = (tutorialId: string) => {
-        router.push(`/tutos/${tutorialId}` as any);
+        // Navigation vers la page de détail du tutoriel
+        router.push({
+            pathname: '/tutos/[id]',
+            params: { id: tutorialId }
+        });
     };
 
     const handleFilterApply = (category: TutorialCategory | null, type: TutorialType | null) => {
