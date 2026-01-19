@@ -6,7 +6,6 @@ import { UserProvider } from "@/contexts/user.context";
 import { VegetablesProvider } from "@/contexts/vegetables.context";
 import { Stack } from "expo-router";
 
-
 export default function RootLayout() {
   return (
     <UserProvider>
@@ -14,10 +13,12 @@ export default function RootLayout() {
         <BottomSheetProvider>
           <VegetablesProvider>
             <GardenProvider>
-              <Stack screenOptions={{
-                headerShown: false,
-                animation: 'none',
-              }} />
+              <ForumProvider>
+                <Stack screenOptions={{
+                  headerShown: false,
+                  animation: 'none',
+                }} />
+              </ForumProvider>
             </GardenProvider>
           </VegetablesProvider>
         </BottomSheetProvider>
