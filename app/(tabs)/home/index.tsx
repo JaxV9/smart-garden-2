@@ -1,30 +1,3 @@
-import { ResumeSection } from '@/components/new/homeSections/resumeSection/resumeSection';
-import { HomeSection } from '@/components/new/navGardenSection/navbar';
-import { useVegetablesContext } from '@/contexts/vegetables.context';
-import { useGarden } from '@/hooks/useGarden';
-import { useVegetable } from '@/hooks/useVegetable';
-import { useEffect, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
-
-
-export default function Index() {
-    const [currentSection, setCurrentSection] = useState<HomeSection>('resume')
-    const { loadGardenVegetables } = useGarden()
-    const { vegetablesContext } = useVegetablesContext()
-    const { loadVegetables } = useVegetable()
-
-    useEffect(() => {
-        loadVegetables()
-    }, [])
-
-    useEffect(() => {
-        if (vegetablesContext.length > 0) {
-            loadGardenVegetables()
-        }
-    }, [vegetablesContext])
-
-    return (
-        <View style={styles.container}>
             <View style={styles.gap16}>
                 <Text style={styles.title}>Mon jardin</Text>
                 <View style={styles.headerBtnContainer}>
