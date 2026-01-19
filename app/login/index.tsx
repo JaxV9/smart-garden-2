@@ -1,4 +1,4 @@
-import { useUserContext } from "@/contexts/user.context";
+import { useUser } from "@/hooks/useUser";
 import { LoginUserPayload } from "@/models/models";
 import { Failure, Success } from "@jaslay/http";
 import { router } from "expo-router";
@@ -12,7 +12,7 @@ export default function RegisterScreen() {
 
     const [error, setError] = useState<string | null>(null)
     const [loading, setLoading] = useState<boolean>(false)
-    const { login } = useUserContext()
+    const { login } = useUser()
 
     const validateForm = (): boolean => {
         setError(null);

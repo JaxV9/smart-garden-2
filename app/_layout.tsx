@@ -14,12 +14,10 @@ export default function RootLayout() {
         <BottomSheetProvider>
           <VegetablesProvider>
             <GardenProvider>
-              <ForumProvider>
-                <Stack screenOptions={{
-                  headerShown: false,
-                  animation: 'none',
-                }} />
-              </ForumProvider>
+              <Stack screenOptions={{
+                headerShown: false,
+                animation: 'none',
+              }} />
             </GardenProvider>
           </VegetablesProvider>
         </BottomSheetProvider>

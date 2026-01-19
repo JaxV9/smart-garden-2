@@ -1,6 +1,6 @@
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
-export type HomeSection = 'tasks' | 'plants' | 'calendar'
+export type HomeSection = 'resume' | 'plants'
 
 type NavBarGardenSectionType = {
   currentSectionProps: HomeSection,
@@ -13,7 +13,7 @@ export const NavBarGardenSection = ({ currentSectionProps, setCurrentSectionProp
   return (
     <>
       <View style={styles.container}>
-        <TouchableOpacity style={[styles.button, currentSectionProps === "plants" && styles.selected]}
+        {/* <TouchableOpacity style={[styles.button, currentSectionProps === "plants" && styles.selected]}
           onPress={() => setCurrentSectionProps('plants')}>
           <Text style={styles.text}>Plantes</Text>
         </TouchableOpacity>
@@ -24,7 +24,7 @@ export const NavBarGardenSection = ({ currentSectionProps, setCurrentSectionProp
         <TouchableOpacity style={[styles.button, currentSectionProps === "calendar" && styles.selected]}
           onPress={() => setCurrentSectionProps('calendar')}>
           <Text style={styles.text}>Calendrier</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
     </>
   );

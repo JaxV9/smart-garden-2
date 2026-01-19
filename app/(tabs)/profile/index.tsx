@@ -1,479 +1,413 @@
 import { useUserContext } from '@/contexts/user.context';
-import { useForum, UserStats } from '@/hooks/useForum';
-import { Ionicons } from '@expo/vector-icons';
-import { useFocusEffect, useRouter } from 'expo-router';
-import { useCallback, useState } from 'react';
-import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useUser } from '@/hooks/useUser';
+import { Feather } from '@expo/vector-icons';
+import { router } from 'expo-router';
+import React, { useState } from 'react';
+import {
+  Image,
+  Modal,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-export default function Index() {
-    const router = useRouter();
-    const { user, isLogin, getUser, logout } = useUserContext();
-    const { getUserStats } = useForum();
-    const [loading, setLoading] = useState(false);
-    const [stats, setStats] = useState<UserStats | null>(null);
+const DEFAULT_AVATAR = require('@/assets/images/avatar.png');
 
-    useFocusEffect(
-        useCallback(() => {
-            const loadUserData = async () => {
-                if (isLogin) {
-                    setLoading(true);
-                    try {
-                        await getUser();
-                        console.log("Chargement des stats...");
-                        const userStats = await getUserStats();
-                        console.log("Stats reçues:", userStats);
-                        
-                        if (userStats) {
-                            setStats(userStats);
-                        } else {
-                            console.log("Stats null, mise à 0");
-                            setStats({ topicsCount: 0, commentsCount: 0, plantsCount: 0 });
-                        }
-                    } catch (error) {
-                        console.error("Erreur:", error);
-                        setStats({ topicsCount: 0, commentsCount: 0, plantsCount: 0 });
-                    }
-                    setLoading(false);
-                }
-            };
-            loadUserData();
-        }, [isLogin])
-    );
+export default function ProfileScreen() {
+  const { user } = useUserContext();
+  const { logout } = useUser()
 
-    const handleLogout = () => {
-        Alert.alert(
-            'Déconnexion',
-            'Êtes-vous sûr de vouloir vous déconnecter ?',
-            [
-                {
-                    text: 'Annuler',
-                    style: 'cancel'
-                },
-                {
-                    text: 'Déconnexion',
-                    style: 'destructive',
-                    onPress: async () => {
-                        await logout();
-                    }
-                }
-            ]
-        );
-    };
+  const avatarSource = user?.avatarUri
+    ? { uri: user.avatarUri }
+    : DEFAULT_AVATAR;
 
-    if (!isLogin) {
-        return (
-            <View style={styles.container}>
-                <View style={styles.header}>
-                    <Text style={styles.headerTitle}>Profil</Text>
-                </View>
+  // state for the logout popup
+  const [isLogoutModalVisible, setIsLogoutModalVisible] = useState(false);
 
-                <View style={styles.notLoggedInContainer}>
-                    <Ionicons name="person-circle-outline" size={100} color="#ccc" />
-                    <Text style={styles.notLoggedInTitle}>Non connecté</Text>
-                    <Text style={styles.notLoggedInText}>
-                        Connectez-vous pour accéder à votre profil
-                    </Text>
-                    <TouchableOpacity 
-                        style={styles.loginButton}
-                        onPress={() => router.push('/auth/login')}
-                    >
-                        <Text style={styles.loginButtonText}>Se connecter</Text>
-                    </TouchableOpacity>
-                </View>
-            </View>
-        );
-    }
+  // For now: hard values ​​for the garden info
+  const gardenName = 'Mon Jardin';
+  const gardenLocation = 'Paris';
+  const gardenSections = ['Potager principal'];
 
-    if (loading) {
-        return (
-            <View style={styles.container}>
-                <View style={styles.header}>
-                    <Text style={styles.headerTitle}>Profil</Text>
-                </View>
-                <View style={styles.loadingContainer}>
-                    <ActivityIndicator size="large" color="#10b981" />
-                </View>
-            </View>
-        );
-    }
+  const handlePersonalInfosPress = () => {
+    router.push('../profile/personal-info');
+  };
 
-    console.log("Affichage des stats:", stats); // Debug
+  const handleLogoutPress = () => {
+    // We open the popup instead of logging out directly.
+    setIsLogoutModalVisible(true);
+  };
 
-    return (
-        <View style={styles.container}>
-            {/* Header */}
-            <View style={styles.header}>
-                <Text style={styles.headerTitle}>Profil</Text>
-                <TouchableOpacity onPress={() => {}}>
-                    <Ionicons name="settings-outline" size={28} color="white" />
-                </TouchableOpacity>
-            </View>
+  const handleConfirmLogout = async () => {
+    setIsLogoutModalVisible(false);
+    await logout();
+  };
 
-            <ScrollView style={styles.content}>
-                {/* Carte profil utilisateur */}
-                <View style={styles.profileCard}>
-                    <View style={styles.avatarContainer}>
-                        <View style={styles.avatar}>
-                            <Ionicons name="person" size={50} color="#10b981" />
-                        </View>
-                    </View>
-                    <Text style={styles.userName}>{user?.name || 'Utilisateur'}</Text>
-                    <Text style={styles.userEmail}>{user?.email}</Text>
-                </View>
+  const handleCancelLogout = () => {
+    setIsLogoutModalVisible(false);
+  };
 
-                {/* Statistiques - Affichage debug */}
-                <View style={styles.statsContainer}>
-                    <View style={styles.statCard}>
-                        <Ionicons name="create-outline" size={28} color="#10b981" />
-                        <Text style={styles.statNumber}>
-                            {stats ? stats.topicsCount : '?'}
-                        </Text>
-                        <Text style={styles.statLabel}>Topics créés</Text>
-                    </View>
-                    <View style={styles.statCard}>
-                        <Ionicons name="chatbubbles-outline" size={28} color="#10b981" />
-                        <Text style={styles.statNumber}>
-                            {stats ? stats.commentsCount : '?'}
-                        </Text>
-                        <Text style={styles.statLabel}>Réponses</Text>
-                    </View>
-                    <View style={styles.statCard}>
-                        <Ionicons name="leaf-outline" size={28} color="#10b981" />
-                        <Text style={styles.statNumber}>
-                            {stats ? stats.plantsCount : '?'}
-                        </Text>
-                        <Text style={styles.statLabel}>Plantes</Text>
-                    </View>
-                </View>
+  const handleEditGardenPress = () => {
+    router.push('../profile/garden-info');
+  };
 
-                {/* Menu options */}
-                <View style={styles.menuSection}>
-                    <Text style={styles.sectionTitle}>Mon compte</Text>
-                    
-                    <TouchableOpacity 
-                        style={styles.menuItem}
-                        onPress={() => router.push('/profile/topics')}
-                    >
-                        <View style={styles.menuItemLeft}>
-                            <Ionicons name="document-text-outline" size={24} color="#333" />
-                            <Text style={styles.menuItemText}>Mes topics</Text>
-                        </View>
-                        <View style={styles.menuItemRight}>
-                            {stats && stats.topicsCount > 0 && (
-                                <View style={styles.badge}>
-                                    <Text style={styles.badgeText}>{stats.topicsCount}</Text>
-                                </View>
-                            )}
-                            <Ionicons name="chevron-forward" size={20} color="#999" />
-                        </View>
-                    </TouchableOpacity>
+  return (
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.container}>
+        {/* Title*/}
+        <Text style={styles.title}>
+          Mon <Text style={styles.titleHighlight}>Profil</Text>
+        </Text>
 
-                    <TouchableOpacity 
-                        style={styles.menuItem}
-                        onPress={() => router.push('/profile/comments')}
-                    >
-                        <View style={styles.menuItemLeft}>
-                            <Ionicons name="chatbubble-outline" size={24} color="#333" />
-                            <Text style={styles.menuItemText}>Mes réponses</Text>
-                        </View>
-                        <View style={styles.menuItemRight}>
-                            {stats && stats.commentsCount > 0 && (
-                                <View style={styles.badge}>
-                                    <Text style={styles.badgeText}>{stats.commentsCount}</Text>
-                                </View>
-                            )}
-                            <Ionicons name="chevron-forward" size={20} color="#999" />
-                        </View>
-                    </TouchableOpacity>
+        {/* Profile card*/}
+        <View style={styles.profileCard}>
+          <Image source={avatarSource} style={styles.avatar} />
 
-                    <TouchableOpacity 
-                        style={styles.menuItem}
-                        onPress={() => router.push('/(tabs)/garden')}
-                    >
-                        <View style={styles.menuItemLeft}>
-                            <Ionicons name="leaf-outline" size={24} color="#333" />
-                            <Text style={styles.menuItemText}>Mon jardin</Text>
-                        </View>
-                        <View style={styles.menuItemRight}>
-                            {stats && stats.plantsCount > 0 && (
-                                <View style={styles.badge}>
-                                    <Text style={styles.badgeText}>{stats.plantsCount}</Text>
-                                </View>
-                            )}
-                            <Ionicons name="chevron-forward" size={20} color="#999" />
-                        </View>
-                    </TouchableOpacity>
-                </View>
-
-                {/* Menu paramètres */}
-                <View style={styles.menuSection}>
-                    <Text style={styles.sectionTitle}>Paramètres</Text>
-                    
-                    <TouchableOpacity 
-                        style={styles.menuItem}
-                        onPress={() => router.push('/profile/edit')}
-                    >
-                        <View style={styles.menuItemLeft}>
-                            <Ionicons name="person-outline" size={24} color="#333" />
-                            <Text style={styles.menuItemText}>Modifier le profil</Text>
-                        </View>
-                        <Ionicons name="chevron-forward" size={20} color="#999" />
-                    </TouchableOpacity>
-
-                    <TouchableOpacity 
-                        style={styles.menuItem}
-                        onPress={() => router.push('/profile/notifications')}
-                    >
-                        <View style={styles.menuItemLeft}>
-                            <Ionicons name="notifications-outline" size={24} color="#333" />
-                            <Text style={styles.menuItemText}>Notifications</Text>
-                        </View>
-                        <Ionicons name="chevron-forward" size={20} color="#999" />
-                    </TouchableOpacity>
-
-                    <TouchableOpacity 
-                        style={styles.menuItem}
-                        onPress={() => router.push('/profile/privacy')}
-                    >
-                        <View style={styles.menuItemLeft}>
-                            <Ionicons name="lock-closed-outline" size={24} color="#333" />
-                            <Text style={styles.menuItemText}>Confidentialité</Text>
-                        </View>
-                        <Ionicons name="chevron-forward" size={20} color="#999" />
-                    </TouchableOpacity>
-                </View>
-
-                {/* Menu aide */}
-                <View style={styles.menuSection}>
-                    <Text style={styles.sectionTitle}>Support</Text>
-                    
-                    <TouchableOpacity 
-                        style={styles.menuItem}
-                        onPress={() => router.push('/(tabs)/profile/help')}
-                    >
-                        <View style={styles.menuItemLeft}>
-                            <Ionicons name="help-circle-outline" size={24} color="#333" />
-                            <Text style={styles.menuItemText}>Aide</Text>
-                        </View>
-                        <Ionicons name="chevron-forward" size={20} color="#999" />
-                    </TouchableOpacity>
-
-                    <TouchableOpacity 
-                        style={styles.menuItem}
-                        onPress={() => router.push('/(tabs)/profile/about')}
-                    >
-                        <View style={styles.menuItemLeft}>
-                            <Ionicons name="information-circle-outline" size={24} color="#333" />
-                            <Text style={styles.menuItemText}>À propos</Text>
-                        </View>
-                        <Ionicons name="chevron-forward" size={20} color="#999" />
-                    </TouchableOpacity>
-                </View>
-
-                {/* Bouton déconnexion */}
-                <TouchableOpacity 
-                    style={styles.logoutButton}
-                    onPress={handleLogout}
-                >
-                    <Ionicons name="log-out-outline" size={24} color="#ef4444" />
-                    <Text style={styles.logoutButtonText}>Se déconnecter</Text>
-                </TouchableOpacity>
-
-                {/* Version */}
-                <Text style={styles.versionText}>Version 1.0.0</Text>
-            </ScrollView>
+          <View style={styles.profileTexts}>
+            <Text style={styles.name}>{user?.name || ''}</Text>
+            <Text style={styles.email}>{user?.email || ''}</Text>
+            <Text style={styles.level}>Débutante</Text>
+          </View>
         </View>
-    );
+
+        {/* Block: personal info + logout*/}
+        <View style={styles.blockCard}>
+          <TouchableOpacity
+            style={styles.row}
+            activeOpacity={0.7}
+            onPress={handlePersonalInfosPress}
+          >
+            <View style={styles.iconCircle}>
+              <Feather name="user" size={20} color={COLORS.greenDark} />
+            </View>
+            <Text style={styles.rowText}>Informations personnelles</Text>
+            <Feather name="chevron-right" size={20} color={COLORS.greenDark} />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.row, styles.rowLast]}
+            activeOpacity={0.7}
+            onPress={handleLogoutPress}
+          >
+            <View style={styles.iconCircle}>
+              <Feather name="log-out" size={20} color={COLORS.greenDark} />
+            </View>
+            <Text style={styles.rowText}>Déconnexion</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Block: Garden information */}
+        <View style={styles.blockCard}>
+          <View style={styles.gardenHeader}>
+            <View style={styles.gardenHeaderLeft}>
+              <View style={styles.iconCircle}>
+                <Feather name="settings" size={18} color={COLORS.greenDark} />
+              </View>
+              <Text style={styles.gardenTitle}>Informations du jardin</Text>
+            </View>
+
+            <TouchableOpacity
+              style={styles.editButton}
+              activeOpacity={0.7}
+              onPress={handleEditGardenPress}
+            >
+              <Feather name="edit-3" size={16} color={COLORS.greenDark} />
+              <Text style={styles.editButtonText}>Modifier</Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.gardenContent}>
+            <View style={styles.infoLine}>
+              <Text style={styles.infoLabel}>Nom du jardin</Text>
+              <Text style={styles.infoValue}>{gardenName}</Text>
+            </View>
+
+            <View style={styles.infoLine}>
+              <Text style={styles.infoLabel}>Localisation</Text>
+              <Text style={styles.infoValue}>{gardenLocation}</Text>
+            </View>
+
+            <View style={styles.infoLine}>
+              <Text style={styles.infoLabel}>Sections du jardin</Text>
+              <View style={styles.chipsRow}>
+                {gardenSections.map((section) => (
+                  <View key={section} style={styles.chip}>
+                    <Text style={styles.chipText}>{section}</Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+          </View>
+        </View>
+
+        <View style={{ height: 24 }} />
+
+        {/* DISCONNECT MODE */}
+        <Modal
+          visible={isLogoutModalVisible}
+          transparent
+          animationType="fade"
+          onRequestClose={handleCancelLogout}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalCard}>
+              <View style={styles.modalHeader}>
+                <View style={{ width: 24 }} />
+                <Text style={styles.modalTitle}>
+                  Voulez-vous vraiment vous déconnecter ?
+                </Text>
+                <TouchableOpacity
+                  onPress={handleCancelLogout}
+                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                >
+                  <Feather name="x" size={20} color={COLORS.textDark} />
+                </TouchableOpacity>
+              </View>
+
+              {/* Red button */}
+              <TouchableOpacity
+                style={styles.modalLogoutButton}
+                activeOpacity={0.8}
+                onPress={handleConfirmLogout}
+              >
+                <Text style={styles.modalLogoutButtonText}>SE DÉCONNECTER</Text>
+              </TouchableOpacity>
+
+              {/* Cancel button */}
+              <TouchableOpacity
+                style={styles.modalCancelButton}
+                activeOpacity={0.8}
+                onPress={handleCancelLogout}
+              >
+                <Text style={styles.modalCancelButtonText}>ANNULER</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+      </View>
+    </SafeAreaView>
+  );
 }
 
+const COLORS = {
+  background: '#FFFFFF',
+  profileCardBg: '#E4F1DC',
+  blockBg: '#FFFFFF',
+  border: '#E5E7EB',
+  greenDark: '#2F6F3A',
+  textDark: '#111827',
+  textMuted: '#6B7280',
+  chipBg: '#111827',
+  chipText: '#FFFFFF',
+  iconBg: '#E9F2E3',
+  logoutRed: '#D72626',
+};
+
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#f5f5f5',
-    },
-    header: {
-        backgroundColor: '#10b981',
-        paddingTop: 50,
-        paddingBottom: 20,
-        paddingHorizontal: 20,
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-    },
-    headerTitle: {
-        color: 'white',
-        fontSize: 24,
-        fontWeight: 'bold',
-    },
-    content: {
-        flex: 1,
-    },
-    loadingContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    notLoggedInContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: 20,
-    },
-    notLoggedInTitle: {
-        fontSize: 24,
-        fontWeight: '600',
-        color: '#333',
-        marginTop: 20,
-        marginBottom: 10,
-    },
-    notLoggedInText: {
-        fontSize: 16,
-        color: '#666',
-        textAlign: 'center',
-        marginBottom: 30,
-    },
-    loginButton: {
-        backgroundColor: '#10b981',
-        paddingVertical: 14,
-        paddingHorizontal: 40,
-        borderRadius: 12,
-    },
-    loginButtonText: {
-        color: 'white',
-        fontSize: 16,
-        fontWeight: '600',
-    },
-    profileCard: {
-        backgroundColor: 'white',
-        padding: 30,
-        alignItems: 'center',
-        borderBottomWidth: 1,
-        borderBottomColor: '#e5e5e5',
-    },
-    avatarContainer: {
-        marginBottom: 15,
-    },
-    avatar: {
-        width: 100,
-        height: 100,
-        borderRadius: 50,
-        backgroundColor: '#e5f5f0',
-        justifyContent: 'center',
-        alignItems: 'center',
-        borderWidth: 3,
-        borderColor: '#10b981',
-    },
-    userName: {
-        fontSize: 24,
-        fontWeight: '700',
-        color: '#000',
-        marginBottom: 5,
-    },
-    userEmail: {
-        fontSize: 16,
-        color: '#666',
-    },
-    statsContainer: {
-        flexDirection: 'row',
-        backgroundColor: 'white',
-        marginTop: 8,
-        paddingVertical: 20,
-        paddingHorizontal: 10,
-        justifyContent: 'space-around',
-        gap: 10,
-    },
-    statCard: {
-        flex: 1,
-        alignItems: 'center',
-        padding: 15,
-        backgroundColor: '#f9f9f9',
-        borderRadius: 12,
-    },
-    statNumber: {
-        fontSize: 24,
-        fontWeight: '700',
-        color: '#10b981',
-        marginTop: 8,
-    },
-    statLabel: {
-        fontSize: 12,
-        color: '#666',
-        marginTop: 4,
-        textAlign: 'center',
-    },
-    menuSection: {
-        backgroundColor: 'white',
-        marginTop: 8,
-        paddingVertical: 10,
-    },
-    sectionTitle: {
-        fontSize: 14,
-        fontWeight: '600',
-        color: '#999',
-        textTransform: 'uppercase',
-        paddingHorizontal: 20,
-        paddingVertical: 10,
-        letterSpacing: 0.5,
-    },
-    menuItem: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingVertical: 16,
-        paddingHorizontal: 20,
-        borderBottomWidth: 1,
-        borderBottomColor: '#f5f5f5',
-    },
-    menuItemLeft: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 15,
-    },
-    menuItemRight: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 10,
-    },
-    menuItemText: {
-        fontSize: 16,
-        color: '#333',
-    },
-    badge: {
-        backgroundColor: '#10b981',
-        borderRadius: 12,
-        minWidth: 24,
-        height: 24,
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingHorizontal: 8,
-    },
-    badgeText: {
-        color: 'white',
-        fontSize: 12,
-        fontWeight: '600',
-    },
-    logoutButton: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: 10,
-        backgroundColor: 'white',
-        marginTop: 20,
-        marginHorizontal: 20,
-        paddingVertical: 16,
-        borderRadius: 12,
-        borderWidth: 1,
-        borderColor: '#ef4444',
-    },
-    logoutButtonText: {
-        fontSize: 16,
-        fontWeight: '600',
-        color: '#ef4444',
-    },
-    versionText: {
-        textAlign: 'center',
-        color: '#999',
-        fontSize: 12,
-        marginVertical: 30,
-    },
+  safeArea: {
+    flex: 1,
+    backgroundColor: COLORS.background,
+  },
+  container: {
+    flex: 1,
+    paddingHorizontal: 24,
+    paddingTop: 24,
+    backgroundColor: COLORS.background,
+  },
+  title: {
+    fontSize: 26,
+    fontWeight: '700',
+    marginBottom: 20,
+    color: COLORS.textDark,
+  },
+  titleHighlight: {
+    color: COLORS.greenDark,
+  },
+  profileCard: {
+    flexDirection: 'row',
+    backgroundColor: COLORS.profileCardBg,
+    padding: 16,
+    borderRadius: 20,
+    marginBottom: 16,
+    alignItems: 'center',
+  },
+  avatar: {
+    width: 72,
+    height: 72,
+    borderRadius: 20,
+    marginRight: 16,
+  },
+  profileTexts: {
+    flex: 1,
+  },
+  name: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: COLORS.textDark,
+    marginBottom: 4,
+  },
+  email: {
+    fontSize: 14,
+    color: COLORS.textMuted,
+    marginBottom: 2,
+  },
+  level: {
+    fontSize: 13,
+    color: COLORS.textMuted,
+  },
+  blockCard: {
+    backgroundColor: COLORS.blockBg,
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    marginTop: 12,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.border,
+  },
+  rowLast: {
+    borderBottomWidth: 0,
+  },
+  iconCircle: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: COLORS.iconBg,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  rowText: {
+    flex: 1,
+    fontSize: 15,
+    color: COLORS.textDark,
+  },
+  gardenHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 10,
+  },
+  gardenHeaderLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  gardenTitle: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: COLORS.textDark,
+  },
+  editButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    backgroundColor: '#F9FAFB',
+    gap: 4,
+  },
+  editButtonText: {
+    fontSize: 13,
+    color: COLORS.greenDark,
+  },
+  gardenContent: {
+    marginTop: 4,
+  },
+  infoLine: {
+    marginBottom: 10,
+  },
+  infoLabel: {
+    fontSize: 13,
+    color: COLORS.textMuted,
+    marginBottom: 2,
+  },
+  infoValue: {
+    fontSize: 14,
+    color: COLORS.textDark,
+    fontWeight: '500',
+  },
+  chipsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginTop: 4,
+  },
+  chip: {
+    backgroundColor: COLORS.chipBg,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 999,
+  },
+  chipText: {
+    fontSize: 12,
+    color: COLORS.chipText,
+  },
+
+  /* -------- MODAL LOGOUT -------- */
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.45)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalCard: {
+    width: '85%',
+    maxWidth: 360,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+    justifyContent: 'space-between',
+  },
+  modalTitle: {
+    flex: 1,
+    textAlign: 'center',
+    fontSize: 15,
+    fontWeight: '600',
+    color: COLORS.textDark,
+    paddingHorizontal: 8,
+  },
+  modalLogoutButton: {
+    height: 48,
+    borderRadius: 8,
+    backgroundColor: COLORS.logoutRed,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 10,
+  },
+  modalLogoutButtonText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '700',
+    letterSpacing: 1,
+  },
+  modalCancelButton: {
+    height: 48,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  modalCancelButtonText: {
+    color: COLORS.textDark,
+    fontSize: 14,
+    fontWeight: '500',
+    letterSpacing: 0.5,
+  },
 });

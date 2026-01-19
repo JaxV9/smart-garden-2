@@ -1,28 +1,37 @@
+import { useCallback, useMemo, useState } from "react";
 import { useVegetablesContext } from "@/contexts/vegetables.context";
-import { Vegetable } from "@/models/models";
-
+import { fetchVegetables } from "@/utils/vegetableData";
 
 export function useVegetable() {
-    const { setVegetablesContext } = useVegetablesContext()
+  const { vegetablesContext, setVegetablesContext } = useVegetablesContext();
 
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-    async function loadVegetables(): Promise<void> {
-        try {
-            const url = 'https://outamtvthkoviplxcznc.supabase.co/storage/v1/object/public/vegetables/trefleapi_plants_30.json';
-            const response = await fetch(url);
+  const loadVegetables = useCallback(async (): Promise<void> => {
 
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
+    if (Array.isArray(vegetablesContext) && vegetablesContext.length > 0) return;
 
-            const data = await response.json() as Vegetable[];
-            setVegetablesContext(data);
-        } catch (error) {
-            console.error("Failed to load vegetables:", error);
-        }
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const vegetables = await fetchVegetables();
+      setVegetablesContext(vegetables);
+    } catch (e: any) {
+      console.error("Failed to load vegetables:", e);
+      setError(e?.message ? String(e.message) : "Failed to load vegetables");
+    } finally {
+      setIsLoading(false);
     }
+  }, [vegetablesContext, setVegetablesContext]);
 
-    return {
-        loadVegetables
-    };
+  return useMemo(
+    () => ({
+      loadVegetables,
+      isLoading,
+      error,
+    }),
+    [loadVegetables, isLoading, error]
+  );
 }
