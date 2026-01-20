@@ -99,7 +99,7 @@ export function Formulaire(props: FormulaireProps) {
 
         <Text style={styles.label}>Priorité</Text>
         <View style={styles.chipsRow}>
-          {(["LOW", "MEDIUM", "HIGH"] as TaskPriority[]).map((p) => {
+          {(["BAS", "MOYEN", "HAUT"] as TaskPriority[]).map((p) => {
             const selected = priority === p;
             return (
               <Pressable

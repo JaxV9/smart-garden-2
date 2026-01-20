@@ -7,7 +7,7 @@ export function useTasks() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const { httpClient } = useFetch("http://10.100.28.22:3000"); //ici au lieu de undefined tu mets ton localhost sans le / à la fin
+  const { httpClient } = useFetch(undefined); //ici au lieu de undefined tu mets ton localhost sans le / à la fin
 
   async function fetchTasks() {
     try {
@@ -64,21 +64,21 @@ export function useTasks() {
   
     try {
       const http = await httpClient;
-      console.log("📡 Appel PATCH /toggle pour task", task.id);  // ← AJOUTE
+      console.log("📡 Appel PATCH /toggle pour task", task.id); 
       
       const response = await http.patch(`/api/task/${task.id}/toggle`, {});
-      console.log("📡 Réponse toggle:", response);  // ← AJOUTE
+      console.log("📡 Réponse toggle:", response); 
       
       if (response.status === "Success") {
-        console.log("✅ Toggle succès, recharge tasks");  // ← AJOUTE
+        console.log("✅ Toggle succès, recharge tasks");
         await fetchTasks();
       } else {
-        console.log("❌ Toggle a échoué:", response);  // ← AJOUTE
+        console.log("❌ Toggle a échoué:", response);
       }
       
       return response;
     } catch (e) {
-      console.log("💥 toggleTaskStatus ERROR:", e);  // ← AJOUTE
+      console.log("💥 toggleTaskStatus ERROR:", e); 
       throw e;
     }
   }

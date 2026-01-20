@@ -181,17 +181,17 @@ export function Task() {
                 <View
                   style={[
                     styles.chip,
-                    item.priority === "HIGH"
+                    item.priority === "HAUT"
                       ? styles.chipHigh
-                      : item.priority === "MEDIUM"
+                      : item.priority === "MOYEN"
                       ? styles.chipMedium
                       : styles.chipLow,
                   ]}
                 >
                   <Text style={styles.chipText}>
-                    {item.priority === "HIGH"
+                    {item.priority === "HAUT"
                       ? "Haute"
-                      : item.priority === "MEDIUM"
+                      : item.priority === "MOYEN"
                       ? "Moyenne"
                       : "Basse"}
                   </Text>
