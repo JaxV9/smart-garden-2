@@ -1,9 +1,7 @@
-import { GardenVegetable } from "@/models/models"
+import { GardenSpace } from "@/hooks/usePlan"
 import { Image } from "expo-image"
-import { useRef, useState } from "react"
+import { useMemo, useRef, useState } from "react"
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native"
-import { GardenSpace } from "./plan"
-import { Touch } from "./touch"
 
 interface SpaceProps {
     scale: number,
@@ -14,14 +12,14 @@ interface SpaceProps {
 }
 
 export const Space = ({ scale, gardenSpace, toggleSpaceEditor, updateSpaceName, editCel }: SpaceProps) => {
-
     const [isEditingName, setIsEditingName] = useState<boolean>(false);
     const inputRef = useRef<TextInput>(null);
     const [updatingCol, setUpdatingCol] = useState<{ col: number, row: number }>()
+    const [spaceSize, setSpaceSize] = useState<{ width: number, height: number }>({ width: 0, height: 0 });
 
     function changeName(newName: string): void {
         setIsEditingName(true)
-        const currentName = gardenSpace.name;
+        const currentName = gardenSpace.spaceName;
         updateSpaceName(currentName, newName);
     }
 
@@ -31,7 +29,7 @@ export const Space = ({ scale, gardenSpace, toggleSpaceEditor, updateSpaceName, 
     }
 
     function updateCel(rowId: number, colId: number): void {
-        editCel(gardenSpace.name, rowId, colId, celIsFocus(colId, rowId));
+        editCel(gardenSpace.spaceName, rowId, colId, celIsFocus(colId, rowId));
         if (updatingCol && updatingCol.col === colId && updatingCol.row === rowId) {
             return setUpdatingCol(undefined)
         }
@@ -43,8 +41,8 @@ export const Space = ({ scale, gardenSpace, toggleSpaceEditor, updateSpaceName, 
         return updatingCol.col === col && updatingCol.row === row
     }
 
-    function getStyle(rowId: number, colId: number, col: { vegetable?: GardenVegetable | undefined }) {
-        if (col.vegetable) {
+    function getStyle(rowId: number, colId: number, col: { vegetableId?: string | undefined }) {
+        if (col.vegetableId) {
             return styles.colSelected
         }
         if (celIsFocus(colId, rowId)) {
@@ -53,60 +51,78 @@ export const Space = ({ scale, gardenSpace, toggleSpaceEditor, updateSpaceName, 
         return styles.col
     }
 
+    const contentDimensions = useMemo(() => ({
+        rows: gardenSpace.area.length,
+        cols: gardenSpace.area[0]?.cols.length || 0
+    }), [gardenSpace.area.length, gardenSpace.area[0]?.cols.length]);
+
+    const centeredPosition = useMemo(() => ({
+        top: 25000 - (spaceSize.height / 2) + 150,
+        left: 25000 - (spaceSize.width / 2)
+    }), [spaceSize.width, spaceSize.height]);
 
     return (
-        <View>
-            <Touch isAbsolute={false} scale={scale}>
-                <View pointerEvents="box-none">
-                    <View style={styles.spaceEditContainer} pointerEvents="box-none">
-                        <TextInput
-                            ref={inputRef}
-                            value={gardenSpace.name}
-                            onChangeText={(newName) => changeName(newName)}
-                            pointerEvents="auto"
-                        />
-                        {
-                            isEditingName ?
-                                <Pressable onPress={() => validChange()} pointerEvents="auto">
-                                    <Image source={require('@/assets/icons/valid.svg')}
-                                        style={{ width: 28, height: 28 }} />
-                                </Pressable>
-                                :
-                                <Pressable onPress={() => toggleSpaceEditor(gardenSpace.name)} pointerEvents="auto">
-                                    <Image source={require('@/assets/icons/menu.svg')}
-                                        style={{ width: 28, height: 28 }} />
-                                </Pressable>
-                        }
+        <View
+            style={[styles.spaceContainer, { top: centeredPosition.top, left: centeredPosition.left }]}
+            onLayout={(event) => {
+                const { width, height } = event.nativeEvent.layout;
+                if (width !== spaceSize.width || height !== spaceSize.height) {
+                    setSpaceSize({ width, height });
+                }
+            }}
+        >
+            <View pointerEvents="box-none">
+                <View style={styles.spaceEditContainer} pointerEvents="box-none">
+                    <TextInput
+                        ref={inputRef}
+                        value={gardenSpace.spaceName}
+                        onChangeText={(newName) => changeName(newName)}
+                        pointerEvents="auto"
+                    />
+                    {
+                        isEditingName ?
+                            <Pressable onPress={() => validChange()} pointerEvents="auto">
+                                <Image source={require('@/assets/icons/valid.svg')}
+                                    style={{ width: 28, height: 28 }} />
+                            </Pressable>
+                            :
+                            <Pressable onPress={() => toggleSpaceEditor(gardenSpace.spaceName)} pointerEvents="auto">
+                                <Image source={require('@/assets/icons/menu.svg')}
+                                    style={{ width: 28, height: 28 }} />
+                            </Pressable>
+                    }
 
-                    </View>
-
-                    <View style={styles.gridContainer}>
-                        {
-                            gardenSpace.area.map((ar, rowId) => (
-                                <View key={rowId} style={styles.row}>
-                                    {ar.cols.map((col, colId) => (
-                                        <Pressable onPress={() => updateCel(rowId, colId)} key={colId}
-                                            style={getStyle(rowId, colId, col)}>
-                                            {
-                                                col.vegetable ?
-                                                    <Text style={styles.vegeIcon}>🌱​</Text>
-                                                    :
-                                                    <View style={styles.dot}></View>
-
-                                            }
-                                        </Pressable>
-                                    ))}
-                                </View>
-                            ))
-                        }
-                    </View>
                 </View>
-            </Touch>
+
+                <View style={styles.gridContainer}>
+                    {
+                        gardenSpace.area.map((ar, rowId) => (
+                            <View key={rowId} style={styles.row}>
+                                {ar.cols.map((col, colId) => (
+                                    <Pressable onPress={() => updateCel(rowId, colId)} key={colId}
+                                        style={getStyle(rowId, colId, col)}>
+                                        {
+                                            col.vegetableId ?
+                                                <Text style={styles.vegeIcon}>🌱​</Text>
+                                                :
+                                                <View style={styles.dot}></View>
+
+                                        }
+                                    </Pressable>
+                                ))}
+                            </View>
+                        ))
+                    }
+                </View>
+            </View>
         </View>
     )
 }
 
 const styles = StyleSheet.create({
+    spaceContainer: {
+        position: 'absolute',
+    },
     gridContainer: {
         gap: 8,
     },

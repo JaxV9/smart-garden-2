@@ -1,7 +1,7 @@
+import { GardenSpace, Row } from "@/hooks/usePlan"
 import { Image } from "expo-image"
 import { useEffect, useState } from "react"
 import { Pressable, StyleSheet, Text, View } from "react-native"
-import { GardenSpace, Row } from "./plan"
 
 export interface DataAreaManager {
     gardenSpaces: GardenSpace[],
@@ -76,7 +76,7 @@ export const AreaManager = ({ gardenSpaces, setGardenSpaces, spaceEditing, toggl
     }
 
     useEffect(() => {
-        const space = gardenSpaces.find((gardenSpace) => gardenSpace.name === spaceEditing);
+        const space = gardenSpaces.find((gardenSpace) => gardenSpace.spaceName === spaceEditing);
         setCurrentSpace(space);
     }, [gardenSpaces, spaceEditing])
 
@@ -89,16 +89,18 @@ export const AreaManager = ({ gardenSpaces, setGardenSpaces, spaceEditing, toggl
 
     useEffect(() => {
         if (currentSpace) {
-            const space = gardenSpaces.filter((gardenSpace) => gardenSpace.name !== currentSpace?.name)
-            if (!currentSpace) return
-            setGardenSpaces([...space, currentSpace])
+            setGardenSpaces(prevSpaces =>
+                prevSpaces.map(gardenSpace =>
+                    gardenSpace.spaceName === currentSpace.spaceName ? currentSpace : gardenSpace
+                )
+            )
         }
     }, [currentSpace])
 
     return (
         <>
             <View style={styles.container}>
-                <Pressable onPress={() => toggleSpaceEditor(currentSpace ? currentSpace.name : '')}>
+                <Pressable onPress={() => toggleSpaceEditor(currentSpace ? currentSpace.spaceName : '')}>
                     <Image
                         source={require('@/assets/icons/delete.svg')}
                         style={styles.icon}
