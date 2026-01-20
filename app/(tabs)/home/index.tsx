@@ -1,10 +1,11 @@
 import { ResumeSection } from '@/components/new/homeSections/resumeSection/resumeSection';
-import { HomeSection } from '@/components/new/navGardenSection/navbar';
+import { HomeSection, NavBarGardenSection } from '@/components/new/navGardenSection/navbar';
+import { SensorsSection } from '@/components/new/sensors/sensorsSection';
 import { useVegetablesContext } from '@/contexts/vegetables.context';
 import { useGarden } from '@/hooks/useGarden';
 import { useVegetable } from '@/hooks/useVegetable';
 import { useEffect, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 
 export default function Index() {
@@ -27,20 +28,20 @@ export default function Index() {
         <View style={styles.container}>
             <View style={styles.gap16}>
                 <Text style={styles.title}>Mon jardin</Text>
-                <View style={styles.headerBtnContainer}>
-                    <Pressable onPress={() => setCurrentSection('resume')}
-                        style={currentSection === 'resume' ? styles.headerBtnSelected : styles.headerBtn}>
-                        <Text style={styles.headerTxtBtn}>Résumé</Text>
-                    </Pressable>
-                    <Pressable onPress={() => setCurrentSection('plants')}
-                        style={currentSection === 'plants' ? styles.headerBtnSelected : styles.headerBtn}>
-                        <Text style={styles.headerTxtBtn}>Mes plantes</Text>
-                    </Pressable>
-                </View>
+                <NavBarGardenSection currentSectionProps={currentSection}
+                    setCurrentSectionProps={setCurrentSection} />
             </View>
             {
                 currentSection === 'resume' &&
                 <ResumeSection />
+            }
+            {currentSection === 'plants' &&
+                <View style={styles.placeholderCard}>
+                    <Text style={styles.placeholderText}>Section plantes a venir.</Text>
+                </View>
+            }
+            {currentSection === 'sensors' &&
+                <SensorsSection />
             }
         </View>
     );
@@ -58,34 +59,21 @@ const styles = StyleSheet.create({
     gap16: {
         gap: 16
     },
-    gap8: {
-        gap: 8
-    },
     title: {
         fontSize: 22
     },
-    headerBtnContainer: {
-        flexDirection: 'row',
-        gap: 16,
-        paddingBottom: 16,
-        borderBottomWidth: 1,
-        borderBottomColor: '#F1F1F1'
+    gap8: {
+        gap: 8
     },
-    headerBtnSelected: {
-        backgroundColor: '#61b4586f',
-        padding: 8,
-        borderRadius: 8,
+    placeholderCard: {
+        backgroundColor: '#FFFFFF',
+        borderRadius: 12,
+        padding: 16,
         borderWidth: 1,
-        borderColor: '#5B8E55'
+        borderColor: '#E5E7EB',
     },
-    headerBtn: {
-        backgroundColor: '#F1F1F1',
-        padding: 8,
-        borderRadius: 8,
-        borderWidth: 1,
-        borderColor: '#E5E7EB'
+    placeholderText: {
+        fontSize: 14,
+        color: '#6B7280',
     },
-    headerTxtBtn: {
-        fontSize: 18
-    }
 });
