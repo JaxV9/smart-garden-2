@@ -5,26 +5,59 @@ interface TouchProps {
     scale: number,
     children: React.ReactNode,
     isAbsolute: boolean,
+    contentDimensions?: { rows: number, cols: number },
 }
 
-export const Touch = ({ scale, children, isAbsolute }: TouchProps) => {
+export const Touch = ({ scale, children, isAbsolute, contentDimensions }: TouchProps) => {
 
     const pan = useRef(new Animated.ValueXY()).current;
     const animatedScale = useRef(new Animated.Value(scale)).current;
     const [childSize, setChildSize] = useState({ width: 0, height: 0 });
     const [isInitialized, setIsInitialized] = useState(false);
+    const previousChildSize = useRef({ width: 0, height: 0 });
 
     useEffect(() => {
         if (isAbsolute) {
             pan.setValue({ x: -25000 + 200, y: -25000 + 200 });
-        } else if (childSize.width > 0 && childSize.height > 0 && !isInitialized) {
-            pan.setValue({
-                x: 25000 - (childSize.width / 2),
-                y: 25000 - (childSize.height / 2) + 180
-            });
-            setIsInitialized(true);
+        } else if (childSize.width > 0 && childSize.height > 0) {
+            if (!isInitialized) {
+                pan.setValue({
+                    x: 25000 - (childSize.width / 2),
+                    y: 25000 - (childSize.height / 2) + 180
+                });
+                setIsInitialized(true);
+                previousChildSize.current = childSize;
+            } else if (
+                previousChildSize.current.width !== childSize.width ||
+                previousChildSize.current.height !== childSize.height
+            ) {
+                // Calculer le décalage causé par le changement de taille
+                const widthDiff = childSize.width - previousChildSize.current.width;
+                const heightDiff = childSize.height - previousChildSize.current.height;
+
+                // Ajuster la position pour compenser le changement de taille
+                // On divise par 2 pour centrer le changement
+                const currentX = (pan.x as any)._value;
+                const currentY = (pan.y as any)._value;
+
+                // Utiliser une animation pour la transition
+                Animated.parallel([
+                    Animated.timing(pan.x, {
+                        toValue: currentX - (widthDiff / 2),
+                        duration: 200,
+                        useNativeDriver: false
+                    }),
+                    Animated.timing(pan.y, {
+                        toValue: currentY - (heightDiff / 2),
+                        duration: 200,
+                        useNativeDriver: false
+                    })
+                ]).start();
+
+                previousChildSize.current = childSize;
+            }
         }
-    }, [isAbsolute, pan, childSize, isInitialized]);
+    }, [isAbsolute, pan, childSize, isInitialized, contentDimensions]);
 
     useEffect(() => {
         Animated.timing(animatedScale, {

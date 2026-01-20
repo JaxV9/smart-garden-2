@@ -5,13 +5,13 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 interface GardenVegeList {
     gardenVegetables: GardenVegetable[],
     closeIsUpdatingCel: () => void,
-    updateCelWithVege: (vegetable: GardenVegetable) => void
+    updateCelWithVege: (vegetable: string) => void
 }
 
 export const GardenVegeList = ({ gardenVegetables, closeIsUpdatingCel, updateCelWithVege }: GardenVegeList) => {
 
     function selectVegetable(vegetable: GardenVegetable): void {
-        updateCelWithVege(vegetable)
+        updateCelWithVege(vegetable.id)
     }
 
     return (

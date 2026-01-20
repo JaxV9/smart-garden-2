@@ -1,135 +1,36 @@
 
 import { useGardenContext } from '@/contexts/garden.context';
-import { GardenVegetable } from '@/models/models';
-import React, { useState } from 'react';
+import { usePlan } from '@/hooks/usePlan';
+import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { AreaManager } from './areaManager';
 import { GardenVegeList } from './gardenVegeList';
+import { SaveBtn } from './saveBtn';
 import { Space } from './space';
 import { Touch } from './touch';
 import { ZoomItem } from './zoom';
 
-export interface Row {
-    cols: {
-        vegetable?: GardenVegetable
-    }[]
-}
-
-export interface GardenSpace {
-    name: string,
-    area: Row[],
-}
-
-export interface CelData {
-    spaceName: string,
-    colIndex: number,
-    rowIndex: number
-}
-
 export const Plan = () => {
     const { gardenVegetables } = useGardenContext()
 
-    const [scale, setScale] = useState<number>(1);
-    const [spaceEditing, setSpaceEditing] = useState<string | null>(null)
-    const [gardenSpaces, setGardenSpaces] = useState<GardenSpace[]>([])
-    const [isUpdatingCel, setIsUpdatingCel] = useState<boolean>(false)
-    const [celData, setCelData] = useState<CelData>();
-
-
-    function addNewSpace(): void {
-        const test: GardenSpace = {
-            name: 'First space',
-            area: [{ cols: [{}, {}, {}, {}, {}] },
-            { cols: [{}, {}, {}, {}, {}] },
-            { cols: [{}, {}, {}, {}, {}] },
-            { cols: [{}, {}, {}, {}, {}] },
-            { cols: [{}, {}, {}, {}, {}] },
-            { cols: [{}, {}, {}, {}, {}] },
-            ],
-        }
-        setGardenSpaces([test])
-    }
-
-    function toggleSpaceEditor(spaceName: string): void {
-        setIsUpdatingCel(false)
-        if (spaceEditing !== null) {
-            return setSpaceEditing(null)
-        }
-        setSpaceEditing(spaceName)
-    }
-
-    function updateSpaceName(spaceName: string, newName: string): void {
-        if (spaceEditing !== null) {
-            return setSpaceEditing(null)
-        }
-        setGardenSpaces(gardenSpaces.map((gardenSpace) =>
-            gardenSpace.name === spaceName
-                ? { ...gardenSpace, name: newName }
-                : gardenSpace
-        ))
-    }
-
-    function closeIsUpdatingCel(): void {
-        setIsUpdatingCel(false)
-    }
-
-    function editCel(spaceName: string, rowIndex: number, colIndex: number, close: boolean): void {
-        if (close) {
-            closeIsUpdatingCel()
-            return setCelData(undefined)
-        }
-        setIsUpdatingCel(true)
-        setCelData({ spaceName, colIndex, rowIndex })
-    }
-
-    function updateCelWithVege(gardenVegetable: GardenVegetable): void {
-        if (!celData) return
-
-        setGardenSpaces(prevSpaces =>
-            prevSpaces.map(gardenSpace => {
-                if (gardenSpace.name !== celData.spaceName) {
-                    return gardenSpace
-                }
-
-                return {
-                    ...gardenSpace,
-                    area: gardenSpace.area.map((row, rowIndex) => {
-                        if (rowIndex !== celData.rowIndex) {
-                            return row
-                        }
-
-                        return {
-                            ...row,
-                            cols: row.cols.map((col, colIndex) => {
-                                if (colIndex !== celData.colIndex) {
-                                    return col
-                                }
-
-                                return {
-                                    ...col,
-                                    vegetable: gardenVegetable
-                                }
-                            })
-                        }
-                    })
-                }
-            })
-        )
-
-    }
+    const { scale, gardenSpaces, isUpdatingCel, spaceEditing, hasGarden, isSaving,
+        shouldSave, toggleSpaceEditor, updateCelWithVege, editCel,
+        setScale, addNewSpace, updateSpaceName,
+        setGardenSpaces, closeIsUpdatingCel, saveGardenSpaces } = usePlan()
 
     return (
         <View style={styles.container}>
+            <SaveBtn isSaving={isSaving} shouldSave={shouldSave} callback={saveGardenSpaces} />
             <Touch scale={scale} isAbsolute={true}>
                 {
-                    gardenSpaces.map((gardenSpace, index) => (
-                        <Space key={index} gardenSpace={gardenSpace} scale={scale} editCel={editCel}
+                    gardenSpaces.map((gardenSpace) => (
+                        <Space key={gardenSpace.spaceName} gardenSpace={gardenSpace} scale={scale} editCel={editCel}
                             toggleSpaceEditor={toggleSpaceEditor} updateSpaceName={updateSpaceName} />
                     ))
                 }
             </Touch>
             {
-                gardenSpaces.length === 0 ?
+                !hasGarden ?
                     <View style={styles.newSpaceNotif}>
                         <Text style={styles.newSpaceNotifLabel}>Vous n'avez pas encore d'espace de jardinage</Text>
                         <Pressable style={styles.button} onPress={() => addNewSpace()}>
@@ -191,4 +92,16 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: "600",
     },
+    saveIconContainer: {
+        width: 32,
+        height: 32,
+        marginLeft: 'auto',
+        marginRight: 16,
+        zIndex: 200
+    },
+    saveIcon: {
+        width: 32,
+        height: 32,
+        color: 'black'
+    }
 });
