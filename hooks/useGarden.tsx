@@ -5,7 +5,7 @@ import { useFetch } from "./useFetch";
 
 
 export function useGarden() {
-    const { setGardenVegetables } = useGardenContext()
+    const { gardenVegetables, setGardenVegetables } = useGardenContext()
     const { vegetablesContext } = useVegetablesContext()
 
     const { httpClient } = useFetch(undefined)
@@ -15,6 +15,7 @@ export function useGarden() {
 
         const response = await http.get('/api/user/vegetables');
         if (response.status !== 'Failure') {
+
             const gardenVegetables = response.payload as GardenVegetablePayload[]
             const vegetables = gardenVegetables.map((gardenVegetable) => {
                 const temp = vegetablesContext.find(vegetable => vegetable.id === gardenVegetable.vegetableId) as GardenVegetable;
@@ -44,6 +45,7 @@ export function useGarden() {
     return {
         loadGardenVegetables,
         addVegetableToGarden,
-        removeVegetablesFromGarden
+        removeVegetablesFromGarden,
+        gardenVegetables
     };
 }

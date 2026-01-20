@@ -38,8 +38,8 @@ export function useUser() {
             const response = await http.post('/api/login', payload);
             if (response.status !== 'Failure') {
                 const data = response.payload as LoginInfos
-
                 const isTokenAlreadyExists = await getToken('authToken');
+                console.log("Existing token:", isTokenAlreadyExists);
                 if (isTokenAlreadyExists !== null) {
                     await deleteToken('authToken');
                 }
