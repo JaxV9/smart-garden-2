@@ -1,4 +1,5 @@
 import { BottomSheetProvider } from "@/contexts/bottomSheetContext";
+import { ForumProvider } from "@/contexts/forum.context";
 import { GardenProvider } from "@/contexts/garden.context";
 import { ThemeProvider } from "@/contexts/themeContext";
 import { UserProvider } from "@/contexts/user.context";
@@ -12,10 +13,12 @@ export default function RootLayout() {
         <BottomSheetProvider>
           <VegetablesProvider>
             <GardenProvider>
-              <Stack screenOptions={{
-                headerShown: false,
-                animation: 'none',
-              }} />
+              <ForumProvider>
+                <Stack screenOptions={{
+                  headerShown: false,
+                  animation: 'none',
+                }} />
+              </ForumProvider>
             </GardenProvider>
           </VegetablesProvider>
         </BottomSheetProvider>

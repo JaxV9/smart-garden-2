@@ -1,4 +1,4 @@
-// hooks/useTasks.ts
+// hooks/useTasks.tsx
 import { useEffect, useState } from "react";
 import { Task, TaskCreateInput } from "@/models/models";
 import { useFetch } from "@/hooks/useFetch";
@@ -36,12 +36,12 @@ export function useTasks() {
       await fetchTasks();
     }
 
-    return response;
-  } catch (e) {
-    console.log("useTasks.createTask ERROR", e);
-    throw e;
+      return response;
+    } catch (e) {
+      console.log("useTasks.createTask ERROR", e);
+      throw e;
+    }
   }
-}
 
   async function updateTask(id: string, updates: Partial<TaskCreateInput>) {
     const http = await httpClient;

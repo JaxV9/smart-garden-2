@@ -58,7 +58,7 @@ export const ResumeSection = () => {
                         </View>
                         <Text>Gérer les capteurs</Text>
                     </Pressable>
-                    <Pressable style={styles.toolContainer}>
+                    <Pressable onPress={() => router.replace('/plan')} style={styles.toolContainer}>
                         <View style={styles.row}>
                             <Image source={require('@/assets/icons/planIcon.svg')}
                                 style={styles.planIcon} />
