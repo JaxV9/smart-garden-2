@@ -70,7 +70,7 @@ export type AddVegetableToGardenResponse = {
   gardenVegetableId: string;
 };
 
-export type TaskPriority = "BAS" | "MOYEN" | "HAUT";
+export type TaskPriority = "LOW" | "MEDIUM" | "HIGH";
 
 export type Task = {
   id: string;
