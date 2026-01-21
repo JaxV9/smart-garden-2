@@ -70,19 +70,24 @@ export type AddVegetableToGardenResponse = {
   gardenVegetableId: string;
 };
 
-export type TaskPriority = "LOW" | "MEDIUM" | "HIGH";
+export type TaskPriority = "BAS" | "MOYEN" | "HAUT";
 
 export type Task = {
   id: string;
   title: string;
   description: string | null;
   category: string | null;
-  plant: string | null;
+  plant: GardenVegetablePayload | null;
   dueDate: string | null;      
   priority: TaskPriority | null;
   reminder: boolean | null;
+  completed: boolean;
   createdAt: string | null;
   userId: string;
+};
+
+export type TaskCreateInput = Omit<Task, "id" | "createdAt" | "userId" | "plant"> & {
+  plantId?: string | null;
 };
 
 export type Month = 'January' | 'February' | 'March'
