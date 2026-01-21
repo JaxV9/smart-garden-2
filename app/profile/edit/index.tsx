@@ -7,9 +7,10 @@ import { Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View 
 
 export default function EditProfile() {
     const router = useRouter();
-    const { user, getUser } = useUserContext();
+    const { user } = useUserContext();
+    const { getUser } = useUser()
     const { updateUser } = useUser();
-    
+
     const [name, setName] = useState(user?.name || '');
     const [email, setEmail] = useState(user?.email || '');
     const [phone, setPhone] = useState('');
@@ -23,7 +24,7 @@ export default function EditProfile() {
         }
 
         setSaving(true);
-        
+
         const result = await updateUser({
             name: name.trim(),
             email: email.trim(),
@@ -118,7 +119,7 @@ export default function EditProfile() {
                     </View>
                 </View>
 
-                <TouchableOpacity 
+                <TouchableOpacity
                     style={[styles.saveButton, saving && styles.saveButtonDisabled]}
                     onPress={handleSave}
                     disabled={saving}

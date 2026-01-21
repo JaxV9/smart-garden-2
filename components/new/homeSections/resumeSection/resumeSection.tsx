@@ -50,7 +50,7 @@ export const ResumeSection = () => {
                         </View>
                         <Text>Calendrier d'entretien</Text>
                     </Pressable>
-                    <Pressable style={styles.toolContainer}>
+                    <Pressable onPress={() => router.replace('/capteurs')} style={styles.toolContainer}>
                         <View style={styles.row}>
                             <Image source={require('@/assets/icons/sensorIcon.svg')}
                                 style={styles.sensorIcon} />
