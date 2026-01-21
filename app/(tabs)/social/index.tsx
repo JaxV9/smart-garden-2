@@ -8,9 +8,10 @@ import TopicList from '@/components/new/forum/TopicList';
 import { useForumContext } from '@/contexts/forum.context';
 import { useForum } from '@/hooks/useForum';
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useFocusEffect, useRouter } from 'expo-router';
+import { useCallback, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+
 
 export default function Index() {
     const router = useRouter();
@@ -28,25 +29,34 @@ export default function Index() {
     const [newTopicContent, setNewTopicContent] = useState('');
     const [selectedTagsForTopic, setSelectedTagsForTopic] = useState<string[]>([]);
 
-    useEffect(() => {
-        const loadData = async () => {
-            setLoading(true);
-            await loadTags();
-            await loadTopics();
-            setLoading(false);
-        };
-        loadData();
-    }, []);
+
+    // Recharge les données à chaque fois que l'écran est en focus
+    useFocusEffect(
+        useCallback(() => {
+            const loadData = async () => {
+                setLoading(true);
+                await loadTags();
+                await loadTopics(selectedTagId || undefined);
+                setLoading(false);
+            };
+            loadData();
+        }, [selectedTagId])
+    );
+
 
     const filteredTopics = topics.filter(topic =>
         topic.title.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
+
     const handleFilterSelect = async (tagId: string | null) => {
         setSelectedTagId(tagId);
         setFilterModalVisible(false);
+        setLoading(true);
         await loadTopics(tagId || undefined);
+        setLoading(false);
     };
+
 
     const toggleTagSelection = (tagId: string) => {
         if (selectedTagsForTopic.includes(tagId)) {
@@ -56,11 +66,13 @@ export default function Index() {
         }
     };
 
+
     const handleCreateTopic = async () => {
         if (!newTopicTitle.trim() || !newTopicContent.trim()) {
             alert('Veuillez remplir le titre et le contenu');
             return;
         }
+
 
         const result = await createTopic(newTopicTitle, newTopicContent, selectedTagsForTopic);
         
@@ -69,20 +81,27 @@ export default function Index() {
             setNewTopicTitle('');
             setNewTopicContent('');
             setSelectedTagsForTopic([]);
+            // Recharger les topics après création
+            setLoading(true);
+            await loadTopics(selectedTagId || undefined);
+            setLoading(false);
         } else {
             alert('Erreur lors de la création du topic');
         }
     };
 
+
     const selectedTagName = selectedTagId 
         ? tags.find(t => t.id === selectedTagId)?.name 
         : undefined;
+
 
     return (
         <View style={styles.container}>
             <ForumHeader notificationCount={27} />
             
             <ForumTabs activeTab="forum" />
+
 
             <ScrollView style={styles.content}>
                 <TouchableOpacity 
@@ -93,15 +112,18 @@ export default function Index() {
                     <Text style={styles.askButtonText}>Poser une question</Text>
                 </TouchableOpacity>
 
+
                 <SearchBar 
                     value={searchQuery} 
                     onChangeText={setSearchQuery} 
                 />
 
+
                 <FilterButton
                     selectedTagName={selectedTagName}
                     onPress={() => setFilterModalVisible(true)}
                 />
+
 
                 <TopicList
                     topics={filteredTopics}
@@ -110,6 +132,7 @@ export default function Index() {
                 />
             </ScrollView>
 
+
             <FilterModal
                 visible={filterModalVisible}
                 tags={tags}
@@ -117,6 +140,7 @@ export default function Index() {
                 onClose={() => setFilterModalVisible(false)}
                 onSelectTag={handleFilterSelect}
             />
+
 
             <CreateTopicModal
                 visible={createModalVisible}
@@ -133,6 +157,7 @@ export default function Index() {
         </View>
     );
 }
+
 
 const styles = StyleSheet.create({
     container: {

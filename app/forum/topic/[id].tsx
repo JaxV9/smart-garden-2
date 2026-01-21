@@ -3,9 +3,10 @@ import CommentsList from '@/components/new/forum/topics/CommentsList';
 import TopicContent from '@/components/new/forum/topics/TopicContent';
 import TopicDetailHeader from '@/components/new/forum/topics/TopicDetailHeader';
 import { TopicDetail, useForum } from '@/hooks/useForum';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
+import { useCallback, useState } from 'react';
 import { ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+
 
 export default function TopicDetailScreen() {
     const { id } = useLocalSearchParams<{ id: string }>();
@@ -15,9 +16,12 @@ export default function TopicDetailScreen() {
     const [topic, setTopic] = useState<TopicDetail | null>(null);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        loadTopicData();
-    }, [id]);
+    useFocusEffect(
+        useCallback(() => {
+            loadTopicData();
+        }, [id])
+    );
+
 
     const loadTopicData = async () => {
         if (!id) return;
@@ -26,6 +30,7 @@ export default function TopicDetailScreen() {
         setTopic(data);
         setLoading(false);
     };
+
 
     const handleAddComment = async (text: string) => {
         if (!id || !topic) return;
@@ -45,6 +50,7 @@ export default function TopicDetailScreen() {
         }
     };
 
+
     if (loading) {
         return (
             <View style={styles.loadingContainer}>
@@ -52,6 +58,7 @@ export default function TopicDetailScreen() {
             </View>
         );
     }
+
 
     if (!topic) {
         return (
@@ -64,12 +71,14 @@ export default function TopicDetailScreen() {
         );
     }
 
+
     return (
         <KeyboardAvoidingView 
             style={styles.container}
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         >
             <TopicDetailHeader onBack={() => router.back()} />
+
 
             <ScrollView style={styles.content}>
                 <TopicContent
@@ -82,13 +91,16 @@ export default function TopicDetailScreen() {
                     commentCount={topic._count.comments}
                 />
 
+
                 <CommentsList comments={topic.comments} />
             </ScrollView>
+
 
             <CommentInput onSubmit={handleAddComment} />
         </KeyboardAvoidingView>
     );
 }
+
 
 const styles = StyleSheet.create({
     container: {
