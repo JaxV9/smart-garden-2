@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useGardenContext } from '@/contexts/garden.context';
-import { useGardenInfo } from '../../hooks/useGardenInfo';
+import { useGardenInfo } from '@/hooks/useGardenInfo';
 
 export default function GardenInfoScreen() {
   const { gardenInfo, updateGardenInfo } = useGardenContext();
