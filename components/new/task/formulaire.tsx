@@ -9,18 +9,19 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { TaskPriority } from "@/models/models";
+import { useGarden } from "@/hooks/useGarden";
 
 type FormulaireProps = {
   title: string;
   description: string;
-  plant: string;
+  plantId: string;
   dueDate: string;
   priority: TaskPriority | null;
   editingId: string | null;
 
   setTitle: (v: string) => void;
   setDescription: (v: string) => void;
-  setPlant: (v: string) => void;
+  setPlantId: (v: string) => void;
   setDueDate: (v: string) => void;
   setPriority: (v: TaskPriority | null) => void;
 
@@ -35,7 +36,7 @@ export function Formulaire(props: FormulaireProps) {
   const {
     title,
     description,
-    plant,
+    plantId,
     dueDate,
     priority,
     editingId,
@@ -48,6 +49,8 @@ export function Formulaire(props: FormulaireProps) {
   } = props;
 
   const isEditing = Boolean(editingId);
+
+  const { gardenVegetables } = useGarden();
 
   return (
     <View>
@@ -73,13 +76,10 @@ export function Formulaire(props: FormulaireProps) {
 
         <Text style={styles.label}>Plante concernée</Text>
         <Pressable style={styles.select} onPress={onPickPlant}>
-          <Text
-            style={[
-              styles.selectText,
-              !plant && styles.selectPlaceholder,
-            ]}
-          >
-            {plant || "Sélectionnez une plante"}
+          <Text style={[styles.selectText, !plantId && styles.selectPlaceholder]}>
+            {plantId
+              ? gardenVegetables.find(p => p.gardenVegetableId === plantId)?.name || "Plante inconnue"
+              : "Sélectionnez une plante"}
           </Text>
           <Text style={styles.chevron}>▾</Text>
         </Pressable>
@@ -99,7 +99,7 @@ export function Formulaire(props: FormulaireProps) {
 
         <Text style={styles.label}>Priorité</Text>
         <View style={styles.chipsRow}>
-          {(["LOW", "MEDIUM", "HIGH"] as TaskPriority[]).map((p) => {
+          {(["BAS", "MOYEN", "HAUT"] as TaskPriority[]).map((p) => {
             const selected = priority === p;
             return (
               <Pressable

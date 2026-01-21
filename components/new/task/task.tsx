@@ -1,5 +1,5 @@
 // components/new/task/task.tsx
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   StyleSheet,
   View,
@@ -11,17 +11,18 @@ import {
   Platform,
 } from "react-native";
 import { useTasks } from "@/hooks/useTasks";
+import { useGarden } from "@/hooks/useGarden";
 import { Task as TaskType, TaskPriority } from "@/models/models";
 import { Formulaire } from "./formulaire";
 import DateTimePicker from "@react-native-community/datetimepicker";
 
 export function Task() {
-  const { tasks, loading, createTask, updateTask, deleteTask } = useTasks();
+  const { tasks, loading, createTask, updateTask, deleteTask, toggleTaskStatus } = useTasks();
+  const { gardenVegetables, loadGardenVegetables } = useGarden();
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
-  const [plant, setPlant] = useState("");
   const [dueDate, setDueDate] = useState("");
   const [priority, setPriority] = useState<TaskPriority | null>(null);
   const [reminder, setReminder] = useState(false);
@@ -30,6 +31,13 @@ export function Task() {
 
   const [menuTaskId, setMenuTaskId] = useState<string | null>(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [plantId, setPlantId] = useState<string | null>(null);
+
+  const [showPlantPicker, setShowPlantPicker] = useState(false);
+
+  useEffect(() => {
+    loadGardenVegetables();
+  }, []);
 
   async function onSave() {
     if (!title.trim()) return;
@@ -40,7 +48,7 @@ export function Task() {
           title,
           description: description || undefined,
           category: category || undefined,
-          plant: plant || undefined,
+          plantId: plantId || undefined,
           dueDate: dueDate || undefined,
           priority: priority || undefined,
           reminder,
@@ -52,10 +60,12 @@ export function Task() {
 
         if (description.trim()) payload.description = description;
         if (category.trim()) payload.category = category;
-        if (plant.trim()) payload.plant = plant;
+        if (plantId) (payload as any).plantId = plantId;
         if (dueDate) payload.dueDate = dueDate;
         if (priority) payload.priority = priority;
         if (reminder) payload.reminder = reminder;
+
+        console.log("Task onSave create payload", payload);
 
         await createTask(payload as any);
       }
@@ -66,7 +76,7 @@ export function Task() {
     setTitle("");
     setDescription("");
     setCategory("");
-    setPlant("");
+    setPlantId(null);
     setDueDate("");
     setPriority(null);
     setReminder(false);
@@ -85,7 +95,7 @@ export function Task() {
     setTitle("");
     setDescription("");
     setCategory("");
-    setPlant("");
+    setPlantId(null);
     setDueDate("");
     setPriority(null);
     setReminder(false);
@@ -97,7 +107,7 @@ export function Task() {
     setTitle(item.title);
     setDescription(item.description ?? "");
     setCategory(item.category ?? "");
-    setPlant(item.plant ?? "");
+    setPlantId(item.plant?.id ?? null);
     setDueDate(
       item.dueDate ? new Date(item.dueDate).toISOString().slice(0, 10) : "",
     );
@@ -127,12 +137,19 @@ export function Task() {
     return (
       <View style={[styles.card, completed && styles.cardDone]}>
         <View style={styles.cardLeft}>
-          <View
+          <TouchableOpacity 
+            onPress={() => {
+              console.log("🖱️ Clic coche pour tâche:", item.id, item.title);  // ← DEBUG
+              toggleTaskStatus(item);
+            }}
+            activeOpacity={0.7}
             style={[
               styles.checkbox,
               completed && styles.checkboxDone,
             ]}
-          />
+          >
+            {completed && <Text style={{ color: '#16A34A', textAlign: 'center' }}>✓</Text>}
+          </TouchableOpacity>
           <View style={styles.cardText}>
             <Text
               style={[
@@ -157,24 +174,24 @@ export function Task() {
             <View style={styles.chipsRow}>
               {!!item.plant && (
                 <View style={[styles.chip, styles.chipPlant]}>
-                  <Text style={styles.chipText}>{item.plant}</Text>
+                  <Text style={styles.chipText}>{item.plant.vegetableId}</Text>
                 </View>
               )}
               {!!item.priority && (
                 <View
                   style={[
                     styles.chip,
-                    item.priority === "HIGH"
+                    item.priority === "HAUT"
                       ? styles.chipHigh
-                      : item.priority === "MEDIUM"
+                      : item.priority === "MOYEN"
                       ? styles.chipMedium
                       : styles.chipLow,
                   ]}
                 >
                   <Text style={styles.chipText}>
-                    {item.priority === "HIGH"
+                    {item.priority === "HAUT"
                       ? "Haute"
-                      : item.priority === "MEDIUM"
+                      : item.priority === "MOYEN"
                       ? "Moyenne"
                       : "Basse"}
                   </Text>
@@ -234,6 +251,10 @@ export function Task() {
     setShowDatePicker(true);
   };
 
+  const handlePickPlant = () => {
+    setShowPlantPicker(true);
+  };
+
   return (
     <View style={styles.container}>
       <TouchableOpacity style={styles.newTaskButton} onPress={openCreate}>
@@ -283,23 +304,59 @@ export function Task() {
             <Formulaire
               title={title}
               description={description}
-              plant={plant}
+              plantId={plantId || ""}
               dueDate={dueDate}
               priority={priority}
               editingId={editingId}
               setTitle={setTitle}
               setDescription={setDescription}
-              setPlant={setPlant}
+              setPlantId={setPlantId}
               setDueDate={setDueDate}
               setPriority={setPriority}
               onSave={onSave}
               onPickDueDate={handlePickDueDate}
+              onPickPlant={handlePickPlant}
             />
             <TouchableOpacity
               style={styles.closeButton}
               onPress={() => setShowForm(false)}
             >
               <Text style={styles.closeButtonText}>ANNULER</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      <Modal
+        visible={showPlantPicker}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowPlantPicker(false)}
+      >
+        <View style={styles.modalBackdrop}>
+          <View style={styles.modalCard}>
+            <Text style={{ fontWeight: "700", marginBottom: 8 }}>
+              Sélectionner une plante
+            </Text>
+
+            {gardenVegetables.map((plant) => (
+              <TouchableOpacity
+                key={plant.gardenVegetableId}
+                style={{ paddingVertical: 8 }}
+                onPress={() => {
+                  setPlantId(plant.gardenVegetableId);
+                  setShowPlantPicker(false);
+                }}
+              >
+                <Text>{plant.name}</Text>
+              </TouchableOpacity>
+            ))}
+
+            <TouchableOpacity
+              style={[styles.closeButton, { marginTop: 8 }]}
+              onPress={() => setShowPlantPicker(false)}
+            >
+              <Text style={styles.closeButtonText}>FERMER</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -452,7 +509,7 @@ const styles = StyleSheet.create({
   },
   menu: {
     position: "absolute",
-    top: 24,
+    top: 32,
     right: 0,
     backgroundColor: "#FFFFFF",
     borderRadius: 8,
@@ -462,7 +519,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 6,
-    elevation: 4,
+    elevation: 12,
   },
   menuItem: {
     paddingHorizontal: 12,

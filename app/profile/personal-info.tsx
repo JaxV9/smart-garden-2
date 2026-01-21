@@ -16,9 +16,16 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { GardenerLevel } from '@/models/models';
+
 const DEFAULT_AVATAR = require('@/assets/images/avatar.png');
 
-type ExperienceLevel = 'Débutant' | 'Intermédiaire' | 'Expert';
+const LEVEL_LABELS: Record<string, string> = {
+  beginner: 'Débutant.e',
+  amateur: 'Amateur.trice',
+  advanced: 'Avancé.e',
+  enthusiast: 'Passionné.e',
+};
 
 export default function PersonalInfoScreen() {
   const { user } = useUserContext();
@@ -26,8 +33,10 @@ export default function PersonalInfoScreen() {
 
   const [pseudo, setPseudo] = useState<string>(user?.name ?? '');
   const [email, setEmail] = useState<string>(user?.email ?? '');
-  const [experience, setExperience] = useState<ExperienceLevel>('Débutant');
-  const [password, setPassword] = useState<string>(''); // champ vide
+  const [experience, setExperience] = useState<GardenerLevel>(
+    (user?.level as GardenerLevel) ?? 'beginner'
+  );
+  const [password, setPassword] = useState<string>(''); 
   const [isExperienceOpen, setIsExperienceOpen] = useState(false);
 
   const [avatarUri, setAvatarUri] = useState<string | undefined>(
@@ -71,7 +80,7 @@ export default function PersonalInfoScreen() {
     setIsExperienceOpen((prev) => !prev);
   };
 
-  const handleSelectExperience = (level: ExperienceLevel) => {
+  const handleSelectExperience = (level: GardenerLevel) => {
     setExperience(level);
     setIsExperienceOpen(false);
   };
@@ -83,15 +92,21 @@ export default function PersonalInfoScreen() {
     );
   };
 
-  const handleSave = () => {
-    // Updates the User in context
-    updateUser({
+  const handleSave = async () => {
+    const status = await updateUser({
       name: pseudo || user?.name || '',
       email: email || user?.email || '',
+      level: experience,
     });
 
-    Alert.alert('Succès', 'Vos informations ont été mises à jour.');
+    if (status === "Failure") {
+      Alert.alert("Erreur", "Impossible d'enregistrer vos informations.");
+      return;
+    }
+
+    Alert.alert("Succès", "Vos informations ont été mises à jour.");
   };
+
 
   const currentAvatarSource = avatarUri ? { uri: avatarUri } : DEFAULT_AVATAR;
 
@@ -198,7 +213,7 @@ export default function PersonalInfoScreen() {
               onPress={toggleExperienceDropdown}
             >
               <Text style={[styles.input, styles.textOnlyInput]}>
-                {experience}
+                {LEVEL_LABELS[experience] ?? experience}
               </Text>
               <Feather
                 name={isExperienceOpen ? 'chevron-up' : 'chevron-down'}
@@ -210,7 +225,7 @@ export default function PersonalInfoScreen() {
 
             {isExperienceOpen && (
               <View style={styles.dropdown}>
-                {(['Débutant', 'Intermédiaire', 'Expert'] as ExperienceLevel[]).map(
+                {(['beginner', 'amateur', 'advanced', 'enthusiast'] as GardenerLevel[]).map(
                   (level) => (
                     <TouchableOpacity
                       key={level}
@@ -226,7 +241,7 @@ export default function PersonalInfoScreen() {
                           experience === level && styles.dropdownItemTextActive,
                         ]}
                       >
-                        {level}
+                        {LEVEL_LABELS[level] ?? level}
                       </Text>
                     </TouchableOpacity>
                   )

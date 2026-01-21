@@ -18,6 +18,18 @@ export function CalendarComp({ calendarProp }: CalendarProps) {
     return (
         <View style={{ flex: 1 }}>
             <ScrollView style={styles.scrollContainer}>
+                <Text style={styles.title}>Calendrier</Text>
+                <View style={styles.legendContainer}>
+                    <View style={[styles.legendTag, styles.isSowing]}>
+                        <Text style={styles.isTextSowing}>Semis</Text>
+                    </View>
+                    <View style={[styles.legendTag, styles.isPlantation]}>
+                        <Text style={styles.isTextPlantation}>Plantation</Text>
+                    </View>
+                    <View style={[styles.legendTag, styles.isHarvest]}>
+                        <Text style={styles.isTextHarvest}>Récolte</Text>
+                    </View>
+                </View>
                 <View style={styles.container}>
                     {calendarProp.map((month, index) => (
                         <CalendarMonthCard key={index} callback={() => setMonthModal({ month: month.month, vegetables: month.vegetables })}
@@ -68,5 +80,54 @@ const styles = StyleSheet.create({
     },
     subInfo: {
         color: '#99A1AF'
+    },
+    title: {
+        fontSize: 28,
+        marginLeft: 8
+    },
+    legendContainer: {
+        margin: 8,
+        padding: 8,
+        gap: 8,
+        flexDirection: 'row'
+    },
+    legendTag: {
+        paddingTop: 4,
+        paddingBottom: 4,
+        paddingLeft: 8,
+        paddingRight: 8,
+        borderRadius: 8
+    },
+    isSowing: {
+        backgroundColor: '#FEF9C2',
+        borderColor: '#FFDF20',
+    },
+    isTextSowing: {
+        color: '#894B00',
+        marginTop: 'auto',
+        marginBottom: 'auto',
+        fontWeight: 500
+    },
+    isHarvest: {
+        backgroundColor: '#FFEDD4',
+        borderColor: '#FFB86A',
+        color: '#9F2D00',
+    },
+    isTextHarvest: {
+        color: '#894B00',
+        marginTop: 'auto',
+        marginBottom: 'auto',
+        fontWeight: 500
+    },
+    isPlantation: {
+        backgroundColor: '#DCFCE7',
+        borderColor: '#7BF1A8',
+        color: '#016630'
+    },
+    isTextPlantation: {
+        color: '#894B00',
+        marginTop: 'auto',
+        marginBottom: 'auto',
+        fontWeight: 500
     },
 });

@@ -11,16 +11,21 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useGardenContext } from '@/contexts/garden.context';
+import { useGardenInfo } from '@/hooks/useGardenInfo';
 
 export default function GardenInfoScreen() {
-  const [gardenName, setGardenName] = useState('Mon Jardin');
-  const [location, setLocation] = useState('Paris');
-  const [sections, setSections] = useState<string[]>(['Potager principal']);
+  const { gardenInfo, updateGardenInfo } = useGardenContext();
+  const { saveGardenInfo } = useGardenInfo();
+
+  const [gardenName, setGardenName] = useState(gardenInfo.name ?? 'Mon Jardin');
+  const [location, setLocation] = useState(gardenInfo.location ?? '');
+  const [sections, setSections] = useState<string[]>(
+    gardenInfo.sections?.length ? gardenInfo.sections : ['Potager principal']
+  );
   const [newSection, setNewSection] = useState('');
 
-  const handleGoBack = () => {
-    router.back();
-  };
+  const handleGoBack = () => router.back();
 
   const handleClearGardenName = () => setGardenName('');
   const handleClearLocation = () => setLocation('');
@@ -35,8 +40,25 @@ export default function GardenInfoScreen() {
     setNewSection('');
   };
 
-  const handleSave = () => {
-    // Later: call API / GardenContext to save garden info
+  const handleSave = async () => {
+    // 1) Update local UI
+    updateGardenInfo({
+      name: gardenName,
+      location,
+      sections, // UI seulement (pas dans DB)
+    });
+
+    // 2) Save in DB (name + location)
+    const status = await saveGardenInfo({
+      name: gardenName,
+      location,
+    });
+
+    if (status === "Failure") {
+      Alert.alert("Erreur", "Impossible d'enregistrer les informations du jardin.");
+      return;
+    }
+
     Alert.alert('Succès', 'Les informations du jardin ont été enregistrées.');
     router.back();
   };
@@ -60,7 +82,7 @@ export default function GardenInfoScreen() {
           <View style={{ width: 22 }} />
         </View>
 
-        {/* Title*/}
+        {/* Title */}
         <Text style={styles.gardenTitle}>{gardenName || 'Mon Jardin'}</Text>
 
         {/* Form */}
@@ -109,7 +131,7 @@ export default function GardenInfoScreen() {
             </View>
           </View>
 
-          {/* Garden Sections */}
+          {/* Garden Sections (UI only) */}
           <View style={styles.field}>
             <Text style={styles.label}>Sections du jardin</Text>
             <View style={styles.chipsRow}>
@@ -121,7 +143,7 @@ export default function GardenInfoScreen() {
             </View>
           </View>
 
-          {/* Add a custom section */}
+          {/* Add a custom section (UI only) */}
           <View style={styles.field}>
             <Text style={styles.label}>Ajouter une section personnalisée</Text>
             <View style={styles.addRow}>
