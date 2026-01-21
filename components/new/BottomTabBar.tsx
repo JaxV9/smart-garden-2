@@ -3,7 +3,7 @@ import { usePathname, useRouter } from "expo-router";
 import { Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-type TabRoute = '/home' | '/search' | '/forum' | '/profile';
+type TabRoute = '/home' | '/plante' | '/forum' | '/profile';
 
 interface BottomTabBarProps {
     activeTab?: TabRoute; // Permet de forcer un onglet actif
@@ -22,13 +22,13 @@ export default function BottomTabBar({ activeTab }: BottomTabBarProps) {
             iconSize: { width: 28, height: 28 },
         },
         {
-            route: '/search' as TabRoute,
+            route: '/plante' as TabRoute,
             title: 'Plantes',
             icon: require('@/assets/icons/search.svg'),
             iconSize: { width: 28, height: 28 },
         },
         {
-            route: '/forum' as TabRoute,
+            route: '/social' as TabRoute,
             title: 'Social',
             icon: require('@/assets/icons/garden.svg'),
             iconSize: { width: 25, height: 28 },
@@ -54,7 +54,7 @@ export default function BottomTabBar({ activeTab }: BottomTabBarProps) {
         
         // Pour /forum, inclure aussi /social et /tutos
         if (route === '/forum') {
-            return pathname.startsWith('/social') || 
+            return pathname.startsWith('/socia') || 
                    pathname.startsWith('/forum') || 
                    pathname.startsWith('/tutos');
         }
