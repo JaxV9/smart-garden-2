@@ -36,7 +36,7 @@ export default function PersonalInfoScreen() {
   const [experience, setExperience] = useState<GardenerLevel>(
     (user?.level as GardenerLevel) ?? 'beginner'
   );
-  const [password, setPassword] = useState<string>(''); 
+  const [password, setPassword] = useState<string>('');
   const [isExperienceOpen, setIsExperienceOpen] = useState(false);
 
   const [avatarUri, setAvatarUri] = useState<string | undefined>(
@@ -251,32 +251,32 @@ export default function PersonalInfoScreen() {
           </View>
 
           {/* Password */}
-          <View style={styles.field}>
-            <Text style={styles.label}>Mot de passe</Text>
-            <View style={styles.inputWrapper}>
-              <Feather
+          {/* <View style={styles.field}> */}
+          {/* <Text style={styles.label}>Mot de passe</Text>
+            <View style={styles.inputWrapper}> */}
+          {/* <Feather
                 name="key"
                 size={18}
                 color={COLORS.icon}
                 style={styles.leftIcon}
-              />
-              <TextInput
+              /> */}
+          {/* <TextInput
                 style={styles.input}
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry={true}
                 placeholder="●●●●●●●●"
                 placeholderTextColor={COLORS.placeholder}
-              />
-              <Feather
+              /> */}
+          {/* <Feather
                 name="eye"
                 size={18}
                 color={COLORS.icon}
                 style={styles.rightIconButton}
-              />
-            </View>
+              /> */}
+          {/* </View> */}
 
-            <TouchableOpacity
+          {/* <TouchableOpacity
               onPress={handleChangePasswordPress}
               style={styles.changePasswordButton}
               activeOpacity={0.7}
@@ -284,8 +284,8 @@ export default function PersonalInfoScreen() {
               <Text style={styles.changePasswordText}>
                 Changer de mot de passe
               </Text>
-            </TouchableOpacity>
-          </View>
+            </TouchableOpacity> */}
+          {/* </View> */}
         </View>
 
         {/* Save button*/}
