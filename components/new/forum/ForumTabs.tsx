@@ -2,11 +2,14 @@ import { Ionicons } from '@expo/vector-icons';
 import { usePathname, useRouter } from 'expo-router';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
+
 type TabType = 'social' | 'forum' | 'tutos';
+
 
 interface ForumTabsProps {
     activeTab?: TabType;
 }
+
 
 export default function ForumTabs({ activeTab }: ForumTabsProps) {
     const router = useRouter();
@@ -14,26 +17,34 @@ export default function ForumTabs({ activeTab }: ForumTabsProps) {
 
     const tabs: { id: TabType; label: string; icon: keyof typeof Ionicons.glyphMap; route: string }[] = [
         { id: 'social', label: 'Social', icon: 'chatbubbles-outline', route: '/socia' },
-        { id: 'forum', label: 'Forum', icon: 'people-outline', route: '/forum' },
+        { id: 'forum', label: 'Forum', icon: 'people-outline', route: '/social' },
         { id: 'tutos', label: 'Tutos', icon: 'play-circle-outline', route: '/tutos' },
     ];
 
+
     const getCurrentTab = (): TabType => {
-        if (activeTab) return activeTab;
+        if (activeTab) {
+            return activeTab;
+        }
         
-        if (pathname.startsWith('/socia')) return 'social';
-        if (pathname.startsWith('/forum')) return 'forum';
-        if (pathname.startsWith('/tutos')) return 'tutos';
+        let detectedTab: TabType = 'forum';
         
-        return 'forum';
+        if (pathname.startsWith('/socia')) detectedTab = 'social';
+        else if (pathname.startsWith('/social')) detectedTab = 'forum';
+        else if (pathname.startsWith('/tutos')) detectedTab = 'tutos';
+        
+        return detectedTab;
     };
 
+
     const currentTab = getCurrentTab();
+
 
     const handleTabPress = (route: string) => {
         // @ts-ignore - Expo Router typing issue
         router.push(route);
     };
+
 
     return (
         <View style={styles.tabs}>
@@ -56,6 +67,7 @@ export default function ForumTabs({ activeTab }: ForumTabsProps) {
         </View>
     );
 }
+
 
 const styles = StyleSheet.create({
     tabs: {
