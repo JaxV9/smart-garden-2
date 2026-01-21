@@ -2,7 +2,7 @@ import { useUserContext } from '@/contexts/user.context';
 import { useUser } from '@/hooks/useUser';
 import { Feather } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Image,
   Modal,
@@ -12,31 +12,44 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useGardenContext } from '@/contexts/garden.context';
+import { useGardenInfo } from '../../../hooks/useGardenInfo';
 
 const DEFAULT_AVATAR = require('@/assets/images/avatar.png');
 
+const LEVEL_LABELS: Record<string, string> = {
+  beginner: 'Débutant.e',
+  amateur: 'Amateur.trice',
+  advanced: 'Avancé.e',
+  enthusiast: 'Passionné.e',
+};
+
 export default function ProfileScreen() {
   const { user } = useUserContext();
-  const { logout } = useUser()
+  const { logout } = useUser();
+  const { gardenInfo } = useGardenContext();
+  const { loadGardenInfo } = useGardenInfo();
 
-  const avatarSource = user?.avatarUri
-    ? { uri: user.avatarUri }
-    : DEFAULT_AVATAR;
+  const avatarSource = user?.avatarUri ? { uri: user.avatarUri } : DEFAULT_AVATAR;
 
   // state for the logout popup
   const [isLogoutModalVisible, setIsLogoutModalVisible] = useState(false);
 
-  // For now: hard values ​​for the garden info
-  const gardenName = 'Mon Jardin';
-  const gardenLocation = 'Paris';
-  const gardenSections = ['Potager principal'];
+  useEffect(() => {
+    loadGardenInfo();
+  }, []);
+
+  const gardenName = gardenInfo.name ?? 'Mon Jardin';
+  const gardenLocation = gardenInfo.location ?? '—';
+  const gardenSections = gardenInfo.sections?.length
+    ? gardenInfo.sections
+    : ['Potager principal'];
 
   const handlePersonalInfosPress = () => {
     router.push('../profile/personal-info');
   };
 
   const handleLogoutPress = () => {
-    // We open the popup instead of logging out directly.
     setIsLogoutModalVisible(true);
   };
 
@@ -68,7 +81,9 @@ export default function ProfileScreen() {
           <View style={styles.profileTexts}>
             <Text style={styles.name}>{user?.name || ''}</Text>
             <Text style={styles.email}>{user?.email || ''}</Text>
-            <Text style={styles.level}>Débutante</Text>
+            <Text style={styles.level}>
+              {user?.level ? (LEVEL_LABELS[user.level] ?? user.level) : '—'}
+            </Text>
           </View>
         </View>
 
@@ -144,7 +159,7 @@ export default function ProfileScreen() {
 
         <View style={{ height: 24 }} />
 
-        {/* DISCONNECT MODE */}
+        {/* DISCONNECT MODAL */}
         <Modal
           visible={isLogoutModalVisible}
           transparent
