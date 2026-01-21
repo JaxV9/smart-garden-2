@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useGardenContext } from '@/contexts/garden.context';
-import { useGardenInfo } from '../../../hooks/useGardenInfo';
+import { useGardenInfo } from '@/hooks/useGardenInfo';
 
 const DEFAULT_AVATAR = require('@/assets/images/avatar.png');
 
