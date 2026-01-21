@@ -39,7 +39,7 @@ export default function FilterModal({ visible, tags, selectedTagId, onClose, onS
                             <Text style={[styles.filterOptionText, !selectedTagId && styles.filterOptionTextSelected]}>
                                 Toutes les catégories
                             </Text>
-                            {!selectedTagId && <Ionicons name="checkmark" size={20} color="#10b981" />}
+                            {!selectedTagId && <Ionicons name="checkmark" size={20} color="#5B8E55" />}
                         </TouchableOpacity>
 
                         {tags.map((tag) => (
@@ -51,7 +51,7 @@ export default function FilterModal({ visible, tags, selectedTagId, onClose, onS
                                 <Text style={[styles.filterOptionText, selectedTagId === tag.id && styles.filterOptionTextSelected]}>
                                     {tag.name}
                                 </Text>
-                                {selectedTagId === tag.id && <Ionicons name="checkmark" size={20} color="#10b981" />}
+                                {selectedTagId === tag.id && <Ionicons name="checkmark" size={20} color="#5B8E55" />}
                             </TouchableOpacity>
                         ))}
                     </ScrollView>
@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
         color: '#333',
     },
     filterOptionTextSelected: {
-        color: '#10b981',
+        color: '#5B8E55',
         fontWeight: '600',
     },
 });

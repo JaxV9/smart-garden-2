@@ -144,7 +144,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
     },
     askButton: {
-        backgroundColor: '#10b981',
+        backgroundColor: '#5B8E55',
         paddingVertical: 16,
         borderRadius: 12,
         alignItems: 'center',

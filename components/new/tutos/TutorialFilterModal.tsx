@@ -84,7 +84,7 @@ export default function TutorialFilterModal({
                                         {getCategoryLabel(category)}
                                     </Text>
                                     {tempCategory === category && (
-                                        <Ionicons name="checkmark" size={20} color="#10b981" />
+                                        <Ionicons name="checkmark" size={20} color="#5B8E55" />
                                     )}
                                 </TouchableOpacity>
                             ))}
@@ -107,7 +107,7 @@ export default function TutorialFilterModal({
                                             <Ionicons
                                                 name={type === 'VIDEO' ? 'videocam' : 'document-text'}
                                                 size={20}
-                                                color={tempType === type ? '#10b981' : '#666'}
+                                                color={tempType === type ? '#5B8E55' : '#666'}
                                             />
                                         )}
                                         <Text
@@ -120,7 +120,7 @@ export default function TutorialFilterModal({
                                         </Text>
                                     </View>
                                     {tempType === type && (
-                                        <Ionicons name="checkmark" size={20} color="#10b981" />
+                                        <Ionicons name="checkmark" size={20} color="#5B8E55" />
                                     )}
                                 </TouchableOpacity>
                             ))}
@@ -194,7 +194,7 @@ const styles = StyleSheet.create({
     },
     filterOptionActive: {
         backgroundColor: '#f0fdf4',
-        borderColor: '#10b981',
+        borderColor: '#5B8E55',
     },
     filterOptionContent: {
         flexDirection: 'row',
@@ -206,7 +206,7 @@ const styles = StyleSheet.create({
         color: '#666',
     },
     filterOptionTextActive: {
-        color: '#10b981',
+        color: '#5B8E55',
         fontWeight: '500',
     },
     modalFooter: {
@@ -233,7 +233,7 @@ const styles = StyleSheet.create({
         flex: 1,
         paddingVertical: 14,
         borderRadius: 12,
-        backgroundColor: '#10b981',
+        backgroundColor: '#5B8E55',
         alignItems: 'center',
     },
     applyButtonText: {

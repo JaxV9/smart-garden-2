@@ -48,7 +48,7 @@ export default function TopicDetailScreen() {
     if (loading) {
         return (
             <View style={styles.loadingContainer}>
-                <ActivityIndicator size="large" color="#10b981" />
+                <ActivityIndicator size="large" color="#5B8E55" />
             </View>
         );
     }
@@ -114,7 +114,7 @@ const styles = StyleSheet.create({
         marginBottom: 20,
     },
     backButton: {
-        backgroundColor: '#10b981',
+        backgroundColor: '#5B8E55',
         paddingVertical: 12,
         paddingHorizontal: 24,
         borderRadius: 8,

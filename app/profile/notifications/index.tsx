@@ -28,7 +28,7 @@ export default function Notifications() {
 
                     <View style={styles.settingItem}>
                         <View style={styles.settingInfo}>
-                            <Ionicons name="notifications" size={24} color="#10b981" />
+                            <Ionicons name="notifications" size={24} color="#5B8E55" />
                             <View style={styles.settingText}>
                                 <Text style={styles.settingTitle}>Notifications push</Text>
                                 <Text style={styles.settingDescription}>
@@ -39,14 +39,14 @@ export default function Notifications() {
                         <Switch
                             value={pushEnabled}
                             onValueChange={setPushEnabled}
-                            trackColor={{ false: '#ccc', true: '#10b981' }}
+                            trackColor={{ false: '#ccc', true: '#5B8E55' }}
                             thumbColor="#fff"
                         />
                     </View>
 
                     <View style={styles.settingItem}>
                         <View style={styles.settingInfo}>
-                            <Ionicons name="mail" size={24} color="#10b981" />
+                            <Ionicons name="mail" size={24} color="#5B8E55" />
                             <View style={styles.settingText}>
                                 <Text style={styles.settingTitle}>Notifications par email</Text>
                                 <Text style={styles.settingDescription}>
@@ -57,7 +57,7 @@ export default function Notifications() {
                         <Switch
                             value={emailEnabled}
                             onValueChange={setEmailEnabled}
-                            trackColor={{ false: '#ccc', true: '#10b981' }}
+                            trackColor={{ false: '#ccc', true: '#5B8E55' }}
                             thumbColor="#fff"
                         />
                     </View>
@@ -68,7 +68,7 @@ export default function Notifications() {
 
                     <View style={styles.settingItem}>
                         <View style={styles.settingInfo}>
-                            <Ionicons name="chatbubble" size={24} color="#10b981" />
+                            <Ionicons name="chatbubble" size={24} color="#5B8E55" />
                             <View style={styles.settingText}>
                                 <Text style={styles.settingTitle}>Réponses à mes topics</Text>
                                 <Text style={styles.settingDescription}>
@@ -79,14 +79,14 @@ export default function Notifications() {
                         <Switch
                             value={commentsEnabled}
                             onValueChange={setCommentsEnabled}
-                            trackColor={{ false: '#ccc', true: '#10b981' }}
+                            trackColor={{ false: '#ccc', true: '#5B8E55' }}
                             thumbColor="#fff"
                         />
                     </View>
 
                     <View style={styles.settingItem}>
                         <View style={styles.settingInfo}>
-                            <Ionicons name="at" size={24} color="#10b981" />
+                            <Ionicons name="at" size={24} color="#5B8E55" />
                             <View style={styles.settingText}>
                                 <Text style={styles.settingTitle}>Mentions</Text>
                                 <Text style={styles.settingDescription}>
@@ -97,7 +97,7 @@ export default function Notifications() {
                         <Switch
                             value={mentionsEnabled}
                             onValueChange={setMentionsEnabled}
-                            trackColor={{ false: '#ccc', true: '#10b981' }}
+                            trackColor={{ false: '#ccc', true: '#5B8E55' }}
                             thumbColor="#fff"
                         />
                     </View>
@@ -108,7 +108,7 @@ export default function Notifications() {
 
                     <View style={styles.settingItem}>
                         <View style={styles.settingInfo}>
-                            <Ionicons name="sparkles" size={24} color="#10b981" />
+                            <Ionicons name="sparkles" size={24} color="#5B8E55" />
                             <View style={styles.settingText}>
                                 <Text style={styles.settingTitle}>Nouveautés et conseils</Text>
                                 <Text style={styles.settingDescription}>
@@ -119,7 +119,7 @@ export default function Notifications() {
                         <Switch
                             value={updatesEnabled}
                             onValueChange={setUpdatesEnabled}
-                            trackColor={{ false: '#ccc', true: '#10b981' }}
+                            trackColor={{ false: '#ccc', true: '#5B8E55' }}
                             thumbColor="#fff"
                         />
                     </View>
@@ -135,7 +135,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#f5f5f5',
     },
     header: {
-        backgroundColor: '#10b981',
+        backgroundColor: '#5B8E55',
         paddingTop: 50,
         paddingBottom: 15,
         paddingHorizontal: 20,

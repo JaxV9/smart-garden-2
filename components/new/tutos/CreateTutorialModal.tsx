@@ -291,8 +291,8 @@ const styles = StyleSheet.create({
         borderColor: 'transparent',
     },
     typeButtonActive: {
-        backgroundColor: '#10b981',
-        borderColor: '#10b981',
+        backgroundColor: '#5B8E55',
+        borderColor: '#5B8E55',
     },
     typeButtonText: {
         fontSize: 15,
@@ -317,8 +317,8 @@ const styles = StyleSheet.create({
         borderColor: 'transparent',
     },
     categoryButtonActive: {
-        backgroundColor: '#10b981',
-        borderColor: '#10b981',
+        backgroundColor: '#5B8E55',
+        borderColor: '#5B8E55',
     },
     categoryButtonText: {
         fontSize: 14,
@@ -329,7 +329,7 @@ const styles = StyleSheet.create({
         color: 'white',
     },
     submitButton: {
-        backgroundColor: '#10b981',
+        backgroundColor: '#5B8E55',
         margin: 20,
         padding: 16,
         borderRadius: 12,

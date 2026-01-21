@@ -76,7 +76,7 @@ export default function PostCommentsModal({
 
                     {loading ? (
                         <View style={styles.loadingContainer}>
-                            <ActivityIndicator size="large" color="#10b981" />
+                            <ActivityIndicator size="large" color="#5B8E55" />
                         </View>
                     ) : (
                         <FlatList
@@ -178,7 +178,7 @@ const styles = StyleSheet.create({
         width: 44,
         height: 44,
         borderRadius: 22,
-        backgroundColor: '#10b981',
+        backgroundColor: '#5B8E55',
         justifyContent: 'center',
         alignItems: 'center',
     },

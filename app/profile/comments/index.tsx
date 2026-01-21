@@ -73,7 +73,7 @@ export default function MyComments() {
 
             {loading ? (
                 <View style={styles.loadingContainer}>
-                    <ActivityIndicator size="large" color="#10b981" />
+                    <ActivityIndicator size="large" color="#5B8E55" />
                 </View>
             ) : userComments.length === 0 ? (
                 <View style={styles.emptyContainer}>
@@ -107,7 +107,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#f5f5f5',
     },
     header: {
-        backgroundColor: '#10b981',
+        backgroundColor: '#5B8E55',
         paddingTop: 50,
         paddingBottom: 15,
         paddingHorizontal: 20,
@@ -153,7 +153,7 @@ const styles = StyleSheet.create({
         marginBottom: 30,
     },
     browseButton: {
-        backgroundColor: '#10b981',
+        backgroundColor: '#5B8E55',
         paddingVertical: 14,
         paddingHorizontal: 40,
         borderRadius: 12,

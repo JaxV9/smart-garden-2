@@ -105,7 +105,7 @@ export default function TutorialDetailScreen() {
         return (
             <SafeAreaProvider>
                 <View style={styles.loadingContainer}>
-                    <ActivityIndicator size="large" color="#10b981" />
+                    <ActivityIndicator size="large" color="#5B8E55" />
                     <Text style={styles.loadingText}>Chargement...</Text>
                 </View>
             </SafeAreaProvider>
@@ -286,7 +286,7 @@ const styles = StyleSheet.create({
         marginTop: 20,
         paddingHorizontal: 24,
         paddingVertical: 12,
-        backgroundColor: '#10b981',
+        backgroundColor: '#5B8E55',
         borderRadius: 8,
     },
     backButtonText: {

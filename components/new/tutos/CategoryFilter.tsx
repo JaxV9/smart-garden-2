@@ -113,8 +113,8 @@ const styles = StyleSheet.create({
         borderColor: '#e5e5e5',
     },
     filterButtonActive: {
-        backgroundColor: '#10b981',
-        borderColor: '#10b981',
+        backgroundColor: '#5B8E55',
+        borderColor: '#5B8E55',
     },
     filterButtonText: {
         fontSize: 14,

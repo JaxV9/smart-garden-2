@@ -20,7 +20,7 @@ export default function TopicDetailHeader({ onBack, title = "Discussion" }: Topi
 
 const styles = StyleSheet.create({
     header: {
-        backgroundColor: '#10b981',
+        backgroundColor: '#5B8E55',
         paddingTop: 50,
         paddingBottom: 15,
         paddingHorizontal: 20,

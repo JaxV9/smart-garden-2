@@ -23,7 +23,7 @@ export default function ForumHeader({ notificationCount = 0 }: ForumHeaderProps)
 
 const styles = StyleSheet.create({
     header: {
-        backgroundColor: '#10b981',
+        backgroundColor: '#5B8E55',
         paddingTop: 50,
         paddingBottom: 20,
         paddingHorizontal: 20,

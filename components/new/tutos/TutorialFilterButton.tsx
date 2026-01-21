@@ -33,7 +33,7 @@ export default function TutorialFilterButton({
                 <Ionicons 
                     name="filter-outline" 
                     size={18} 
-                    color={hasFilters ? '#10b981' : '#666'} 
+                    color={hasFilters ? '#5B8E55' : '#666'} 
                 />
                 <Text style={[
                     styles.filterText,
@@ -70,7 +70,7 @@ const styles = StyleSheet.create({
         color: '#666',
     },
     filterTextActive: {
-        color: '#10b981',
+        color: '#5B8E55',
         fontWeight: '500',
     },
 });

@@ -58,10 +58,10 @@ export default function EditProfile() {
             <ScrollView style={styles.content}>
                 <View style={styles.avatarSection}>
                     <View style={styles.avatar}>
-                        <Ionicons name="person" size={50} color="#10b981" />
+                        <Ionicons name="person" size={50} color="#5B8E55" />
                     </View>
                     <TouchableOpacity style={styles.changePhotoButton}>
-                        <Ionicons name="camera" size={20} color="#10b981" />
+                        <Ionicons name="camera" size={20} color="#5B8E55" />
                         <Text style={styles.changePhotoText}>Changer la photo</Text>
                     </TouchableOpacity>
                 </View>
@@ -138,7 +138,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#f5f5f5',
     },
     header: {
-        backgroundColor: '#10b981',
+        backgroundColor: '#5B8E55',
         paddingTop: 50,
         paddingBottom: 15,
         paddingHorizontal: 20,
@@ -177,7 +177,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         borderWidth: 3,
-        borderColor: '#10b981',
+        borderColor: '#5B8E55',
         marginBottom: 15,
     },
     changePhotoButton: {
@@ -188,10 +188,10 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
         borderRadius: 20,
         borderWidth: 1,
-        borderColor: '#10b981',
+        borderColor: '#5B8E55',
     },
     changePhotoText: {
-        color: '#10b981',
+        color: '#5B8E55',
         fontSize: 14,
         fontWeight: '600',
     },
@@ -224,7 +224,7 @@ const styles = StyleSheet.create({
         paddingTop: 12,
     },
     saveButton: {
-        backgroundColor: '#10b981',
+        backgroundColor: '#5B8E55',
         marginHorizontal: 20,
         marginTop: 20,
         marginBottom: 30,

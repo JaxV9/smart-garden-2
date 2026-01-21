@@ -68,7 +68,7 @@ export default function Privacy() {
                 </View>
 
                 <View style={styles.infoBox}>
-                    <Ionicons name="information-circle" size={24} color="#10b981" />
+                    <Ionicons name="information-circle" size={24} color="#5B8E55" />
                     <Text style={styles.infoText}>
                         Vos données sont protégées et ne sont jamais partagées avec des tiers sans votre consentement.
                     </Text>
@@ -84,7 +84,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#f5f5f5',
     },
     header: {
-        backgroundColor: '#10b981',
+        backgroundColor: '#5B8E55',
         paddingTop: 50,
         paddingBottom: 15,
         paddingHorizontal: 20,

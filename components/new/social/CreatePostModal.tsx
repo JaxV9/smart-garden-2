@@ -77,7 +77,7 @@ export default function CreatePostModal({ visible, onClose, onSubmit }: CreatePo
                         )}
 
                         <TouchableOpacity style={styles.addImageButton}>
-                            <Ionicons name="image-outline" size={24} color="#10b981" />
+                            <Ionicons name="image-outline" size={24} color="#5B8E55" />
                             <Text style={styles.addImageText}>Ajouter une photo</Text>
                         </TouchableOpacity>
                     </ScrollView>
@@ -165,16 +165,16 @@ const styles = StyleSheet.create({
         backgroundColor: '#f0fdf4',
         borderRadius: 12,
         borderWidth: 1,
-        borderColor: '#10b981',
+        borderColor: '#5B8E55',
         borderStyle: 'dashed',
     },
     addImageText: {
         fontSize: 16,
-        color: '#10b981',
+        color: '#5B8E55',
         fontWeight: '500',
     },
     submitButton: {
-        backgroundColor: '#10b981',
+        backgroundColor: '#5B8E55',
         margin: 20,
         padding: 16,
         borderRadius: 12,

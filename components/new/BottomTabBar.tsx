@@ -67,7 +67,7 @@ export default function BottomTabBar({ activeTab }: BottomTabBarProps) {
         router.push(route);
     };
 
-    const activeColor = '#10b981'; // Vert
+    const activeColor = '#5B8E55'; // Vert
     const inactiveColor = '#8E8E93';
     const backgroundColor = Platform.OS === 'ios' ? 'rgba(249, 249, 249, 0.94)' : '#FFFFFF';
 
