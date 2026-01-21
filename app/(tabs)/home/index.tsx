@@ -1,4 +1,5 @@
 import { ResumeSection } from '@/components/new/homeSections/resumeSection/resumeSection';
+import { PlantsSection } from '../../../components/new/homeSections copy/plantsSection/plantsSection';
 import { HomeSection } from '@/components/new/navGardenSection/navbar';
 import { useVegetablesContext } from '@/contexts/vegetables.context';
 import { useGarden } from '@/hooks/useGarden';
@@ -41,6 +42,12 @@ export default function Index() {
             {
                 currentSection === 'resume' &&
                 <ResumeSection />
+            }
+            {
+
+            currentSection === 'plants' && 
+            <PlantsSection />
+            
             }
         </View>
     );
