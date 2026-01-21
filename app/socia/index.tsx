@@ -7,9 +7,11 @@ import PostList from '@/components/new/social/PostList';
 import { useSocialContext } from '@/contexts/social.context';
 import { useSocial } from '@/hooks/useSocial';
 import { Ionicons } from '@expo/vector-icons';
-import { useEffect, useState } from 'react';
+import { useFocusEffect } from 'expo-router';
+import { useCallback, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+
 
 export default function SocialScreen() {
     const { posts } = useSocialContext();
@@ -19,33 +21,54 @@ export default function SocialScreen() {
     const [commentsModalVisible, setCommentsModalVisible] = useState(false);
     const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
 
-    useEffect(() => {
-        loadData();
-    }, []);
+
+    // Recharge les données à chaque fois que l'écran est en focus
+    useFocusEffect(
+        useCallback(() => {
+            console.log('🔄 [SocialScreen] Rechargement des posts');
+            loadData();
+        }, [])
+    );
+
 
     const loadData = async () => {
         setLoading(true);
         await loadPosts();
         setLoading(false);
+        console.log('✅ [SocialScreen] Posts rechargés');
     };
+
 
     const handleCreatePost = async (content: string, images: string[]) => {
         const result = await createPost(content, images);
         if (result === 'Success') {
             setCreateModalVisible(false);
+            // Recharger les posts après création
+            await loadData();
         } else {
             alert('Erreur lors de la création du post');
         }
     };
 
+
     const handleLike = async (postId: string) => {
         await toggleLike(postId);
     };
+
 
     const handleCommentPress = (postId: string) => {
         setSelectedPostId(postId);
         setCommentsModalVisible(true);
     };
+
+
+    const handleCloseCommentsModal = async () => {
+        setCommentsModalVisible(false);
+        setSelectedPostId(null);
+        // Recharger les posts pour mettre à jour le compteur de commentaires
+        await loadData();
+    };
+
 
     return (
         <SafeAreaProvider>
@@ -53,6 +76,7 @@ export default function SocialScreen() {
                 <ForumHeader notificationCount={27} />
                 
                 <ForumTabs />
+
 
                 <ScrollView 
                     style={styles.content}
@@ -66,6 +90,7 @@ export default function SocialScreen() {
                         <Text style={styles.createButtonText}>Partager une réussite</Text>
                     </TouchableOpacity>
 
+
                     <PostList
                         posts={posts}
                         loading={loading}
@@ -74,7 +99,9 @@ export default function SocialScreen() {
                     />
                 </ScrollView>
 
+
                 <BottomTabBar activeTab="/forum" />
+
 
                 <CreatePostModal
                     visible={createModalVisible}
@@ -82,13 +109,11 @@ export default function SocialScreen() {
                     onSubmit={handleCreatePost}
                 />
 
+
                 <PostCommentsModal
                     visible={commentsModalVisible}
                     postId={selectedPostId}
-                    onClose={() => {
-                        setCommentsModalVisible(false);
-                        setSelectedPostId(null);
-                    }}
+                    onClose={handleCloseCommentsModal}
                     onLoadComments={loadComments}
                     onAddComment={addComment}
                 />
@@ -96,6 +121,7 @@ export default function SocialScreen() {
         </SafeAreaProvider>
     );
 }
+
 
 const styles = StyleSheet.create({
     container: {
