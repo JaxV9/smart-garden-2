@@ -1,6 +1,6 @@
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-export type HomeSection = 'resume' | 'plants' | 'sensors'
+export type HomeSection = 'resume' | 'plants'
 
 type NavBarGardenSectionType = {
   currentSectionProps: HomeSection,
@@ -23,12 +23,6 @@ export const NavBarGardenSection = ({ currentSectionProps, setCurrentSectionProp
           onPress={() => setCurrentSectionProps('plants')}>
           <Text style={styles.text} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.85}>
             Plantes
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={[styles.button, currentSectionProps === "sensors" && styles.selected]}
-          onPress={() => setCurrentSectionProps('sensors')}>
-          <Text style={styles.text} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.85}>
-            Capteurs
           </Text>
         </TouchableOpacity>
       </View>

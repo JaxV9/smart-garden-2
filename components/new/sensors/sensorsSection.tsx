@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useFetch } from '@/hooks/useFetch';
 
 type SensorReading = {
@@ -53,11 +53,16 @@ export function SensorsSection() {
   const { httpClient } = useFetch(undefined);
   const [reading, setReading] = useState<SensorReading | null>(null);
   const [hasData, setHasData] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
 
   useEffect(() => {
     let isActive = true;
 
     const fetchLatest = async () => {
+      if (!hasLoadedOnce) {
+        setLoading(true);
+      }
       const http = await httpClient;
       const response = await http.get('/api/sensor-readings/latest');
 
@@ -68,11 +73,18 @@ export function SensorsSection() {
       if (response.status === 'Failure') {
         setHasData(false);
         setReading(null);
+        if (!hasLoadedOnce) {
+          setLoading(false);
+        }
         return;
       }
 
       setHasData(true);
       setReading(response.payload as SensorReading);
+      if (!hasLoadedOnce) {
+        setLoading(false);
+        setHasLoadedOnce(true);
+      }
     };
 
     fetchLatest();
@@ -82,7 +94,7 @@ export function SensorsSection() {
       isActive = false;
       clearInterval(intervalId);
     };
-  }, [httpClient]);
+  }, [httpClient, hasLoadedOnce]);
 
   const updatedLabel = (() => {
     if (!reading?.created_at) {
@@ -98,6 +110,7 @@ export function SensorsSection() {
   return (
     <ScrollView style={styles.scrollContainer}>
       <View style={styles.container}>
+        {loading && <ActivityIndicator style={styles.loader} />}
         {!hasData && (
           <View style={styles.noDataCard}>
             <Text style={styles.noDataText}>Aucune donnée capteur.</Text>
@@ -213,5 +226,9 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#6B7280',
     textAlign: 'center',
+  },
+  loader: {
+    marginTop: 8,
+    alignSelf: 'center',
   },
 });

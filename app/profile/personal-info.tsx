@@ -268,12 +268,6 @@ export default function PersonalInfoScreen() {
                 placeholder="●●●●●●●●"
                 placeholderTextColor={COLORS.placeholder}
               />
-              <Feather
-                name="eye"
-                size={18}
-                color={COLORS.icon}
-                style={styles.rightIconButton}
-              />
             </View>
 
             <TouchableOpacity
