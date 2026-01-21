@@ -3,10 +3,13 @@ import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import { useFetch } from "./useFetch";
 import { useUser } from "./useUser";
+import { useGardenContext } from "@/contexts/garden.context";
 
 export function useOnboarding() {
     const { httpClient } = useFetch(undefined)
     const { getUser } = useUser()
+
+    const { updateGardenInfo } = useGardenContext(); 
 
     const [gardenName, setGardenName] = useState<string | undefined>(undefined)
     const [gardenLocation, setGardenLocation] = useState<string | undefined>(undefined);
@@ -33,6 +36,11 @@ export function useOnboarding() {
         if (response.status !== 'Failure') {
             await getUser()
             setLoading(false)
+
+            updateGardenInfo({
+                name: gardenName ?? null,
+                location: gardenLocation ?? null,
+            });
 
             router.push('/')
             return

@@ -95,15 +95,29 @@ export function useUser() {
         setUser(prev => prev ? { ...prev, avatarUri: uri } : prev);
     }
 
-    function updateUser(updates: { name?: string; email?: string }) {
+    async function updateUser(updates: { name?: string; email?: string; level?: string | null }): Promise<"Success" | "Failure"> {
         setUser((prev) =>
             prev
-                ? {
-                    ...prev,
-                    ...updates,
+            ? {
+                ...prev,
+                ...updates,
                 }
-                : prev
-        );
+            : prev
+    );
+
+        try {
+            const http = await httpClient;
+            const response = await http.put("/api/user", updates);
+
+            if (response.status !== "Failure") {
+            await getUser();
+            }
+
+            return response.status;
+        } catch (error) {
+            console.error("updateUser failed:", error);
+            return "Failure";
+        }
     }
 
     return {
