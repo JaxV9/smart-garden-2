@@ -7,7 +7,7 @@ export default function RootLayout() {
       headerShown: false,
       animation: 'none',
       tabBarStyle: { paddingTop: 8 },
-      tabBarLabelStyle: { marginTop: 4 },
+      tabBarLabelStyle: { marginTop: 8 },
     }}>
       <Tabs.Screen name="home/index"
         options={{

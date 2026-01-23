@@ -1,159 +1,34 @@
-import CreateTopicModal from '@/components/new/forum/CreateTopicModal';
-import FilterButton from '@/components/new/forum/FilterButton';
-import FilterModal from '@/components/new/forum/FilterModal';
 import ForumHeader from '@/components/new/forum/ForumHeader';
-import ForumTabs from '@/components/new/forum/ForumTabs';
-import SearchBar from '@/components/new/forum/SearchBar';
-import TopicList from '@/components/new/forum/TopicList';
-import { useForumContext } from '@/contexts/forum.context';
-import { useForum } from '@/hooks/useForum';
-import { Ionicons } from '@expo/vector-icons';
-import { useFocusEffect, useRouter } from 'expo-router';
-import { useCallback, useState } from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import ForumTabs, { TabType } from '@/components/new/forum/ForumTabs';
+import { TrueForum } from '@/components/new/trueForum/trueForum';
+import { TrueSocial } from '@/components/new/trueSocial/trueSocial';
+import { TrueTutos } from '@/components/new/trueTutos/trueTutos';
+import { useState } from 'react';
+import { StyleSheet, View } from 'react-native';
 
 
 export default function Index() {
-    const router = useRouter();
-    const { tags, topics } = useForumContext();
-    const { loadTags, loadTopics, createTopic } = useForum();
-    
-    const [selectedTagId, setSelectedTagId] = useState<string | null>(null);
-    const [searchQuery, setSearchQuery] = useState('');
-    const [loading, setLoading] = useState(false);
-    
-    const [filterModalVisible, setFilterModalVisible] = useState(false);
-    const [createModalVisible, setCreateModalVisible] = useState(false);
-    
-    const [newTopicTitle, setNewTopicTitle] = useState('');
-    const [newTopicContent, setNewTopicContent] = useState('');
-    const [selectedTagsForTopic, setSelectedTagsForTopic] = useState<string[]>([]);
 
-
-    // Recharge les données à chaque fois que l'écran est en focus
-    useFocusEffect(
-        useCallback(() => {
-            const loadData = async () => {
-                setLoading(true);
-                await loadTags();
-                await loadTopics(selectedTagId || undefined);
-                setLoading(false);
-            };
-            loadData();
-        }, [selectedTagId])
-    );
-
-
-    const filteredTopics = topics.filter(topic =>
-        topic.title.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-
-
-    const handleFilterSelect = async (tagId: string | null) => {
-        setSelectedTagId(tagId);
-        setFilterModalVisible(false);
-        setLoading(true);
-        await loadTopics(tagId || undefined);
-        setLoading(false);
-    };
-
-
-    const toggleTagSelection = (tagId: string) => {
-        if (selectedTagsForTopic.includes(tagId)) {
-            setSelectedTagsForTopic(selectedTagsForTopic.filter(id => id !== tagId));
-        } else {
-            setSelectedTagsForTopic([...selectedTagsForTopic, tagId]);
-        }
-    };
-
-
-    const handleCreateTopic = async () => {
-        if (!newTopicTitle.trim() || !newTopicContent.trim()) {
-            alert('Veuillez remplir le titre et le contenu');
-            return;
-        }
-
-
-        const result = await createTopic(newTopicTitle, newTopicContent, selectedTagsForTopic);
-        
-        if (result === 'Success') {
-            setCreateModalVisible(false);
-            setNewTopicTitle('');
-            setNewTopicContent('');
-            setSelectedTagsForTopic([]);
-            // Recharger les topics après création
-            setLoading(true);
-            await loadTopics(selectedTagId || undefined);
-            setLoading(false);
-        } else {
-            alert('Erreur lors de la création du topic');
-        }
-    };
-
-
-    const selectedTagName = selectedTagId 
-        ? tags.find(t => t.id === selectedTagId)?.name 
-        : undefined;
-
+    const [currentTab, setCurrentTab] = useState<TabType>('forum')
 
     return (
         <View style={styles.container}>
             <ForumHeader notificationCount={27} />
-            
-            <ForumTabs activeTab="forum" />
 
+            <ForumTabs activeTab={currentTab} setCurrentTab={setCurrentTab} />
+            {
+                currentTab === 'social' &&
+                <TrueSocial />
+            }
+            {
+                currentTab === 'forum' &&
+                <TrueForum />
+            }
+            {
+                currentTab === 'tutos' &&
+                <TrueTutos />
+            }
 
-            <ScrollView style={styles.content}>
-                <TouchableOpacity 
-                    style={styles.askButton}
-                    onPress={() => setCreateModalVisible(true)}
-                >
-                    <Ionicons name="add" size={20} color="white" />
-                    <Text style={styles.askButtonText}>Poser une question</Text>
-                </TouchableOpacity>
-
-
-                <SearchBar 
-                    value={searchQuery} 
-                    onChangeText={setSearchQuery} 
-                />
-
-
-                <FilterButton
-                    selectedTagName={selectedTagName}
-                    onPress={() => setFilterModalVisible(true)}
-                />
-
-
-                <TopicList
-                    topics={filteredTopics}
-                    loading={loading}
-                    onTopicPress={(topicId) => router.push(`/forum/topic/${topicId}`)}
-                />
-            </ScrollView>
-
-
-            <FilterModal
-                visible={filterModalVisible}
-                tags={tags}
-                selectedTagId={selectedTagId}
-                onClose={() => setFilterModalVisible(false)}
-                onSelectTag={handleFilterSelect}
-            />
-
-
-            <CreateTopicModal
-                visible={createModalVisible}
-                tags={tags}
-                title={newTopicTitle}
-                content={newTopicContent}
-                selectedTags={selectedTagsForTopic}
-                onClose={() => setCreateModalVisible(false)}
-                onTitleChange={setNewTopicTitle}
-                onContentChange={setNewTopicContent}
-                onToggleTag={toggleTagSelection}
-                onSubmit={handleCreateTopic}
-            />
         </View>
     );
 }

@@ -30,12 +30,12 @@ interface Tutorial {
 // Fonction pour extraire l'ID YouTube d'une URL
 const getYoutubeVideoId = (url: string): string | null => {
     if (!url) return null;
-    
+
     // Formats supportés:
     // https://www.youtube.com/watch?v=VIDEO_ID
     // https://youtu.be/VIDEO_ID
     // https://www.youtube.com/embed/VIDEO_ID
-    
+
     const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
     const match = url.match(regExp);
     return (match && match[7].length === 11) ? match[7] : null;
@@ -46,7 +46,7 @@ export default function TutorialDetailScreen() {
     const { id } = useLocalSearchParams<{ id: string }>();
     const { tutorials } = useTutorialsContext();
     const { toggleLike, incrementViewCount } = useTutorials();
-    
+
     const [tutorial, setTutorial] = useState<Tutorial | null>(null);
     const [loading, setLoading] = useState(true);
     const [playing, setPlaying] = useState(false);
@@ -59,9 +59,9 @@ export default function TutorialDetailScreen() {
 
     const loadTutorial = async () => {
         setLoading(true);
-        
+
         const foundTutorial = tutorials.find(t => t.id === id);
-        
+
         if (foundTutorial) {
             setTutorial(foundTutorial as Tutorial);
             // Incrémenter le compteur de vues
@@ -71,7 +71,7 @@ export default function TutorialDetailScreen() {
                 console.log('Erreur incrémentation vues (non critique):', error);
             }
         }
-        
+
         setLoading(false);
     };
 
@@ -118,7 +118,7 @@ export default function TutorialDetailScreen() {
                 <View style={styles.errorContainer}>
                     <Ionicons name="alert-circle-outline" size={64} color="#ef4444" />
                     <Text style={styles.errorText}>Tutoriel introuvable</Text>
-                    <TouchableOpacity 
+                    <TouchableOpacity
                         style={styles.backButton}
                         onPress={() => router.back()}
                     >
@@ -137,7 +137,7 @@ export default function TutorialDetailScreen() {
             <View style={styles.container}>
                 {/* Header avec bouton retour */}
                 <View style={styles.header}>
-                    <TouchableOpacity 
+                    <TouchableOpacity
                         style={styles.headerButton}
                         onPress={() => router.back()}
                     >
@@ -147,7 +147,7 @@ export default function TutorialDetailScreen() {
                     <View style={styles.headerButton} />
                 </View>
 
-                <ScrollView 
+                <ScrollView
                     style={styles.scrollView}
                     contentContainerStyle={styles.scrollContent}
                 >
@@ -236,6 +236,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#f5f5f5',
+        height: '100%'
     },
     header: {
         flexDirection: 'row',
@@ -246,6 +247,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'white',
         borderBottomWidth: 1,
         borderBottomColor: '#e5e5e5',
+        marginTop: 64
     },
     headerButton: {
         width: 40,
