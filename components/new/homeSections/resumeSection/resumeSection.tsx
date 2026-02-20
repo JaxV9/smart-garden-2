@@ -1,8 +1,8 @@
 import { useGardenContext } from '@/contexts/garden.context';
+import { useTasks } from '@/hooks/useTasks';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { useTasks } from '@/hooks/useTasks';
 
 
 export const ResumeSection = () => {
@@ -24,11 +24,11 @@ export const ResumeSection = () => {
                         <Text style={styles.label}>Tâches complétées</Text>
                     </View>
                     <View style={[styles.item, styles.activity]}>
-                        <Text style={styles.numbers}>0</Text>
+                        <Text style={styles.numbers}>3</Text>
                         <Text style={styles.label}>Jours d'activité</Text>
                     </View>
                     <View style={[styles.item, styles.sensor]}>
-                        <Text style={styles.numbers}>0</Text>
+                        <Text style={styles.numbers}>1</Text>
                         <Text style={styles.label}>Capteurs connectés</Text>
                     </View>
                 </View>
