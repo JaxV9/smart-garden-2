@@ -3,3 +3,6 @@ run:
 
 build-android:
 	eas build --platform android --profile preview-apk
+
+build-ios:
+	eas build --platform android --profile preview-ios

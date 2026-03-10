@@ -4,7 +4,7 @@ import { useStorage } from "./useStorage";
 
 
 export function useFetch(baseUrlProps: string | undefined) {
-    const baseUrl = baseUrlProps !== undefined ? baseUrlProps : "https://smart-garden-api-production-fba5.up.railway.app"
+    const baseUrl = baseUrlProps !== undefined ? baseUrlProps : "https://smart-garden-api-production.up.railway.app"
     const { getToken } = useStorage()
 
     const [httpClient] = useState(async () => new QuickHttp(baseUrl, {
