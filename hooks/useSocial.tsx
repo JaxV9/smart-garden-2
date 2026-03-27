@@ -1,5 +1,6 @@
 import { useSocialContext } from "@/contexts/social.context";
 import { useFetch } from "./useFetch";
+import { useCallback } from "react";
 
 /**
  * Représente un post social.
@@ -65,14 +66,14 @@ export function useSocial() {
      * Charge la liste des posts.
      * @returns {Promise<"Success" | "Failure">} Statut de la requête.
      */
-    async function loadPosts(): Promise<"Success" | "Failure"> {
+    const loadPosts = useCallback(async (): Promise<"Success" | "Failure"> => {
         const http = await httpClient;
         const response = await http.get("/api/posts");
         if (response.status !== "Failure") {
             setPosts(response.payload as Post[]);
         }
         return response.status;
-    }
+    }, [httpClient, setPosts]);
 
     /**
      * Crée un nouveau post et l'ajoute à la liste locale.
@@ -80,10 +81,10 @@ export function useSocial() {
      * @param {string[]} images - Liste d'URLs d'images.
      * @returns {Promise<"Success" | "Failure">} Statut de la requête.
      */
-    async function createPost(
+    const createPost = useCallback(async (
         content: string,
         images: string[]
-    ): Promise<"Success" | "Failure"> {
+    ): Promise<"Success" | "Failure"> => {
         const payload: CreatePostPayload = { content, images };
         const http = await httpClient;
         const response = await http.post("/api/post", payload);
@@ -92,14 +93,14 @@ export function useSocial() {
             setPosts([newPost, ...posts]);
         }
         return response.status;
-    }
+    }, [httpClient, posts, setPosts]);
 
     /**
      * Toggle le like sur un post (like/unlike).
      * @param {string} postId - Identifiant du post.
      * @returns {Promise<"Success" | "Failure">} Statut de la requête.
      */
-    async function toggleLike(postId: string): Promise<"Success" | "Failure"> {
+    const toggleLike = useCallback(async (postId: string): Promise<"Success" | "Failure"> => {
         const http = await httpClient;
         const response = await http.post(`/api/post/${postId}/like`, {});
         if (response.status !== "Failure") {
@@ -107,7 +108,7 @@ export function useSocial() {
             await loadPosts();
         }
         return response.status;
-    }
+    }, [httpClient, loadPosts]);
 
     /**
      * Ajoute un commentaire à un post donné.
@@ -115,10 +116,10 @@ export function useSocial() {
      * @param {string} content - Contenu du commentaire.
      * @returns {Promise<PostComment | null>} Le commentaire ajouté ou `null` si échec.
      */
-    async function addComment(
+    const addComment = useCallback(async (
         postId: string,
         content: string
-    ): Promise<PostComment | null> {
+    ): Promise<PostComment | null> => {
         const payload: AddPostCommentPayload = { content };
         const http = await httpClient;
         const response = await http.post(`/api/post/${postId}/comment`, payload);
@@ -126,14 +127,14 @@ export function useSocial() {
             return response.payload as PostComment;
         }
         return null;
-    }
+    }, [httpClient]);
 
     /**
      * Récupère les commentaires d'un post spécifique.
      * @param {string} postId - Identifiant du post.
      * @returns {Promise<PostComment[]>} Liste de commentaires (vide si échec).
      */
-    async function loadComments(postId: string): Promise<PostComment[]> {
+    const loadComments = useCallback(async (postId: string): Promise<PostComment[]> => {
         try {
             const http = await httpClient;
             const response = await http.get(`/api/post/${postId}/comments`);
@@ -146,27 +147,27 @@ export function useSocial() {
             console.error("Erreur loadComments:", error);
             return [];
         }
-    }
+    }, [httpClient]);
 
     /**
      * Supprime un post.
      * @param {string} postId - Identifiant du post à supprimer.
      * @returns {Promise<"Success" | "Failure">} Statut de la requête.
      */
-    async function deletePost(postId: string): Promise<"Success" | "Failure"> {
+    const deletePost = useCallback(async (postId: string): Promise<"Success" | "Failure"> => {
         const http = await httpClient;
         const response = await http.delete(`/api/post/${postId}`);
         if (response.status !== "Failure") {
             setPosts(posts.filter(p => p.id !== postId));
         }
         return response.status;
-    }
+    }, [httpClient, posts, setPosts]);
 
     /**
      * Récupère les posts créés par l'utilisateur connecté.
      * @returns {Promise<Post[]>} Liste de posts (vide si échec).
      */
-    async function getUserPosts(): Promise<Post[]> {
+    const getUserPosts = useCallback(async (): Promise<Post[]> => {
         try {
             const http = await httpClient;
             const response = await http.get("/api/user/posts");
@@ -179,7 +180,7 @@ export function useSocial() {
             console.error("Erreur getUserPosts:", error);
             return [];
         }
-    }
+    }, [httpClient]);
 
     return {
         loadPosts,

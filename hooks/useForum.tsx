@@ -1,5 +1,6 @@
 import { useForumContext } from "@/contexts/forum.context";
 import { useFetch } from "./useFetch";
+import { useCallback } from "react";
 
 /**
  * Représente un tag (catégorie) de forum.
@@ -124,7 +125,7 @@ export function useForum() {
      * Charge les tags s’ils ne sont pas déjà présents dans le contexte.
      * @returns {Promise<"Success" | "Failure">} Statut de la requête.
      */
-    async function loadTags(): Promise<"Success" | "Failure"> {
+    const loadTags = useCallback(async (): Promise<"Success" | "Failure"> => {
         if (tags.length > 0) return "Success";
 
         const http = await httpClient;
@@ -133,14 +134,14 @@ export function useForum() {
             setTags(response.payload as ForumTag[]);
         }
         return response.status;
-    }
+    }, [httpClient, tags.length, setTags]);
 
     /**
      * Charge la liste des sujets, éventuellement filtrée par tag.
      * @param {string} [tagId] - Identifiant du tag pour filtrer les sujets.
      * @returns {Promise<"Success" | "Failure">} Statut de la requête.
      */
-    async function loadTopics(tagId?: string): Promise<"Success" | "Failure"> {
+    const loadTopics = useCallback(async (tagId?: string): Promise<"Success" | "Failure"> => {
         const http = await httpClient;
         const url = tagId ? `/api/topics?tagId=${tagId}` : "/api/topics";
         const response = await http.get(url);
@@ -148,21 +149,21 @@ export function useForum() {
             setTopics(response.payload as Topic[]);
         }
         return response.status;
-    }
+    }, [httpClient, setTopics]);
 
     /**
      * Récupère les détails d’un sujet (topic) spécifique par son ID.
      * @param {string} topicId - Identifiant du sujet à récupérer.
      * @returns {Promise<TopicDetail | null>} Le sujet complet ou `null` en cas d’échec.
      */
-    async function loadTopicById(topicId: string): Promise<TopicDetail | null> {
+    const loadTopicById = useCallback(async (topicId: string): Promise<TopicDetail | null> => {
         const http = await httpClient;
         const response = await http.get(`/api/topic/${topicId}`);
         if (response.status !== "Failure") {
             return response.payload as TopicDetail;
         }
         return null;
-    }
+    }, [httpClient]);
 
     /**
      * Crée un nouveau sujet et l’ajoute à la liste locale.
@@ -171,11 +172,11 @@ export function useForum() {
      * @param {string[]} tagIds - Liste d’identifiants de tags à associer.
      * @returns {Promise<"Success" | "Failure">} Statut de la requête.
      */
-    async function createTopic(
+    const createTopic = useCallback(async (
         title: string,
         content: string,
         tagIds: string[]
-    ): Promise<"Success" | "Failure"> {
+    ): Promise<"Success" | "Failure"> => {
         const payload: CreateTopicPayload = { title, content, tagIds };
         const http = await httpClient;
         const response = await http.post("/api/topic", payload);
@@ -184,7 +185,7 @@ export function useForum() {
             setTopics([newTopic, ...topics]);
         }
         return response.status;
-    }
+    }, [httpClient, topics, setTopics]);
 
     /**
      * Ajoute un commentaire à un sujet donné.
@@ -192,10 +193,10 @@ export function useForum() {
      * @param {string} content - Contenu du commentaire.
      * @returns {Promise<Comment | null>} Le commentaire ajouté ou `null` si échec.
      */
-    async function addComment(
+    const addComment = useCallback(async (
         topicId: string,
         content: string
-    ): Promise<Comment | null> {
+    ): Promise<Comment | null> => {
         const payload: AddCommentPayload = { content };
         const http = await httpClient;
         const response = await http.post(`/api/topic/${topicId}/comment`, payload);
@@ -203,14 +204,14 @@ export function useForum() {
             return response.payload as Comment;
         }
         return null;
-    }
+    }, [httpClient]);
 
     /**
      * Crée un nouveau tag et l’ajoute à la liste locale.
      * @param {string} name - Nom du tag.
      * @returns {Promise<"Success" | "Failure">} Statut de la requête.
      */
-    async function createTag(name: string): Promise<"Success" | "Failure"> {
+    const createTag = useCallback(async (name: string): Promise<"Success" | "Failure"> => {
         const payload: CreateTagPayload = { name };
         const http = await httpClient;
         const response = await http.post("/api/tag", payload);
@@ -219,13 +220,13 @@ export function useForum() {
             setTags([...tags, newTag]);
         }
         return response.status;
-    }
+    }, [httpClient, tags, setTags]);
 
     /**
      * Récupère les statistiques liées à l’utilisateur (topics, commentaires, etc.).
      * @returns {Promise<UserStats | null>} Les statistiques ou `null` en cas d’échec.
      */
-    async function getUserStats(): Promise<UserStats | null> {
+    const getUserStats = useCallback(async (): Promise<UserStats | null> => {
         try {
             const http = await httpClient;
             const response = await http.get("/api/stats");
@@ -239,13 +240,13 @@ export function useForum() {
             console.error("Erreur getUserStats:", error);
             return null;
         }
-    }
+    }, [httpClient]);
 
     /**
      * Récupère les sujets créés par l’utilisateur connecté.
      * @returns {Promise<Topic[]>} Liste de sujets (vide si échec).
      */
-    async function getUserTopics(): Promise<Topic[]> {
+    const getUserTopics = useCallback(async (): Promise<Topic[]> => {
         try {
             const http = await httpClient;
             const response = await http.get("/api/user/topics");
@@ -258,13 +259,13 @@ export function useForum() {
             console.error("Erreur getUserTopics:", error);
             return [];
         }
-    }
+    }, [httpClient]);
 
     /**
      * Récupère les commentaires publiés par l’utilisateur connecté.
      * @returns {Promise<UserComment[]>} Liste de commentaires (vide si échec).
      */
-    async function getUserComments(): Promise<UserComment[]> {
+    const getUserComments = useCallback(async (): Promise<UserComment[]> => {
         try {
             const http = await httpClient;
             const response = await http.get("/api/user/comments");
@@ -277,7 +278,7 @@ export function useForum() {
             console.error("Erreur getUserComments:", error);
             return [];
         }
-    }
+    }, [httpClient]);
 
     return {
         loadTags,

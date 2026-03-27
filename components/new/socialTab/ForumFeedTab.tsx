@@ -11,7 +11,7 @@ import { useCallback, useState } from "react";
 import { ScrollView, StyleSheet, Text, TouchableOpacity } from "react-native";
 
 
-export default function Index() {
+export const ForumFeedTab = () => {
 
     const [createModalVisible, setCreateModalVisible] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');

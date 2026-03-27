@@ -1,5 +1,6 @@
 import { useTutorialsContext } from "@/contexts/tutorials.context";
 import { useFetch } from "./useFetch";
+import { useCallback } from "react";
 
 
 /**
@@ -74,10 +75,10 @@ export function useTutorials() {
      * @param {TutorialType} [type] - Type pour filtrer (VIDEO ou ARTICLE).
      * @returns {Promise<"Success" | "Failure">} Statut de la requête.
      */
-    async function loadTutorials(
+    const loadTutorials = useCallback(async (
         category?: TutorialCategory,
         type?: TutorialType
-    ): Promise<"Success" | "Failure"> {
+    ): Promise<"Success" | "Failure"> => {
         const http = await httpClient;
         
         const params = new URLSearchParams();
@@ -93,7 +94,7 @@ export function useTutorials() {
             setTutorials(response.payload as Tutorial[]);
         }
         return response.status;
-    }
+    }, [httpClient, setTutorials]);
 
 
     /**
@@ -101,14 +102,14 @@ export function useTutorials() {
      * @param {string} tutorialId - Identifiant du tutoriel à récupérer.
      * @returns {Promise<Tutorial | null>} Le tutoriel complet ou `null` en cas d'échec.
      */
-    async function loadTutorialById(tutorialId: string): Promise<Tutorial | null> {
+    const loadTutorialById = useCallback(async (tutorialId: string): Promise<Tutorial | null> => {
         const http = await httpClient;
         const response = await http.get(`/api/tutorial/${tutorialId}`);
         if (response.status !== "Failure") {
             return response.payload as Tutorial;
         }
         return null;
-    }
+    }, [httpClient]);
 
 
     /**
@@ -116,9 +117,9 @@ export function useTutorials() {
      * @param {CreateTutorialPayload} tutorialData - Données du tutoriel.
      * @returns {Promise<"Success" | "Failure">} Statut de la requête.
      */
-    async function createTutorial(
+    const createTutorial = useCallback(async (
         tutorialData: CreateTutorialPayload
-    ): Promise<"Success" | "Failure"> {
+    ): Promise<"Success" | "Failure"> => {
         const http = await httpClient;
         const response = await http.post("/api/tutorial", tutorialData);
         if (response.status !== "Failure") {
@@ -126,7 +127,7 @@ export function useTutorials() {
             setTutorials([newTutorial, ...tutorials]);
         }
         return response.status;
-    }
+    }, [httpClient, tutorials, setTutorials]);
 
 
     /**
@@ -135,10 +136,10 @@ export function useTutorials() {
      * @param {string} tutorialId - Identifiant du tutoriel.
      * @returns {Promise<"Success" | "Failure">} Statut de la requête.
      */
-    async function toggleLike(tutorialId: string): Promise<"Success" | "Failure"> {
+    const toggleLike = useCallback(async (tutorialId: string): Promise<"Success" | "Failure"> => {
         try {
-            // Mise à jour optimiste locale avant l'appel API
-            const updatedTutorials = tutorials.map((tutorial: Tutorial) => {
+            // Mise à jour optimiste locale avant l'appel API (functional state)
+            setTutorials((prevTutorials) => prevTutorials.map((tutorial: Tutorial) => {
                 if (tutorial.id === tutorialId) {
                     const isCurrentlyLiked = tutorial.isLikedByUser || false;
                     return {
@@ -153,27 +154,34 @@ export function useTutorials() {
                     };
                 }
                 return tutorial;
-            });
-            setTutorials(updatedTutorials);
+            }));
 
             // Appel API
             const http = await httpClient;
             const response = await http.post(`/api/tutorial/${tutorialId}/like`, {});
             
             if (response.status === "Failure") {
-                // Rollback en cas d'échec
-                setTutorials(tutorials);
+                // Rollback en cas d'échec (relance inversée)
+                setTutorials((prev) => prev.map((t: Tutorial) => t.id === tutorialId ? {
+                    ...t,
+                    isLikedByUser: !t.isLikedByUser,
+                    _count: { ...t._count, likes: t.isLikedByUser ? t._count.likes - 1 : t._count.likes + 1 }
+                } : t));
                 return "Failure";
             }
             
             return "Success";
         } catch (error) {
             console.error('Erreur toggleLike:', error);
-            // Rollback en cas d'erreur
-            setTutorials(tutorials);
+            // Rollback basique si API crash complètement
+            setTutorials((prev) => prev.map((t: Tutorial) => t.id === tutorialId ? {
+                ...t,
+                isLikedByUser: !t.isLikedByUser,
+                _count: { ...t._count, likes: t.isLikedByUser ? t._count.likes - 1 : t._count.likes + 1 }
+            } : t));
             return "Failure";
         }
-    }
+    }, [httpClient, setTutorials]);
 
 
     /**
@@ -182,7 +190,7 @@ export function useTutorials() {
      * @param {string} tutorialId - Identifiant du tutoriel.
      * @returns {Promise<"Success" | "Failure">} Statut de la requête.
      */
-    async function incrementViewCount(tutorialId: string): Promise<"Success" | "Failure"> {
+    const incrementViewCount = useCallback(async (tutorialId: string): Promise<"Success" | "Failure"> => {
         try {
             // Mise à jour locale immédiate
             const updatedTutorials = tutorials.map((tutorial: Tutorial) => 
@@ -202,7 +210,7 @@ export function useTutorials() {
             console.log('Erreur incrémentation vues (non critique):', error);
             return "Success";
         }
-    }
+    }, [httpClient, tutorials, setTutorials]);
 
 
     /**
@@ -210,7 +218,7 @@ export function useTutorials() {
      * @param {string} tutorialId - Identifiant du tutoriel à supprimer.
      * @returns {Promise<"Success" | "Failure">} Statut de la requête.
      */
-    async function deleteTutorial(tutorialId: string): Promise<"Success" | "Failure"> {
+    const deleteTutorial = useCallback(async (tutorialId: string): Promise<"Success" | "Failure"> => {
         const http = await httpClient;
         const response = await http.delete(`/api/tutorial/${tutorialId}`);
         if (response.status !== "Failure") {
@@ -218,14 +226,14 @@ export function useTutorials() {
             setTutorials(filteredTutorials);
         }
         return response.status;
-    }
+    }, [httpClient, tutorials, setTutorials]);
 
 
     /**
      * Récupère les tutoriels créés par l'utilisateur connecté.
      * @returns {Promise<Tutorial[]>} Liste de tutoriels (vide si échec).
      */
-    async function getUserTutorials(): Promise<Tutorial[]> {
+    const getUserTutorials = useCallback(async (): Promise<Tutorial[]> => {
         try {
             const http = await httpClient;
             const response = await http.get("/api/user/tutorials");
@@ -238,14 +246,14 @@ export function useTutorials() {
             console.error("Erreur getUserTutorials:", error);
             return [];
         }
-    }
+    }, [httpClient]);
 
 
     /**
      * Récupère la liste des catégories disponibles.
      * @returns {Promise<TutorialCategory[]>} Liste des catégories (vide si échec).
      */
-    async function getCategories(): Promise<TutorialCategory[]> {
+    const getCategories = useCallback(async (): Promise<TutorialCategory[]> => {
         try {
             const http = await httpClient;
             const response = await http.get("/api/categories");
@@ -258,7 +266,7 @@ export function useTutorials() {
             console.error("Erreur getCategories:", error);
             return [];
         }
-    }
+    }, [httpClient]);
 
 
     return {
