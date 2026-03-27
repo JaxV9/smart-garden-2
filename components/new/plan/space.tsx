@@ -1,7 +1,8 @@
+import { useVegetablesContext } from "@/contexts/vegetables.context"
 import { GardenSpace } from "@/hooks/usePlan"
 import { Image } from "expo-image"
 import { useMemo, useRef, useState } from "react"
-import { Pressable, StyleSheet, Text, TextInput, View } from "react-native"
+import { Pressable, StyleSheet, TextInput, View } from "react-native"
 
 interface SpaceProps {
     scale: number,
@@ -16,6 +17,16 @@ export const Space = ({ scale, gardenSpace, toggleSpaceEditor, updateSpaceName, 
     const inputRef = useRef<TextInput>(null);
     const [updatingCol, setUpdatingCol] = useState<{ col: number, row: number }>()
     const [spaceSize, setSpaceSize] = useState<{ width: number, height: number }>({ width: 0, height: 0 });
+
+    const { vegetablesContext } = useVegetablesContext();
+
+    function getIconUrl(vegetableId: string): string {
+        if (!vegetableId) return ''
+
+        const vegetable = vegetablesContext.find((vegetable) => vegetable.id === vegetableId);
+        if (!vegetable) return ''
+        return vegetable.icons
+    }
 
     function changeName(newName: string): void {
         setIsEditingName(true)
@@ -103,7 +114,8 @@ export const Space = ({ scale, gardenSpace, toggleSpaceEditor, updateSpaceName, 
                                         style={getStyle(rowId, colId, col)}>
                                         {
                                             col.vegetableId ?
-                                                <Text style={styles.vegeIcon}>🌱​</Text>
+                                                <Image source={getIconUrl(col.vegetableId)}
+                                                    style={styles.vegeIcon} />
                                                 :
                                                 <View style={styles.dot}></View>
 
@@ -170,7 +182,8 @@ const styles = StyleSheet.create({
         zIndex: 2
     },
     vegeIcon: {
-        fontSize: 28,
+        width: 42,
+        height: 42,
         margin: 'auto'
     },
 });

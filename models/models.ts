@@ -24,6 +24,7 @@ export type Vegetable = {
   affinity: string[];
   bad_neighbors: string[];
   images: string[];
+  icons: string
 };
 
 export interface GardenVegetablePayload {
@@ -81,7 +82,7 @@ export type Task = {
   description: string | null;
   category: string | null;
   plant: GardenVegetablePayload | null;
-  dueDate: string | null;      
+  dueDate: string | null;
   priority: TaskPriority | null;
   reminder: boolean | null;
   completed: boolean;
