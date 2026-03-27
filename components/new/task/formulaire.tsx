@@ -130,7 +130,7 @@ export function Formulaire(props: FormulaireProps) {
   );
 }
 
-const PLACEHOLDER = "#9AA3A8";
+const PLACEHOLDER = "#111827";
 const BORDER = "#E4E7EA";
 const TEXT = "#1C1C1C";
 const GREEN = "#5A8E57";

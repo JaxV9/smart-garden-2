@@ -57,7 +57,7 @@ export default function CreatePostModal({ visible, onClose, onSubmit }: CreatePo
                             multiline
                             numberOfLines={6}
                             textAlignVertical="top"
-                            placeholderTextColor="#999"
+                            placeholderTextColor="#111827"
                         />
 
                         {images.length > 0 && (

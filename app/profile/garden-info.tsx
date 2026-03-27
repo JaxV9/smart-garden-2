@@ -197,7 +197,7 @@ const COLORS = {
   border: '#E5E7EB',
   primary: '#4F8F46',
   icon: '#9CA3AF',
-  placeholder: '#9CA3AF',
+  placeholder: '#111827',
   chipBg: '#111827',
   chipText: '#FFFFFF',
 };

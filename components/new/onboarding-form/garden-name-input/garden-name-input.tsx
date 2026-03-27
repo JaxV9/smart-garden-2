@@ -9,7 +9,7 @@ export function GardenNameInput({ gardenName, setGardenName }: GardenNameInputPr
 
     return (
         <View>
-            <TextInput style={styles.input} placeholder="Nom du jardin" onChangeText={setGardenName} value={gardenName} />
+            <TextInput style={styles.input} placeholder="Nom du jardin" placeholderTextColor="#111827" onChangeText={setGardenName} value={gardenName} />
         </View>
     )
 }

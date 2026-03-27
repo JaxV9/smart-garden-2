@@ -88,7 +88,7 @@ export const TrueTutos = () => {
                         placeholder="Rechercher un tutoriel..."
                         value={searchQuery}
                         onChangeText={setSearchQuery}
-                        placeholderTextColor="#999"
+                        placeholderTextColor="#111827"
                     />
                 </View>
 
