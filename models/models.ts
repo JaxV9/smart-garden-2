@@ -8,6 +8,7 @@ export type User = {
 export type Vegetable = {
   id: string;
   name: string;
+  category?: string[];
   description: string;
   specifications: string[];
   difficulty: string;
