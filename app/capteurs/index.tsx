@@ -2,11 +2,17 @@ import { BackButton } from '@/components/new/backButton/backButton';
 import { SensorsSection } from '@/components/new/sensors/sensorsSection';
 import { router } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
+import { Header } from "@/components/new/header/header";
 
 export default function Index() {
   return (
     <View style={styles.container}>
-      <BackButton callback={() => router.replace('/home')} />
+      <Header/>
+      
+      <View style={styles.actionsRow}>
+        <BackButton callback={() => router.replace("/home")} />
+      </View>
+      
       <SensorsSection />
     </View>
   );
@@ -15,10 +21,11 @@ export default function Index() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 64,
-    paddingLeft: 8,
-    paddingRight: 8,
-    gap: 16,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: "#F3F4F6",
+  },
+  actionsRow: {
+    paddingHorizontal: 16,
+    paddingTop: 12,
+    paddingBottom: 8,
   },
 });

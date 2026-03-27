@@ -36,7 +36,7 @@ const styles = StyleSheet.create({
         height: 32,
         marginLeft: 'auto',
         marginRight: 16,
-        zIndex: 200
+        zIndex: 200,
     },
     saveIcon: {
         width: 32,
@@ -50,6 +50,6 @@ const styles = StyleSheet.create({
         marginRight: 16,
         zIndex: 200,
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'center',
     }
 });
