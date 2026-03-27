@@ -95,7 +95,7 @@ export function useUser() {
         setUser(prev => prev ? { ...prev, avatarUri: uri } : prev);
     }
 
-    async function updateUser(updates: { name?: string; email?: string; level?: string | null }): Promise<"Success" | "Failure"> {
+    async function updateUser(updates: { name?: string; email?: string; level?: string | null; password?: string }): Promise<"Success" | "Failure"> {
         setUser((prev) =>
             prev
             ? {
