@@ -30,7 +30,7 @@ export const GardenVegeList = ({ gardenVegetables, closeIsUpdatingCel, updateCel
                 {
                     gardenVegetables.map((gardenVegetable, index) => (
                         <Pressable onPress={() => selectVegetable(gardenVegetable)} key={index} style={styles.vegetable}>
-                            <Text style={styles.vegeIcon}>🌱​</Text>
+                            <Image source={gardenVegetable.icons} style={styles.vegeIcon} />
                             <Text style={styles.vegeLabel}>{gardenVegetable.name}</Text>
                         </Pressable>
                     ))
@@ -76,7 +76,8 @@ const styles = StyleSheet.create({
         marginRight: 8,
     },
     vegeIcon: {
-        fontSize: 28,
+        width: 64,
+        height: 64,
         margin: 'auto'
     },
     vegeLabel: {
