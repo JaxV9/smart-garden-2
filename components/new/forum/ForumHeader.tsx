@@ -11,11 +11,11 @@ export default function ForumHeader({ notificationCount = 0 }: ForumHeaderProps)
             <Text style={styles.headerTitle}>Forum</Text>
             <View style={styles.notificationBadge}>
                 <Ionicons name="notifications-outline" size={28} color="white" />
-                {notificationCount > 0 && (
+                {/* {notificationCount > 0 && (
                     <View style={styles.badge}>
                         <Text style={styles.badgeText}>{notificationCount}</Text>
                     </View>
-                )}
+                )} */}
             </View>
         </View>
     );
