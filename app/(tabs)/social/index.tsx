@@ -1,8 +1,8 @@
 import ForumHeader from '@/components/new/forum/ForumHeader';
 import ForumTabs, { TabType } from '@/components/new/forum/ForumTabs';
-import { TrueForum } from '@/components/new/trueForum/trueForum';
-import { TrueSocial } from '@/components/new/trueSocial/trueSocial';
-import { TrueTutos } from '@/components/new/trueTutos/trueTutos';
+import { ForumFeedTab } from '@/components/new/socialTab/ForumFeedTab';
+import { SocialFeedTab } from '@/components/new/socialTab/SocialFeedTab';
+import { TutosFeedTab } from '@/components/new/socialTab/TutosFeedTab';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
@@ -18,15 +18,15 @@ export default function Index() {
             <ForumTabs activeTab={currentTab} setCurrentTab={setCurrentTab} />
             {
                 currentTab === 'social' &&
-                <TrueSocial />
+                <SocialFeedTab />
             }
             {
                 currentTab === 'forum' &&
-                <TrueForum />
+                <ForumFeedTab />
             }
             {
                 currentTab === 'tutos' &&
-                <TrueTutos />
+                <TutosFeedTab />
             }
 
         </View>

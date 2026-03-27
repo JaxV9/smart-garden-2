@@ -32,7 +32,7 @@ export default function TopicDetailScreen() {
     };
 
 
-    const handleAddComment = async (text: string) => {
+    const handleAddComment = useCallback(async (text: string) => {
         if (!id || !topic) return;
         
         const newComment = await addComment(id, text);
@@ -48,7 +48,7 @@ export default function TopicDetailScreen() {
         } else {
             alert('Erreur lors de l\'ajout du commentaire');
         }
-    };
+    }, [id, topic, addComment]);
 
 
     if (loading) {

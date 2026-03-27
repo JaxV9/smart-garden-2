@@ -9,7 +9,7 @@ import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
-export const TrueTutos = () => {
+export const TutosFeedTab = () => {
     const router = useRouter();
     const { tutorials } = useTutorialsContext();
     const { loadTutorials, createTutorial, toggleLike } = useTutorials();

@@ -1,6 +1,3 @@
-import BottomTabBar from '@/components/new/BottomTabBar';
-import ForumHeader from '@/components/new/forum/ForumHeader';
-import ForumTabs from '@/components/new/forum/ForumTabs';
 import CreatePostModal from '@/components/new/social/CreatePostModal';
 import PostCommentsModal from '@/components/new/social/PostCommentsModal';
 import PostList from '@/components/new/social/PostList';
@@ -9,11 +6,10 @@ import { useSocial } from '@/hooks/useSocial';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { ScrollView, StyleSheet, Text, TouchableOpacity } from 'react-native';
 
 
-export default function SocialScreen() {
+export const SocialFeedTab = () => {
     const { posts } = useSocialContext();
     const { loadPosts, createPost, toggleLike, addComment, loadComments } = useSocial();
     const [loading, setLoading] = useState(false);
@@ -25,7 +21,7 @@ export default function SocialScreen() {
     // Recharge les données à chaque fois que l'écran est en focus
     useFocusEffect(
         useCallback(() => {
-            console.log('🔄 [SocialScreen] Rechargement des posts');
+            console.log('🔄 [TrueSocial] Rechargement des posts');
             loadData();
         }, [])
     );
@@ -35,7 +31,7 @@ export default function SocialScreen() {
         setLoading(true);
         await loadPosts();
         setLoading(false);
-        console.log('✅ [SocialScreen] Posts rechargés');
+        console.log('✅ [TrueSocial] Posts rechargés');
     };
 
 
@@ -71,63 +67,49 @@ export default function SocialScreen() {
 
 
     return (
-        <SafeAreaProvider>
-            <View style={styles.container}>
-                <ForumHeader notificationCount={27} />
-                
-                <ForumTabs />
-
-
-                <ScrollView 
-                    style={styles.content}
-                    contentContainerStyle={styles.scrollContent}
+        <>
+            <ScrollView
+                style={styles.content}
+                contentContainerStyle={styles.scrollContent}
+            >
+                <TouchableOpacity
+                    style={styles.createButton}
+                    onPress={() => setCreateModalVisible(true)}
                 >
-                    <TouchableOpacity 
-                        style={styles.createButton}
-                        onPress={() => setCreateModalVisible(true)}
-                    >
-                        <Ionicons name="add" size={20} color="white" />
-                        <Text style={styles.createButtonText}>Partager une réussite</Text>
-                    </TouchableOpacity>
+                    <Ionicons name="add" size={20} color="white" />
+                    <Text style={styles.createButtonText}>Partager une réussite</Text>
+                </TouchableOpacity>
 
 
-                    <PostList
-                        posts={posts}
-                        loading={loading}
-                        onLike={handleLike}
-                        onComment={handleCommentPress}
-                    />
-                </ScrollView>
-
-
-                <BottomTabBar activeTab="/forum" />
-
-
-                <CreatePostModal
-                    visible={createModalVisible}
-                    onClose={() => setCreateModalVisible(false)}
-                    onSubmit={handleCreatePost}
+                <PostList
+                    posts={posts}
+                    loading={loading}
+                    onLike={handleLike}
+                    onComment={handleCommentPress}
                 />
+            </ScrollView>
 
 
-                <PostCommentsModal
-                    visible={commentsModalVisible}
-                    postId={selectedPostId}
-                    onClose={handleCloseCommentsModal}
-                    onLoadComments={loadComments}
-                    onAddComment={addComment}
-                />
-            </View>
-        </SafeAreaProvider>
+            <CreatePostModal
+                visible={createModalVisible}
+                onClose={() => setCreateModalVisible(false)}
+                onSubmit={handleCreatePost}
+            />
+
+
+            <PostCommentsModal
+                visible={commentsModalVisible}
+                postId={selectedPostId}
+                onClose={handleCloseCommentsModal}
+                onLoadComments={loadComments}
+                onAddComment={addComment}
+            />
+        </>
     );
 }
 
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#f5f5f5',
-    },
     content: {
         flex: 1,
         paddingHorizontal: 20,

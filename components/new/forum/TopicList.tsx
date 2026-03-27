@@ -1,5 +1,6 @@
 import { FlatList, StyleSheet, Text, View } from 'react-native';
 import TopicCard from './TopicCard';
+import { useCallback } from 'react';
 
 interface TopicListProps {
     topics: any[];
@@ -8,6 +9,12 @@ interface TopicListProps {
 }
 
 export default function TopicList({ topics, loading, onTopicPress }: TopicListProps) {
+    const renderItem = useCallback(({ item }: { item: any }) => (
+        <TopicCard topic={item} onPress={() => onTopicPress(item.id)} />
+    ), [onTopicPress]);
+
+    const keyExtractor = useCallback((item: any) => item.id, []);
+
     if (loading) {
         return <Text style={styles.loadingText}>Chargement...</Text>;
     }
@@ -21,13 +28,15 @@ export default function TopicList({ topics, loading, onTopicPress }: TopicListPr
     return (
         <FlatList
             data={topics}
-            renderItem={({ item }) => (
-                <TopicCard topic={item} onPress={() => onTopicPress(item.id)} />
-            )}
-            keyExtractor={(item) => item.id}
+            renderItem={renderItem}
+            keyExtractor={keyExtractor}
             scrollEnabled={false}
             contentContainerStyle={styles.topicsList}
             ListEmptyComponent={EmptyListMessage}
+            initialNumToRender={10}
+            maxToRenderPerBatch={10}
+            windowSize={5}
+            removeClippedSubviews={true}
         />
     );
 }

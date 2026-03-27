@@ -1,5 +1,5 @@
 import { Tutorial } from '@/hooks/useTutorials';
-import React, { createContext, ReactNode, useContext, useState } from 'react';
+import React, { createContext, ReactNode, useContext, useMemo, useState } from 'react';
 
 interface TutorialsContextType {
     tutorials: Tutorial[];
@@ -11,8 +11,10 @@ const TutorialsContext = createContext<TutorialsContextType | undefined>(undefin
 export const TutorialsProvider = ({ children }: { children: ReactNode }) => {
     const [tutorials, setTutorials] = useState<Tutorial[]>([]);
 
+    const value = useMemo(() => ({ tutorials, setTutorials }), [tutorials]);
+
     return (
-        <TutorialsContext.Provider value={{ tutorials, setTutorials }}>
+        <TutorialsContext.Provider value={value}>
             {children}
         </TutorialsContext.Provider>
     );
