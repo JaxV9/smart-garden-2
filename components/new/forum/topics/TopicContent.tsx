@@ -1,7 +1,8 @@
 import { getTagStyle } from '@/constants/tagStyles';
 import { getTimeAgo } from '@/utils/dateFormatter';
 import { Ionicons } from '@expo/vector-icons';
-import { StyleSheet, Text, View } from 'react-native';
+import { useRouter } from 'expo-router';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import TopicStats from './TopicStats';
 
 interface Tag {
@@ -15,6 +16,7 @@ interface TopicContentProps {
     content: string;
     tags: Tag[];
     author: {
+        id: string;
         name?: string;
     };
     createdAt: string;
@@ -31,6 +33,8 @@ export default function TopicContent({
     viewCount,
     commentCount,
 }: TopicContentProps) {
+    const router = useRouter();
+
     return (
         <View style={styles.topicContainer}>
             <View style={styles.topicTagsContainer}>
@@ -54,7 +58,11 @@ export default function TopicContent({
                     <Ionicons name="person" size={20} color="#666" />
                 </View>
                 <View>
-                    <Text style={styles.topicAuthor}>{author.name || 'Utilisateur'}</Text>
+                    <TouchableOpacity onPress={() => router.push({ pathname: '/user/[id]', params: { id: author.id } })}>
+                        <Text style={[styles.topicAuthor, { color: '#5B8E55', textDecorationLine: 'underline' }]}>
+                            {author.name || 'Utilisateur'}
+                        </Text>
+                    </TouchableOpacity>
                     <Text style={styles.topicTime}>{getTimeAgo(createdAt)}</Text>
                 </View>
             </View>

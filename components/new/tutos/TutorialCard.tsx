@@ -1,5 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useRouter } from 'expo-router';
 
 interface TutorialCardProps {
     tutorial: {
@@ -10,6 +11,7 @@ interface TutorialCardProps {
         thumbnail?: string;
         videoDuration?: number;
         author: {
+            id: string;
             name?: string;
         };
         createdAt: string;
@@ -24,6 +26,8 @@ interface TutorialCardProps {
 }
 
 export default function TutorialCard({ tutorial, onLike, onPress }: TutorialCardProps) {
+    const router = useRouter();
+    
     const formatDuration = (seconds?: number) => {
         if (!seconds) return '';
         const minutes = Math.floor(seconds / 60);
@@ -105,9 +109,11 @@ export default function TutorialCard({ tutorial, onLike, onPress }: TutorialCard
                                 {tutorial.author.name?.charAt(0).toUpperCase() || 'U'}
                             </Text>
                         </View>
-                        <Text style={styles.authorName}>
-                            {tutorial.author.name || 'Utilisateur'}
-                        </Text>
+                        <TouchableOpacity onPress={(e) => { e.stopPropagation(); router.push({ pathname: '/user/[id]', params: { id: tutorial.author.id } }); }}>
+                            <Text style={[styles.authorName, { color: '#5B8E55', textDecorationLine: 'underline' }]}>
+                                {tutorial.author.name || 'Utilisateur'}
+                            </Text>
+                        </TouchableOpacity>
                     </View>
                 </View>
 

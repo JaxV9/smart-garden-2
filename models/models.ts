@@ -2,7 +2,8 @@ export type User = {
   name: string;
   email: string;
   avatarUri?: string | null;
-  level: string | null
+  level: string | null;
+  isPrivate?: boolean;
 };
 
 export type Vegetable = {
@@ -40,7 +41,8 @@ export type LoginInfos = {
   token: string;
   userName: string;
   email: string;
-  level: string | null
+  level: string | null;
+  isPrivate?: boolean;
 };
 
 export type SensorMeasure = {

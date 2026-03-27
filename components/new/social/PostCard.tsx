@@ -1,5 +1,6 @@
 import { getTimeAgo } from '@/utils/dateFormatter';
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 interface PostCardProps {
@@ -8,6 +9,7 @@ interface PostCardProps {
         content: string;
         images: string[];
         author: {
+            id: string;
             name?: string;
         };
         createdAt: string;
@@ -22,6 +24,8 @@ interface PostCardProps {
 }
 
 export default function PostCard({ post, onLike, onComment }: PostCardProps) {
+    const router = useRouter();
+
     return (
         <View style={styles.postCard}>
             <View style={styles.postHeader}>
@@ -29,7 +33,9 @@ export default function PostCard({ post, onLike, onComment }: PostCardProps) {
                     <Ionicons name="person" size={20} color="#666" />
                 </View>
                 <View style={styles.postHeaderInfo}>
-                    <Text style={styles.postAuthor}>{post.author.name || 'Utilisateur'}</Text>
+                    <TouchableOpacity onPress={() => router.push({ pathname: '/user/[id]', params: { id: post.author.id } })}>
+                        <Text style={[styles.postAuthor, { color: '#5B8E55', textDecorationLine: 'underline' }]}>{post.author.name || 'Utilisateur'}</Text>
+                    </TouchableOpacity>
                     <Text style={styles.postTime}>{getTimeAgo(post.createdAt)}</Text>
                 </View>
             </View>

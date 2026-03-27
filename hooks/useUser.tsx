@@ -21,7 +21,8 @@ export function useUser() {
                 const userInfos: User = {
                     name: data.name,
                     email: data.email,
-                    level: data.level
+                    level: data.level,
+                    isPrivate: data.isPrivate
                 };
                 setUser(userInfos)
                 setIsLogin(true)
@@ -49,7 +50,8 @@ export function useUser() {
                     name: data.userName,
                     email: data.email,
                     avatarUri: null,
-                    level: data.level
+                    level: data.level,
+                    isPrivate: data.isPrivate
                 };
                 setUser(userInfos)
             }
@@ -95,7 +97,7 @@ export function useUser() {
         setUser(prev => prev ? { ...prev, avatarUri: uri } : prev);
     }
 
-    async function updateUser(updates: { name?: string; email?: string; level?: string | null; password?: string }): Promise<"Success" | "Failure"> {
+    async function updateUser(updates: { name?: string; email?: string; level?: string | null; password?: string, isPrivate?: boolean, phone?: string, bio?: string }): Promise<"Success" | "Failure"> {
         setUser((prev) =>
             prev
             ? {
@@ -120,6 +122,20 @@ export function useUser() {
         }
     }
 
+    async function getPublicProfile(id: string) {
+        try {
+            const http = await httpClient;
+            const response = await http.get(`/api/user/${id}/profile`);
+            if (response.status !== 'Failure') {
+                return response.payload;
+            }
+            return null;
+        } catch (error) {
+            console.error("getPublicProfile failed:", error);
+            return null;
+        }
+    }
+
     return {
         isLogin,
         getUser,
@@ -127,6 +143,7 @@ export function useUser() {
         createUser,
         logout,
         updateUser,
-        updateAvatar
+        updateAvatar,
+        getPublicProfile
     };
 }
