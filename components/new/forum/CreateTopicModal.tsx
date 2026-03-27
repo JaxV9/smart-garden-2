@@ -66,7 +66,7 @@ export default function CreateTopicModal({
                             placeholder="Ex: Comment traiter le mildiou ?"
                             value={title}
                             onChangeText={onTitleChange}
-                            placeholderTextColor="#999"
+                            placeholderTextColor="#111827"
                         />
 
                         <Text style={styles.inputLabel}>Description</Text>
@@ -78,7 +78,7 @@ export default function CreateTopicModal({
                             multiline
                             numberOfLines={6}
                             textAlignVertical="top"
-                            placeholderTextColor="#999"
+                            placeholderTextColor="#111827"
                         />
 
                         <Text style={styles.inputLabel}>Tags (optionnel)</Text>

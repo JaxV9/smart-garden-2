@@ -26,7 +26,7 @@ export function GardenLocationInput({ setGardenLocation }: GardenLocationInputPr
     return (
         <View>
             <View>
-                <TextInput style={styles.input} placeholder="Département" onChangeText={(event) => departmentListener(event)}
+                <TextInput style={styles.input} placeholder="Département" placeholderTextColor="#111827" onChangeText={(event) => departmentListener(event)}
                     value={departmentInputText} />
                 {departementPropositions.length > 0 &&
                     <View style={styles.propositionsContainer}>
@@ -46,7 +46,7 @@ export function GardenLocationInput({ setGardenLocation }: GardenLocationInputPr
                 {
                     currentDepartement &&
                     <>
-                        <TextInput style={styles.input} placeholder="Ville" onChangeText={(event) => communesListener(event)}
+                        <TextInput style={styles.input} placeholder="Ville" placeholderTextColor="#111827" onChangeText={(event) => communesListener(event)}
                             value={communeInputText} />
                         <View style={styles.propositionsContainer}>
                             {

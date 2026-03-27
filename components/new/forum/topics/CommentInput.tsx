@@ -29,7 +29,7 @@ export default function CommentInput({ onSubmit, placeholder = "Écrire une rép
                 onChangeText={setText}
                 multiline
                 maxLength={500}
-                placeholderTextColor="#999"
+                placeholderTextColor="#111827"
             />
             <TouchableOpacity
                 style={[

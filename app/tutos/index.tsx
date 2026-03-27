@@ -1,3 +1,6 @@
+import BottomTabBar from '@/components/new/BottomTabBar';
+import ForumHeader from '@/components/new/forum/ForumHeader';
+import ForumTabs from '@/components/new/forum/ForumTabs';
 import CreateTutorialModal from '@/components/new/tutos/CreateTutorialModal';
 import TutorialFilterButton from '@/components/new/tutos/TutorialFilterButton';
 import TutorialFilterModal from '@/components/new/tutos/TutorialFilterModal';
@@ -8,17 +11,18 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-export const TutosFeedTab = () => {
+export default function TutosScreen() {
     const router = useRouter();
     const { tutorials } = useTutorialsContext();
     const { loadTutorials, createTutorial, toggleLike } = useTutorials();
-
+    
     const [loading, setLoading] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedCategory, setSelectedCategory] = useState<TutorialCategory | null>(null);
     const [selectedType, setSelectedType] = useState<TutorialType | null>(null);
-
+    
     const [filterModalVisible, setFilterModalVisible] = useState(false);
     const [createModalVisible, setCreateModalVisible] = useState(false);
 
@@ -67,61 +71,69 @@ export const TutosFeedTab = () => {
     );
 
     return (
-        <>
-            <ScrollView
-                style={styles.content}
-                contentContainerStyle={styles.scrollContent}
-            >
-                <TouchableOpacity
-                    style={styles.createButton}
-                    onPress={() => setCreateModalVisible(true)}
+        <SafeAreaProvider>
+            <View style={styles.container}>
+                <ForumHeader notificationCount={27} />
+                
+                <ForumTabs />
+
+                <ScrollView 
+                    style={styles.content}
+                    contentContainerStyle={styles.scrollContent}
                 >
-                    <Ionicons name="add" size={20} color="white" />
-                    <Text style={styles.createButtonText}>Publier un tutoriel</Text>
-                </TouchableOpacity>
+                    <TouchableOpacity 
+                        style={styles.createButton}
+                        onPress={() => setCreateModalVisible(true)}
+                    >
+                        <Ionicons name="add" size={20} color="white" />
+                        <Text style={styles.createButtonText}>Publier un tutoriel</Text>
+                    </TouchableOpacity>
 
-                {/* Barre de recherche */}
-                <View style={styles.searchContainer}>
-                    <Ionicons name="search-outline" size={20} color="#666" />
-                    <TextInput
-                        style={styles.searchInput}
-                        placeholder="Rechercher un tutoriel..."
-                        value={searchQuery}
-                        onChangeText={setSearchQuery}
-                        placeholderTextColor="#111827"
+                    {/* Barre de recherche */}
+                    <View style={styles.searchContainer}>
+                        <Ionicons name="search-outline" size={20} color="#666" />
+                        <TextInput
+                            style={styles.searchInput}
+                            placeholder="Rechercher un tutoriel..."
+                            value={searchQuery}
+                            onChangeText={setSearchQuery}
+                            placeholderTextColor="#111827"
+                        />
+                    </View>
+
+                    {/* Bouton de filtres */}
+                    <TutorialFilterButton
+                        selectedCategory={selectedCategory}
+                        selectedType={selectedType}
+                        onPress={() => setFilterModalVisible(true)}
                     />
-                </View>
 
-                {/* Bouton de filtres */}
-                <TutorialFilterButton
+                    <TutorialList
+                        tutorials={filteredTutorials}
+                        loading={loading}
+                        onLike={handleLike}
+                        onPress={handleTutorialPress}
+                    />
+                </ScrollView>
+                
+                <BottomTabBar activeTab="/forum" />
+
+                {/* Modal de filtres */}
+                <TutorialFilterModal
+                    visible={filterModalVisible}
                     selectedCategory={selectedCategory}
                     selectedType={selectedType}
-                    onPress={() => setFilterModalVisible(true)}
+                    onClose={() => setFilterModalVisible(false)}
+                    onApply={handleFilterApply}
                 />
 
-                <TutorialList
-                    tutorials={filteredTutorials}
-                    loading={loading}
-                    onLike={handleLike}
-                    onPress={handleTutorialPress}
+                <CreateTutorialModal
+                    visible={createModalVisible}
+                    onClose={() => setCreateModalVisible(false)}
+                    onSubmit={handleCreateTutorial}
                 />
-            </ScrollView>
-
-            {/* Modal de filtres */}
-            <TutorialFilterModal
-                visible={filterModalVisible}
-                selectedCategory={selectedCategory}
-                selectedType={selectedType}
-                onClose={() => setFilterModalVisible(false)}
-                onApply={handleFilterApply}
-            />
-
-            <CreateTutorialModal
-                visible={createModalVisible}
-                onClose={() => setCreateModalVisible(false)}
-                onSubmit={handleCreateTutorial}
-            />
-        </>
+            </View>
+        </SafeAreaProvider>
     );
 }
 

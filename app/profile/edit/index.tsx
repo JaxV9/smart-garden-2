@@ -75,7 +75,7 @@ export default function EditProfile() {
                             value={name}
                             onChangeText={setName}
                             placeholder="Votre nom"
-                            placeholderTextColor="#999"
+                            placeholderTextColor="#111827"
                         />
                     </View>
 
@@ -88,7 +88,7 @@ export default function EditProfile() {
                             placeholder="votre@email.com"
                             keyboardType="email-address"
                             autoCapitalize="none"
-                            placeholderTextColor="#999"
+                            placeholderTextColor="#111827"
                         />
                     </View>
 
@@ -100,7 +100,7 @@ export default function EditProfile() {
                             onChangeText={setPhone}
                             placeholder="+33 6 00 00 00 00"
                             keyboardType="phone-pad"
-                            placeholderTextColor="#999"
+                            placeholderTextColor="#111827"
                         />
                     </View>
 
@@ -114,7 +114,7 @@ export default function EditProfile() {
                             multiline
                             numberOfLines={4}
                             textAlignVertical="top"
-                            placeholderTextColor="#999"
+                            placeholderTextColor="#111827"
                         />
                     </View>
                 </View>

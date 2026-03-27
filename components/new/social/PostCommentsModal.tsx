@@ -96,7 +96,7 @@ export default function PostCommentsModal({
                             placeholder="Ajouter un commentaire..."
                             value={commentText}
                             onChangeText={setCommentText}
-                            placeholderTextColor="#999"
+                            placeholderTextColor="#111827"
                         />
                         <TouchableOpacity
                             style={[

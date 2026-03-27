@@ -16,7 +16,7 @@ export default function SearchBar({ value, onChangeText, placeholder = "Recherch
                 placeholder={placeholder}
                 value={value}
                 onChangeText={onChangeText}
-                placeholderTextColor="#999"
+                placeholderTextColor="#111827"
             />
         </View>
     );

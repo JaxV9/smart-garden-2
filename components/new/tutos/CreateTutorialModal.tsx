@@ -134,7 +134,7 @@ export default function CreateTutorialModal({ visible, onClose, onSubmit }: Crea
                             placeholder="Ex: Comment réussir ses tomates"
                             value={title}
                             onChangeText={setTitle}
-                            placeholderTextColor="#999"
+                            placeholderTextColor="#111827"
                         />
 
                         {/* Description */}
@@ -147,7 +147,7 @@ export default function CreateTutorialModal({ visible, onClose, onSubmit }: Crea
                             multiline
                             numberOfLines={3}
                             textAlignVertical="top"
-                            placeholderTextColor="#999"
+                            placeholderTextColor="#111827"
                         />
 
                         {/* Catégorie */}
@@ -183,7 +183,7 @@ export default function CreateTutorialModal({ visible, onClose, onSubmit }: Crea
                                     placeholder="https://youtube.com/..."
                                     value={videoUrl}
                                     onChangeText={setVideoUrl}
-                                    placeholderTextColor="#999"
+                                    placeholderTextColor="#111827"
                                     autoCapitalize="none"
                                 />
                             </>
@@ -198,7 +198,7 @@ export default function CreateTutorialModal({ visible, onClose, onSubmit }: Crea
                                     multiline
                                     numberOfLines={10}
                                     textAlignVertical="top"
-                                    placeholderTextColor="#999"
+                                    placeholderTextColor="#111827"
                                 />
                             </>
                         )}
