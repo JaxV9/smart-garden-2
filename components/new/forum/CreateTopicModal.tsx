@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 
 interface Tag {
     id: string;
@@ -45,13 +45,15 @@ export default function CreateTopicModal({
 
     return (
         <Modal
-            animationType="slide"
+            animationType="fade"
             transparent={true}
             visible={visible}
             onRequestClose={onClose}
         >
-            <View style={styles.modalOverlay}>
-                <View style={[styles.modalContent, styles.createModalContent]}>
+            <TouchableWithoutFeedback onPress={onClose}>
+                <View style={styles.modalOverlay}>
+                    <TouchableWithoutFeedback onPress={() => {}}>
+                        <View style={[styles.modalContent, styles.createModalContent]}>
                     <View style={styles.modalHeader}>
                         <Text style={styles.modalTitle}>Poser une question</Text>
                         <TouchableOpacity onPress={onClose}>
@@ -109,8 +111,10 @@ export default function CreateTopicModal({
                             <Text style={styles.submitButtonText}>Publier la question</Text>
                         </TouchableOpacity>
                     </ScrollView>
+                        </View>
+                    </TouchableWithoutFeedback>
                 </View>
-            </View>
+            </TouchableWithoutFeedback>
         </Modal>
     );
 }

@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
-import { ActivityIndicator, Image, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Image, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 
 interface CreatePostModalProps {
     visible: boolean;
@@ -34,13 +34,15 @@ export default function CreatePostModal({ visible, onClose, onSubmit }: CreatePo
 
     return (
         <Modal
-            animationType="slide"
+            animationType="fade"
             transparent={true}
             visible={visible}
             onRequestClose={handleClose}
         >
-            <View style={styles.modalOverlay}>
-                <View style={styles.modalContent}>
+            <TouchableWithoutFeedback onPress={handleClose}>
+                <View style={styles.modalOverlay}>
+                    <TouchableWithoutFeedback onPress={() => {}}>
+                        <View style={styles.modalContent}>
                     <View style={styles.modalHeader}>
                         <Text style={styles.modalTitle}>Partager une réussite</Text>
                         <TouchableOpacity onPress={handleClose}>
@@ -93,8 +95,10 @@ export default function CreatePostModal({ visible, onClose, onSubmit }: CreatePo
                             <Text style={styles.submitButtonText}>Publier</Text>
                         )}
                     </TouchableOpacity>
+                        </View>
+                    </TouchableWithoutFeedback>
                 </View>
-            </View>
+            </TouchableWithoutFeedback>
         </Modal>
     );
 }

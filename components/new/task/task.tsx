@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   Modal,
   Platform,
+  TouchableWithoutFeedback,
 } from "react-native";
 import { useTasks } from "@/hooks/useTasks";
 import { useGarden } from "@/hooks/useGarden";
@@ -299,8 +300,10 @@ export function Task() {
         animationType="fade"
         onRequestClose={() => setShowForm(false)}
       >
-        <View style={styles.modalBackdrop}>
-          <View style={styles.modalCard}>
+        <TouchableWithoutFeedback onPress={() => setShowForm(false)}>
+          <View style={styles.modalBackdrop}>
+            <TouchableWithoutFeedback onPress={() => {}}>
+              <View style={styles.modalCard}>
             <Formulaire
               title={title}
               description={description}
@@ -323,8 +326,10 @@ export function Task() {
             >
               <Text style={styles.closeButtonText}>ANNULER</Text>
             </TouchableOpacity>
+              </View>
+            </TouchableWithoutFeedback>
           </View>
-        </View>
+        </TouchableWithoutFeedback>
       </Modal>
 
       <Modal
@@ -333,8 +338,10 @@ export function Task() {
         animationType="fade"
         onRequestClose={() => setShowPlantPicker(false)}
       >
-        <View style={styles.modalBackdrop}>
-          <View style={styles.modalCard}>
+        <TouchableWithoutFeedback onPress={() => setShowPlantPicker(false)}>
+          <View style={styles.modalBackdrop}>
+            <TouchableWithoutFeedback onPress={() => {}}>
+              <View style={styles.modalCard}>
             <Text style={{ fontWeight: "700", marginBottom: 8 }}>
               Sélectionner une plante
             </Text>
@@ -358,8 +365,10 @@ export function Task() {
             >
               <Text style={styles.closeButtonText}>FERMER</Text>
             </TouchableOpacity>
+              </View>
+            </TouchableWithoutFeedback>
           </View>
-        </View>
+        </TouchableWithoutFeedback>
       </Modal>
 
       {showDatePicker && (

@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
-import { Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Modal, ScrollView, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 
 type TutorialCategory = 'ASTUCES' | 'DIY' | 'TECHNIQUES';
 type TutorialType = 'VIDEO' | 'ARTICLE';
@@ -53,8 +53,10 @@ export default function TutorialFilterModal({
             visible={visible}
             onRequestClose={onClose}
         >
-            <View style={styles.modalOverlay}>
-                <View style={styles.modalContent}>
+            <TouchableWithoutFeedback onPress={onClose}>
+                <View style={styles.modalOverlay}>
+                    <TouchableWithoutFeedback onPress={() => {}}>
+                        <View style={styles.modalContent}>
                     <View style={styles.modalHeader}>
                         <Text style={styles.modalTitle}>Filtrer les tutoriels</Text>
                         <TouchableOpacity onPress={onClose}>
@@ -136,8 +138,10 @@ export default function TutorialFilterModal({
                             <Text style={styles.applyButtonText}>Appliquer</Text>
                         </TouchableOpacity>
                     </View>
+                        </View>
+                    </TouchableWithoutFeedback>
                 </View>
-            </View>
+            </TouchableWithoutFeedback>
         </Modal>
     );
 }
