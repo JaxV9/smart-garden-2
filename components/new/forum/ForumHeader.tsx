@@ -1,4 +1,3 @@
-import { Ionicons } from '@expo/vector-icons';
 import { StyleSheet, Text, View } from 'react-native';
 
 interface ForumHeaderProps {
@@ -9,14 +8,14 @@ export default function ForumHeader({ notificationCount = 0 }: ForumHeaderProps)
     return (
         <View style={styles.header}>
             <Text style={styles.headerTitle}>Forum</Text>
-            <View style={styles.notificationBadge}>
+            {/* <View style={styles.notificationBadge}>
                 <Ionicons name="notifications-outline" size={28} color="white" />
-                {/* {notificationCount > 0 && (
+                {notificationCount > 0 && (
                     <View style={styles.badge}>
                         <Text style={styles.badgeText}>{notificationCount}</Text>
                     </View>
-                )} */}
-            </View>
+                )}
+            </View> */}
         </View>
     );
 }
