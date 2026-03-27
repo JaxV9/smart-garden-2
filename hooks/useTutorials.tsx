@@ -138,8 +138,8 @@ export function useTutorials() {
      */
     const toggleLike = useCallback(async (tutorialId: string): Promise<"Success" | "Failure"> => {
         try {
-            // Mise à jour optimiste locale avant l'appel API
-            const updatedTutorials = tutorials.map((tutorial: Tutorial) => {
+            // Mise à jour optimiste locale avant l'appel API (functional state)
+            setTutorials((prevTutorials) => prevTutorials.map((tutorial: Tutorial) => {
                 if (tutorial.id === tutorialId) {
                     const isCurrentlyLiked = tutorial.isLikedByUser || false;
                     return {
@@ -154,27 +154,34 @@ export function useTutorials() {
                     };
                 }
                 return tutorial;
-            });
-            setTutorials(updatedTutorials);
+            }));
 
             // Appel API
             const http = await httpClient;
             const response = await http.post(`/api/tutorial/${tutorialId}/like`, {});
             
             if (response.status === "Failure") {
-                // Rollback en cas d'échec
-                setTutorials(tutorials);
+                // Rollback en cas d'échec (relance inversée)
+                setTutorials((prev) => prev.map((t: Tutorial) => t.id === tutorialId ? {
+                    ...t,
+                    isLikedByUser: !t.isLikedByUser,
+                    _count: { ...t._count, likes: t.isLikedByUser ? t._count.likes - 1 : t._count.likes + 1 }
+                } : t));
                 return "Failure";
             }
             
             return "Success";
         } catch (error) {
             console.error('Erreur toggleLike:', error);
-            // Rollback en cas d'erreur
-            setTutorials(tutorials);
+            // Rollback basique si API crash complètement
+            setTutorials((prev) => prev.map((t: Tutorial) => t.id === tutorialId ? {
+                ...t,
+                isLikedByUser: !t.isLikedByUser,
+                _count: { ...t._count, likes: t.isLikedByUser ? t._count.likes - 1 : t._count.likes + 1 }
+            } : t));
             return "Failure";
         }
-    }, [httpClient, tutorials, setTutorials]);
+    }, [httpClient, setTutorials]);
 
 
     /**

@@ -3,7 +3,7 @@ import React, { createContext, ReactNode, useContext, useMemo, useState } from '
 
 interface TutorialsContextType {
     tutorials: Tutorial[];
-    setTutorials: (tutorials: Tutorial[]) => void;
+    setTutorials: React.Dispatch<React.SetStateAction<Tutorial[]>>;
 }
 
 const TutorialsContext = createContext<TutorialsContextType | undefined>(undefined);
