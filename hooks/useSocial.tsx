@@ -16,6 +16,7 @@ export interface Post {
         email?: string;
     };
     createdAt: string;
+    viewCount?: number;
     _count: {
         likes: number;
         comments: number;
@@ -182,6 +183,29 @@ export function useSocial() {
         }
     }, [httpClient]);
 
+    /**
+     * Incrémente le compteur de vues d'un post.
+     * @param {string} postId - Identifiant du post.
+     * @returns {Promise<"Success" | "Failure">} Statut de la requête.
+     */
+    const incrementPostView = useCallback(async (postId: string): Promise<"Success" | "Failure"> => {
+        try {
+            const http = await httpClient;
+            await http.post(`/api/post/${postId}/view`, {});
+            
+            setPosts(posts.map((post: Post) => 
+                post.id === postId 
+                    ? { ...post, viewCount: (post.viewCount || 0) + 1 }
+                    : post
+            ));
+            
+            return "Success";
+        } catch (error) {
+            console.log('Erreur incrémentation vues (non critique):', error);
+            return "Success";
+        }
+    }, [httpClient, posts, setPosts]);
+
     return {
         loadPosts,
         createPost,
@@ -190,5 +214,6 @@ export function useSocial() {
         loadComments,
         deletePost,
         getUserPosts,
+        incrementPostView,
     };
 }
