@@ -1,4 +1,3 @@
-import BottomTabBar from '@/components/new/BottomTabBar';
 import ForumHeader from '@/components/new/forum/ForumHeader';
 import ForumTabs from '@/components/new/forum/ForumTabs';
 import CreateTutorialModal from '@/components/new/tutos/CreateTutorialModal';
@@ -115,9 +114,6 @@ export default function TutosScreen() {
                         onPress={handleTutorialPress}
                     />
                 </ScrollView>
-                
-                <BottomTabBar activeTab="/forum" />
-
                 {/* Modal de filtres */}
                 <TutorialFilterModal
                     visible={filterModalVisible}
