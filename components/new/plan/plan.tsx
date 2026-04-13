@@ -16,7 +16,7 @@ export const Plan = () => {
     const { scale, gardenSpaces, isUpdatingCel, spaceEditing, hasGarden, isSaving,
         shouldSave, toggleSpaceEditor, updateCelWithVege, editCel,
         setScale, addNewSpace, updateSpaceName,
-        setGardenSpaces, closeIsUpdatingCel, saveGardenSpaces } = usePlan()
+        setGardenSpaces, closeIsUpdatingCel, saveGardenSpaces, celData } = usePlan()
 
     return (
         <View style={styles.container}>
@@ -25,7 +25,7 @@ export const Plan = () => {
                 {
                     gardenSpaces.map((gardenSpace) => (
                         <Space key={gardenSpace.spaceName} gardenSpace={gardenSpace} scale={scale} editCel={editCel}
-                            toggleSpaceEditor={toggleSpaceEditor} updateSpaceName={updateSpaceName} />
+                            toggleSpaceEditor={toggleSpaceEditor} updateSpaceName={updateSpaceName} isUpdatingCel={isUpdatingCel} />
                     ))
                 }
             </Touch>
@@ -47,7 +47,8 @@ export const Plan = () => {
                         {
                             isUpdatingCel ?
                                 <GardenVegeList gardenVegetables={gardenVegetables}
-                                    closeIsUpdatingCel={closeIsUpdatingCel} updateCelWithVege={updateCelWithVege} />
+                                    closeIsUpdatingCel={closeIsUpdatingCel} updateCelWithVege={updateCelWithVege}
+                                    vegeId={celData?.vegeId} />
                                 :
                                 <ZoomItem scale={scale} setScale={setScale} />
                         }
