@@ -1,22 +1,29 @@
 import { useVegetablesContext } from "@/contexts/vegetables.context"
 import { GardenSpace } from "@/hooks/usePlan"
 import { Image } from "expo-image"
-import { useMemo, useRef, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { Pressable, StyleSheet, TextInput, View } from "react-native"
 
 interface SpaceProps {
     scale: number,
     gardenSpace: GardenSpace,
+    isUpdatingCel: boolean,
     toggleSpaceEditor: (spaceName: string) => void,
     updateSpaceName: (spaceName: string, newName: string) => void,
-    editCel: (spaceName: string, rowIndex: number, colIndex: number, close: boolean) => void
+    editCel: (spaceName: string, rowIndex: number, colIndex: number, close: boolean, vegeId?: string) => void
 }
 
-export const Space = ({ scale, gardenSpace, toggleSpaceEditor, updateSpaceName, editCel }: SpaceProps) => {
+export const Space = ({ scale, gardenSpace, isUpdatingCel, toggleSpaceEditor, updateSpaceName, editCel }: SpaceProps) => {
     const [isEditingName, setIsEditingName] = useState<boolean>(false);
     const inputRef = useRef<TextInput>(null);
     const [updatingCol, setUpdatingCol] = useState<{ col: number, row: number }>()
     const [spaceSize, setSpaceSize] = useState<{ width: number, height: number }>({ width: 0, height: 0 });
+
+    useEffect(() => {
+        if (!isUpdatingCel) {
+            setUpdatingCol(undefined)
+        }
+    }, [isUpdatingCel])
 
     const { vegetablesContext } = useVegetablesContext();
 
@@ -39,8 +46,8 @@ export const Space = ({ scale, gardenSpace, toggleSpaceEditor, updateSpaceName, 
         inputRef.current?.blur()
     }
 
-    function updateCel(rowId: number, colId: number): void {
-        editCel(gardenSpace.spaceName, rowId, colId, celIsFocus(colId, rowId));
+    function updateCel(rowId: number, colId: number, vegeId?: string): void {
+        editCel(gardenSpace.spaceName, rowId, colId, celIsFocus(colId, rowId), vegeId);
         if (updatingCol && updatingCol.col === colId && updatingCol.row === rowId) {
             return setUpdatingCol(undefined)
         }
@@ -53,19 +60,14 @@ export const Space = ({ scale, gardenSpace, toggleSpaceEditor, updateSpaceName, 
     }
 
     function getStyle(rowId: number, colId: number, col: { vegetableId?: string | undefined }) {
-        if (col.vegetableId) {
-            return styles.colSelected
-        }
         if (celIsFocus(colId, rowId)) {
             return styles.focusOnCel
         }
+        if (col.vegetableId) {
+            return styles.colSelected
+        }
         return styles.col
     }
-
-    const contentDimensions = useMemo(() => ({
-        rows: gardenSpace.area.length,
-        cols: gardenSpace.area[0]?.cols.length || 0
-    }), [gardenSpace.area.length, gardenSpace.area[0]?.cols.length]);
 
     const centeredPosition = useMemo(() => ({
         top: 25000 - (spaceSize.height / 2) + 150,
@@ -110,7 +112,7 @@ export const Space = ({ scale, gardenSpace, toggleSpaceEditor, updateSpaceName, 
                         gardenSpace.area.map((ar, rowId) => (
                             <View key={rowId} style={styles.row}>
                                 {ar.cols.map((col, colId) => (
-                                    <Pressable onPress={() => updateCel(rowId, colId)} key={colId}
+                                    <Pressable onPress={() => updateCel(rowId, colId, col?.vegetableId)} key={colId}
                                         style={getStyle(rowId, colId, col)}>
                                         {
                                             col.vegetableId ?

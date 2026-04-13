@@ -16,7 +16,8 @@ export interface GardenSpace {
 export interface CelData {
     spaceName: string,
     colIndex: number,
-    rowIndex: number
+    rowIndex: number,
+    vegeId?: string
 }
 
 export function usePlan() {
@@ -60,7 +61,7 @@ export function usePlan() {
             gardenSpaces: gardenSpaces
         };
         const response = await http.post('/api/gardenspace', payload);
-        console.log(response)
+
         if (response.status !== 'Failure') {
             loadGardenspaces()
         }
@@ -109,16 +110,16 @@ export function usePlan() {
         setIsUpdatingCel(false)
     }
 
-    function editCel(spaceName: string, rowIndex: number, colIndex: number, close: boolean): void {
+    function editCel(spaceName: string, rowIndex: number, colIndex: number, close: boolean, vegeId?: string): void {
         if (close) {
             closeIsUpdatingCel()
             return setCelData(undefined)
         }
         setIsUpdatingCel(true)
-        setCelData({ spaceName, colIndex, rowIndex })
+        setCelData({ spaceName, colIndex, rowIndex, vegeId })
     }
 
-    function updateCelWithVege(gardenVegetableId: string): void {
+    function updateCelWithVege(gardenVegetableId: string | undefined): void {
         if (!celData) return
 
         setGardenSpaces(prevSpaces =>
@@ -141,6 +142,11 @@ export function usePlan() {
                                     return col
                                 }
 
+                                if (gardenVegetableId === undefined) {
+                                    const { vegetableId: _, ...cleanCol } = col
+                                    return cleanCol
+                                }
+
                                 return {
                                     ...col,
                                     vegetableId: gardenVegetableId
@@ -160,6 +166,7 @@ export function usePlan() {
         hasGarden,
         isSaving,
         shouldSave,
+        celData,
         toggleSpaceEditor,
         updateCelWithVege,
         editCel,

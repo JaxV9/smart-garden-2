@@ -21,7 +21,6 @@ export const SocialFeedTab = () => {
     // Recharge les données à chaque fois que l'écran est en focus
     useFocusEffect(
         useCallback(() => {
-            console.log('🔄 [TrueSocial] Rechargement des posts');
             loadData();
         }, [])
     );
@@ -31,7 +30,6 @@ export const SocialFeedTab = () => {
         setLoading(true);
         await loadPosts();
         setLoading(false);
-        console.log('✅ [TrueSocial] Posts rechargés');
     };
 
 
