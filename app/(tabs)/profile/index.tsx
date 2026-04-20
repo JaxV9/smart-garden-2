@@ -14,6 +14,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useGardenContext } from '@/contexts/garden.context';
 import { useGardenInfo } from '@/hooks/useGardenInfo';
+import { Header } from "@/components/new/header/header";
 
 const DEFAULT_AVATAR = require('@/assets/images/avatar.png');
 
@@ -67,7 +68,8 @@ export default function ProfileScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <View style={{ flex: 1 }}>
+      <Header />
       <View style={styles.container}>
         {/* Title*/}
         <Text style={styles.title}>
@@ -202,7 +204,7 @@ export default function ProfileScreen() {
           </View>
         </Modal>
       </View>
-    </SafeAreaView>
+    </View>
   );
 }
 

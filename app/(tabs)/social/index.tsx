@@ -5,6 +5,7 @@ import { SocialFeedTab } from '@/components/new/socialTab/SocialFeedTab';
 import { TutosFeedTab } from '@/components/new/socialTab/TutosFeedTab';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
+import { Header } from "@/components/new/header/header";
 
 
 export default function Index() {
@@ -13,7 +14,7 @@ export default function Index() {
 
     return (
         <View style={styles.container}>
-            <ForumHeader notificationCount={27} />
+            <Header/>
 
             <ForumTabs activeTab={currentTab} setCurrentTab={setCurrentTab} />
             {
