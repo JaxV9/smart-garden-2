@@ -51,34 +51,27 @@ export default function TutorialDetailScreen() {
     const [loading, setLoading] = useState(true);
     const [playing, setPlaying] = useState(false);
 
+    // Initialisation & incrémentation des vues
     useEffect(() => {
         if (id) {
-            loadTutorial();
+            incrementViewCount(id).catch(() => {});
         }
     }, [id]);
 
-    const loadTutorial = async () => {
-        setLoading(true);
-
-        const foundTutorial = tutorials.find(t => t.id === id);
-
-        if (foundTutorial) {
-            setTutorial(foundTutorial as Tutorial);
-            // Incrémenter le compteur de vues
-            try {
-                await incrementViewCount(id);
-            } catch (error) {
-                console.log('Erreur incrémentation vues (non critique):', error);
+    // Synchronisation en temps réel avec le Contexte
+    useEffect(() => {
+        if (id && tutorials.length > 0) {
+            const foundTutorial = tutorials.find(t => t.id === id);
+            if (foundTutorial) {
+                setTutorial(foundTutorial as Tutorial);
             }
+            setLoading(false);
         }
-
-        setLoading(false);
-    };
+    }, [id, tutorials]);
 
     const handleLike = async () => {
         if (id) {
             await toggleLike(id);
-            loadTutorial();
         }
     };
 

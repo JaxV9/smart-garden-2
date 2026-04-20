@@ -1,6 +1,5 @@
-import BottomTabBar from '@/components/new/BottomTabBar';
 import ForumHeader from '@/components/new/forum/ForumHeader';
-import ForumTabs from '@/components/new/forum/ForumTabs';
+import ForumTabs, { TabType } from '@/components/new/forum/ForumTabs';
 import CreateTutorialModal from '@/components/new/tutos/CreateTutorialModal';
 import TutorialFilterButton from '@/components/new/tutos/TutorialFilterButton';
 import TutorialFilterModal from '@/components/new/tutos/TutorialFilterModal';
@@ -17,18 +16,26 @@ export default function TutosScreen() {
     const router = useRouter();
     const { tutorials } = useTutorialsContext();
     const { loadTutorials, createTutorial, toggleLike } = useTutorials();
-    
+
     const [loading, setLoading] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedCategory, setSelectedCategory] = useState<TutorialCategory | null>(null);
     const [selectedType, setSelectedType] = useState<TutorialType | null>(null);
-    
+
     const [filterModalVisible, setFilterModalVisible] = useState(false);
     const [createModalVisible, setCreateModalVisible] = useState(false);
+
+    const [currentTab, setCurrentTab] = useState<TabType>('tutos');
 
     useEffect(() => {
         loadData();
     }, [selectedCategory, selectedType]);
+
+    useEffect(() => {
+        if (currentTab !== 'tutos') {
+            router.push('/(tabs)/social');
+        }
+    }, [currentTab]);
 
     const loadData = async () => {
         setLoading(true);
@@ -74,14 +81,14 @@ export default function TutosScreen() {
         <SafeAreaProvider>
             <View style={styles.container}>
                 <ForumHeader notificationCount={27} />
-                
-                <ForumTabs />
 
-                <ScrollView 
+                <ForumTabs activeTab={currentTab} setCurrentTab={setCurrentTab} />
+
+                <ScrollView
                     style={styles.content}
                     contentContainerStyle={styles.scrollContent}
                 >
-                    <TouchableOpacity 
+                    <TouchableOpacity
                         style={styles.createButton}
                         onPress={() => setCreateModalVisible(true)}
                     >
@@ -97,7 +104,7 @@ export default function TutosScreen() {
                             placeholder="Rechercher un tutoriel..."
                             value={searchQuery}
                             onChangeText={setSearchQuery}
-                            placeholderTextColor="#999"
+                            placeholderTextColor="#111827"
                         />
                     </View>
 
@@ -115,9 +122,6 @@ export default function TutosScreen() {
                         onPress={handleTutorialPress}
                     />
                 </ScrollView>
-                
-                <BottomTabBar activeTab="/forum" />
-
                 {/* Modal de filtres */}
                 <TutorialFilterModal
                     visible={filterModalVisible}

@@ -5,13 +5,18 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 interface GardenVegeList {
     gardenVegetables: GardenVegetable[],
     closeIsUpdatingCel: () => void,
-    updateCelWithVege: (vegetable: string) => void
+    updateCelWithVege: (vegetable: string | undefined) => void,
+    vegeId?: string
 }
 
-export const GardenVegeList = ({ gardenVegetables, closeIsUpdatingCel, updateCelWithVege }: GardenVegeList) => {
+export const GardenVegeList = ({ gardenVegetables, closeIsUpdatingCel, updateCelWithVege, vegeId }: GardenVegeList) => {
 
     function selectVegetable(vegetable: GardenVegetable): void {
         updateCelWithVege(vegetable.id)
+    }
+
+    function clearCell(): void {
+        updateCelWithVege(undefined)
     }
 
     return (
@@ -27,10 +32,15 @@ export const GardenVegeList = ({ gardenVegetables, closeIsUpdatingCel, updateCel
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={styles.scrollContent}
             >
+                {vegeId !== undefined &&
+                    <Pressable onPress={() => clearCell()} style={styles.delete}>
+                        <Image source={'https://outamtvthkoviplxcznc.supabase.co/storage/v1/object/public/vegetables/icons/xmark.svg'} style={styles.vegeIcon} />
+                    </Pressable>
+                }
                 {
                     gardenVegetables.map((gardenVegetable, index) => (
                         <Pressable onPress={() => selectVegetable(gardenVegetable)} key={index} style={styles.vegetable}>
-                            <Text style={styles.vegeIcon}>🌱​</Text>
+                            <Image source={gardenVegetable.icons} style={styles.vegeIcon} />
                             <Text style={styles.vegeLabel}>{gardenVegetable.name}</Text>
                         </Pressable>
                     ))
@@ -69,6 +79,14 @@ const styles = StyleSheet.create({
         borderColor: '#9c9a9774',
         backgroundColor: '#DCFCE7'
     },
+    delete: {
+        width: 100,
+        height: 100,
+        borderWidth: 1,
+        borderRadius: 16,
+        borderColor: '#9c9a9774',
+        backgroundColor: '#ff8d8dff'
+    },
     icon: {
         width: 32,
         height: 32,
@@ -76,11 +94,17 @@ const styles = StyleSheet.create({
         marginRight: 8,
     },
     vegeIcon: {
-        fontSize: 28,
+        width: 64,
+        height: 64,
         margin: 'auto'
     },
     vegeLabel: {
         margin: 'auto',
         fontSize: 16
+    },
+    deleteLabel: {
+        margin: 'auto',
+        fontSize: 16,
+        color: '#fff'
     }
 });

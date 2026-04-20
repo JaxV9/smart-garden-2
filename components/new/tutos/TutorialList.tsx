@@ -1,5 +1,6 @@
 import { FlatList, StyleSheet, Text } from 'react-native';
 import TutorialCard from './TutorialCard';
+import { useCallback } from 'react';
 
 interface Tutorial {
     id: string;
@@ -27,6 +28,16 @@ interface TutorialListProps {
 }
 
 export default function TutorialList({ tutorials, loading, onLike, onPress }: TutorialListProps) {
+    const renderItem = useCallback(({ item }: { item: Tutorial }) => (
+        <TutorialCard
+            tutorial={item}
+            onLike={onLike}
+            onPress={onPress}
+        />
+    ), [onLike, onPress]);
+
+    const keyExtractor = useCallback((item: Tutorial) => item.id, []);
+
     if (loading) {
         return <Text style={styles.loadingText}>Chargement...</Text>;
     }
@@ -38,16 +49,14 @@ export default function TutorialList({ tutorials, loading, onLike, onPress }: Tu
     return (
         <FlatList
             data={tutorials}
-            renderItem={({ item }) => (
-                <TutorialCard
-                    tutorial={item}
-                    onLike={onLike}
-                    onPress={onPress}
-                />
-            )}
-            keyExtractor={(item) => item.id}
+            renderItem={renderItem}
+            keyExtractor={keyExtractor}
             scrollEnabled={false}
             contentContainerStyle={styles.list}
+            initialNumToRender={10}
+            maxToRenderPerBatch={10}
+            windowSize={5}
+            removeClippedSubviews={true}
         />
     );
 }

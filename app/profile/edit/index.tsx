@@ -3,7 +3,7 @@ import { useUser } from '@/hooks/useUser';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, Switch } from 'react-native';
 
 export default function EditProfile() {
     const router = useRouter();
@@ -15,6 +15,7 @@ export default function EditProfile() {
     const [email, setEmail] = useState(user?.email || '');
     const [phone, setPhone] = useState('');
     const [bio, setBio] = useState('');
+    const [isPrivate, setIsPrivate] = useState(user?.isPrivate || false);
     const [saving, setSaving] = useState(false);
 
     const handleSave = async () => {
@@ -30,6 +31,7 @@ export default function EditProfile() {
             email: email.trim(),
             phone: phone.trim() || undefined,
             bio: bio.trim() || undefined,
+            isPrivate
         });
 
         setSaving(false);
@@ -75,7 +77,7 @@ export default function EditProfile() {
                             value={name}
                             onChangeText={setName}
                             placeholder="Votre nom"
-                            placeholderTextColor="#999"
+                            placeholderTextColor="#111827"
                         />
                     </View>
 
@@ -88,7 +90,7 @@ export default function EditProfile() {
                             placeholder="votre@email.com"
                             keyboardType="email-address"
                             autoCapitalize="none"
-                            placeholderTextColor="#999"
+                            placeholderTextColor="#111827"
                         />
                     </View>
 
@@ -100,7 +102,7 @@ export default function EditProfile() {
                             onChangeText={setPhone}
                             placeholder="+33 6 00 00 00 00"
                             keyboardType="phone-pad"
-                            placeholderTextColor="#999"
+                            placeholderTextColor="#111827"
                         />
                     </View>
 
@@ -114,7 +116,20 @@ export default function EditProfile() {
                             multiline
                             numberOfLines={4}
                             textAlignVertical="top"
-                            placeholderTextColor="#999"
+                            placeholderTextColor="#111827"
+                        />
+                    </View>
+
+                    <View style={styles.switchGroup}>
+                        <View>
+                            <Text style={styles.label}>Profil Privé</Text>
+                            <Text style={styles.helpText}>Masquer vos statistiques aux autres utilisateurs</Text>
+                        </View>
+                        <Switch
+                            value={isPrivate}
+                            onValueChange={setIsPrivate}
+                            trackColor={{ false: "#e5e5e5", true: "#5B8E55" }}
+                            thumbColor={"#ffffff"}
                         />
                     </View>
                 </View>
@@ -209,6 +224,22 @@ const styles = StyleSheet.create({
         fontWeight: '600',
         color: '#333',
         marginBottom: 8,
+    },
+    helpText: {
+        fontSize: 12,
+        color: '#6b7280',
+        marginTop: 2,
+    },
+    switchGroup: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 20,
+        backgroundColor: '#f9f9f9',
+        padding: 16,
+        borderRadius: 12,
+        borderWidth: 1,
+        borderColor: '#e5e5e5',
     },
     input: {
         backgroundColor: '#f9f9f9',

@@ -18,10 +18,19 @@ export default function RootLayout() {
               <ForumProvider>
                 <SocialProvider>
                   <TutorialsProvider>
-                    <Stack screenOptions={{
-                      headerShown: false,
-                      animation: 'none',
-                    }} />
+                    <Stack
+                      screenOptions={{
+                        headerShown: false,
+                        animation: "none",
+                      }}
+                    >
+                      <Stack.Screen
+                        name="vegetable/[vegetableId]/index"
+                        options={{
+                          animation: "slide_from_right",
+                        }}
+                      />
+                    </Stack>
                   </TutorialsProvider>
                 </SocialProvider>
               </ForumProvider>

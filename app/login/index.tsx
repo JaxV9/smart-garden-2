@@ -55,6 +55,7 @@ export default function RegisterScreen() {
             <TextInput
                 style={styles.input}
                 placeholder="Email"
+                placeholderTextColor="#111827"
                 value={email}
                 onChangeText={setEmail}
                 keyboardType="email-address"
@@ -63,6 +64,7 @@ export default function RegisterScreen() {
             <TextInput
                 style={styles.input}
                 placeholder="Mot de passe"
+                placeholderTextColor="#111827"
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry />
@@ -81,8 +83,8 @@ export default function RegisterScreen() {
 
             <TouchableOpacity
                 style={styles.linkButton}
-                onPress={() => router.replace('/register')}>
-                <Text style={styles.linkText}>Se créer un compte</Text>
+                onPress={() => router.replace('/starting')}>
+                <Text style={styles.linkText}>Retour</Text>
             </TouchableOpacity>
         </View>
     );

@@ -1,5 +1,5 @@
 import { ForumTag, Topic } from "@/hooks/useForum";
-import { createContext, ReactNode, useContext, useState } from "react";
+import { createContext, ReactNode, useContext, useMemo, useState } from "react";
 
 interface ForumContextType {
     tags: ForumTag[];
@@ -14,15 +14,15 @@ export function ForumProvider({ children }: { children: ReactNode }) {
     const [tags, setTags] = useState<ForumTag[]>([]);
     const [topics, setTopics] = useState<Topic[]>([]);
 
+    const value = useMemo(() => ({
+        tags,
+        setTags,
+        topics,
+        setTopics,
+    }), [tags, topics]);
+
     return (
-        <ForumContext.Provider
-            value={{
-                tags,
-                setTags,
-                topics,
-                setTopics,
-            }}
-        >
+        <ForumContext.Provider value={value}>
             {children}
         </ForumContext.Provider>
     );

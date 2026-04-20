@@ -1,5 +1,6 @@
 import { getTimeAgo } from '@/utils/dateFormatter';
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 interface Tag {
@@ -13,6 +14,7 @@ interface Topic {
     title: string;
     tags: Tag[];
     author: {
+        id: string;
         name?: string;
     };
     createdAt: string;
@@ -28,6 +30,8 @@ interface TopicCardProps {
 }
 
 export default function TopicCard({ topic, onPress }: TopicCardProps) {
+    const router = useRouter();
+    
     const getTagStyle = (tagName: string) => {
         const tagStyles: Record<string, any> = {
             'Maladies': styles.tagMaladies,
@@ -55,7 +59,9 @@ export default function TopicCard({ topic, onPress }: TopicCardProps) {
             <Text style={styles.topicTitle}>{topic.title}</Text>
 
             <View style={styles.topicMeta}>
-                <Text style={styles.topicAuthor}>Par {topic.author.name || 'Utilisateur'}</Text>
+                <TouchableOpacity onPress={() => router.push({ pathname: '/user/[id]', params: { id: topic.author.id } })}>
+                    <Text style={styles.topicAuthor}>Par <Text style={styles.authorName}>{topic.author.name || 'Utilisateur'}</Text></Text>
+                </TouchableOpacity>
                 <Text style={styles.topicTime}>• {getTimeAgo(topic.createdAt)}</Text>
             </View>
 
@@ -122,6 +128,10 @@ const styles = StyleSheet.create({
     topicAuthor: {
         fontSize: 14,
         color: '#666',
+    },
+    authorName: {
+        fontWeight: 'bold',
+        color: '#5B8E55',
     },
     topicTime: {
         fontSize: 14,

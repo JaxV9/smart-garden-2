@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
-import { ActivityIndicator, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 
 interface CreateTutorialModalProps {
     visible: boolean;
@@ -64,13 +64,15 @@ export default function CreateTutorialModal({ visible, onClose, onSubmit }: Crea
 
     return (
         <Modal
-            animationType="slide"
+            animationType="fade"
             transparent={true}
             visible={visible}
             onRequestClose={handleClose}
         >
-            <View style={styles.modalOverlay}>
-                <View style={styles.modalContent}>
+            <TouchableWithoutFeedback onPress={handleClose}>
+                <View style={styles.modalOverlay}>
+                    <TouchableWithoutFeedback onPress={() => {}}>
+                        <View style={styles.modalContent}>
                     <View style={styles.modalHeader}>
                         <Text style={styles.modalTitle}>Publier un tutoriel</Text>
                         <TouchableOpacity onPress={handleClose}>
@@ -134,7 +136,7 @@ export default function CreateTutorialModal({ visible, onClose, onSubmit }: Crea
                             placeholder="Ex: Comment réussir ses tomates"
                             value={title}
                             onChangeText={setTitle}
-                            placeholderTextColor="#999"
+                            placeholderTextColor="#111827"
                         />
 
                         {/* Description */}
@@ -147,7 +149,7 @@ export default function CreateTutorialModal({ visible, onClose, onSubmit }: Crea
                             multiline
                             numberOfLines={3}
                             textAlignVertical="top"
-                            placeholderTextColor="#999"
+                            placeholderTextColor="#111827"
                         />
 
                         {/* Catégorie */}
@@ -183,7 +185,7 @@ export default function CreateTutorialModal({ visible, onClose, onSubmit }: Crea
                                     placeholder="https://youtube.com/..."
                                     value={videoUrl}
                                     onChangeText={setVideoUrl}
-                                    placeholderTextColor="#999"
+                                    placeholderTextColor="#111827"
                                     autoCapitalize="none"
                                 />
                             </>
@@ -198,7 +200,7 @@ export default function CreateTutorialModal({ visible, onClose, onSubmit }: Crea
                                     multiline
                                     numberOfLines={10}
                                     textAlignVertical="top"
-                                    placeholderTextColor="#999"
+                                    placeholderTextColor="#111827"
                                 />
                             </>
                         )}
@@ -215,8 +217,10 @@ export default function CreateTutorialModal({ visible, onClose, onSubmit }: Crea
                             <Text style={styles.submitButtonText}>Publier</Text>
                         )}
                     </TouchableOpacity>
+                        </View>
+                    </TouchableWithoutFeedback>
                 </View>
-            </View>
+            </TouchableWithoutFeedback>
         </Modal>
     );
 }

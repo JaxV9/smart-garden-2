@@ -1,15 +1,15 @@
+import { useGardenContext } from "@/contexts/garden.context";
 import { GardenerLevel } from "@/models/models";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import { useFetch } from "./useFetch";
 import { useUser } from "./useUser";
-import { useGardenContext } from "@/contexts/garden.context";
 
 export function useOnboarding() {
     const { httpClient } = useFetch(undefined)
     const { getUser } = useUser()
 
-    const { updateGardenInfo } = useGardenContext(); 
+    const { updateGardenInfo } = useGardenContext();
 
     const [gardenName, setGardenName] = useState<string | undefined>(undefined)
     const [gardenLocation, setGardenLocation] = useState<string | undefined>(undefined);
@@ -18,7 +18,7 @@ export function useOnboarding() {
     const [loading, setLoading] = useState<boolean>(false)
     const [error, setError] = useState<boolean>(false);
 
-    const [currentStep, setCurrentStep] = useState<number>(0);
+    const [currentStep, setCurrentStep] = useState<number>(1);
     const [stepNumber, setStepNumber] = useState<number[]>([...Array(3).keys()]);
     const [canGoForward, setCanGoForward] = useState<boolean>(false);
     const [allInputsFilled, setAllInputsFilled] = useState<boolean>(false);
@@ -140,7 +140,6 @@ export function useOnboarding() {
         stepNumber,
         gardenName,
         setGardenName,
-        gardenLocation,
         setGardenLocation,
         setGardenLevel,
         canGoForward,

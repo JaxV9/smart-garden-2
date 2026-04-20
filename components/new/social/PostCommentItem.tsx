@@ -1,12 +1,14 @@
 import { getTimeAgo } from '@/utils/dateFormatter';
 import { Ionicons } from '@expo/vector-icons';
-import { StyleSheet, Text, View } from 'react-native';
+import { useRouter } from 'expo-router';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 interface PostCommentItemProps {
     comment: {
         id: string;
         content: string;
         author: {
+            id: string;
             name?: string;
         };
         createdAt: string;
@@ -14,6 +16,8 @@ interface PostCommentItemProps {
 }
 
 export default function PostCommentItem({ comment }: PostCommentItemProps) {
+    const router = useRouter();
+
     return (
         <View style={styles.commentItem}>
             <View style={styles.avatarPlaceholder}>
@@ -21,7 +25,9 @@ export default function PostCommentItem({ comment }: PostCommentItemProps) {
             </View>
             <View style={styles.commentContent}>
                 <View style={styles.commentHeader}>
-                    <Text style={styles.commentAuthor}>{comment.author.name || 'Utilisateur'}</Text>
+                    <TouchableOpacity onPress={() => router.push({ pathname: '/user/[id]', params: { id: comment.author.id } })}>
+                        <Text style={[styles.commentAuthor, { color: '#5B8E55', textDecorationLine: 'underline' }]}>{comment.author.name || 'Utilisateur'}</Text>
+                    </TouchableOpacity>
                     <Text style={styles.commentTime}>{getTimeAgo(comment.createdAt)}</Text>
                 </View>
                 <Text style={styles.commentText}>{comment.content}</Text>

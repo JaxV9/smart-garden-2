@@ -2,12 +2,14 @@ export type User = {
   name: string;
   email: string;
   avatarUri?: string | null;
-  level: string | null
+  level: string | null;
+  isPrivate?: boolean;
 };
 
 export type Vegetable = {
   id: string;
   name: string;
+  category?: string[];
   description: string;
   specifications: string[];
   difficulty: string;
@@ -22,6 +24,7 @@ export type Vegetable = {
   affinity: string[];
   bad_neighbors: string[];
   images: string[];
+  icons: string
 };
 
 export interface GardenVegetablePayload {
@@ -39,7 +42,8 @@ export type LoginInfos = {
   token: string;
   userName: string;
   email: string;
-  level: string | null
+  level: string | null;
+  isPrivate?: boolean;
 };
 
 export type SensorMeasure = {
@@ -78,7 +82,7 @@ export type Task = {
   description: string | null;
   category: string | null;
   plant: GardenVegetablePayload | null;
-  dueDate: string | null;      
+  dueDate: string | null;
   priority: TaskPriority | null;
   reminder: boolean | null;
   completed: boolean;

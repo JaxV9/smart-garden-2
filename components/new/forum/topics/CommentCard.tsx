@@ -1,9 +1,11 @@
 import { getTimeAgo } from '@/utils/dateFormatter';
 import { Ionicons } from '@expo/vector-icons';
-import { StyleSheet, Text, View } from 'react-native';
+import { useRouter } from 'expo-router';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 interface CommentCardProps {
     author: {
+        id: string;
         name?: string;
     };
     content: string;
@@ -11,6 +13,8 @@ interface CommentCardProps {
 }
 
 export default function CommentCard({ author, content, createdAt }: CommentCardProps) {
+    const router = useRouter();
+
     return (
         <View style={styles.commentCard}>
             <View style={styles.commentHeader}>
@@ -18,7 +22,9 @@ export default function CommentCard({ author, content, createdAt }: CommentCardP
                     <Ionicons name="person" size={20} color="#666" />
                 </View>
                 <View style={styles.commentHeaderInfo}>
-                    <Text style={styles.commentAuthor}>{author.name || 'Utilisateur'}</Text>
+                    <TouchableOpacity onPress={() => router.push({ pathname: '/user/[id]', params: { id: author.id } })}>
+                        <Text style={[styles.commentAuthor, { color: '#5B8E55', textDecorationLine: 'underline' }]}>{author.name || 'Utilisateur'}</Text>
+                    </TouchableOpacity>
                     <Text style={styles.commentTime}>{getTimeAgo(createdAt)}</Text>
                 </View>
             </View>

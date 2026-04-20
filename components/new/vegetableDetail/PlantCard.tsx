@@ -1,10 +1,23 @@
 import React from "react";
-import { View, Text, Image } from "react-native";
+import { View, Text, Image, Pressable } from "react-native";
 import { styles } from "../../../css/vegetableDetailsStyle";
 
-export function PlantCard({ name, imageUri }: { name: string; imageUri?: string }) {
+export function PlantCard({
+  name,
+  imageUri,
+  onPress,
+}: {
+  name: string;
+  imageUri?: string;
+  onPress?: () => void;
+}) {
   return (
-    <View style={styles.plantCard}>
+    <Pressable
+      style={styles.plantCard}
+      onPress={onPress}
+      disabled={!onPress}
+      accessibilityRole={onPress ? "button" : undefined}
+    >
       {imageUri ? (
         <Image
           source={{ uri: imageUri }}
@@ -21,6 +34,6 @@ export function PlantCard({ name, imageUri }: { name: string; imageUri?: string 
       <Text style={styles.plantName} numberOfLines={1}>
         {name}
       </Text>
-    </View>
+    </Pressable>
   );
 }

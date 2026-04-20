@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Modal, ScrollView, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 
 interface Tag {
     id: string;
@@ -17,13 +17,15 @@ interface FilterModalProps {
 export default function FilterModal({ visible, tags, selectedTagId, onClose, onSelectTag }: FilterModalProps) {
     return (
         <Modal
-            animationType="slide"
+            animationType="fade"
             transparent={true}
             visible={visible}
             onRequestClose={onClose}
         >
-            <View style={styles.modalOverlay}>
-                <View style={styles.modalContent}>
+            <TouchableWithoutFeedback onPress={onClose}>
+                <View style={styles.modalOverlay}>
+                    <TouchableWithoutFeedback onPress={() => {}}>
+                        <View style={styles.modalContent}>
                     <View style={styles.modalHeader}>
                         <Text style={styles.modalTitle}>Filtrer par catégorie</Text>
                         <TouchableOpacity onPress={onClose}>
@@ -55,8 +57,10 @@ export default function FilterModal({ visible, tags, selectedTagId, onClose, onS
                             </TouchableOpacity>
                         ))}
                     </ScrollView>
+                        </View>
+                    </TouchableWithoutFeedback>
                 </View>
-            </View>
+            </TouchableWithoutFeedback>
         </Modal>
     );
 }

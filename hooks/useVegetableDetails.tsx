@@ -89,7 +89,7 @@ export function useVegetableDetails(vegetableId?: string): VM {
     const found = vegetablesContext.find(
       (v: any) => normalize(v?.name) === normalize(n)
     );
-    return { name: n, image: found?.images?.[0] };
+    return { id: found?.id, name: n, image: found?.images?.[0] };
   });
 
   const enemyPlants: PlantRef[] = (
@@ -98,7 +98,7 @@ export function useVegetableDetails(vegetableId?: string): VM {
     const found = vegetablesContext.find(
       (v: any) => normalize(v?.name) === normalize(n)
     );
-    return { name: n, image: found?.images?.[0] };
+    return { id: found?.id, name: n, image: found?.images?.[0] };
   });
 
   const sowingRange = rangeFromMonths(vegetable?.sowing);

@@ -1,5 +1,6 @@
 import { FlatList, StyleSheet, Text } from 'react-native';
 import PostCard from './PostCard';
+import { useCallback } from 'react';
 
 interface Post {
     id: string;
@@ -24,6 +25,16 @@ interface PostListProps {
 }
 
 export default function PostList({ posts, loading, onLike, onComment }: PostListProps) {
+    const renderItem = useCallback(({ item }: { item: Post }) => (
+        <PostCard
+            post={item}
+            onLike={onLike}
+            onComment={onComment}
+        />
+    ), [onLike, onComment]);
+
+    const keyExtractor = useCallback((item: Post) => item.id, []);
+
     if (loading) {
         return <Text style={styles.loadingText}>Chargement...</Text>;
     }
@@ -35,16 +46,14 @@ export default function PostList({ posts, loading, onLike, onComment }: PostList
     return (
         <FlatList
             data={posts}
-            renderItem={({ item }) => (
-                <PostCard
-                    post={item}
-                    onLike={onLike}
-                    onComment={onComment}
-                />
-            )}
-            keyExtractor={(item) => item.id}
+            renderItem={renderItem}
+            keyExtractor={keyExtractor}
             scrollEnabled={false}
             contentContainerStyle={styles.list}
+            initialNumToRender={10}
+            maxToRenderPerBatch={10}
+            windowSize={5}
+            removeClippedSubviews={true}
         />
     );
 }
