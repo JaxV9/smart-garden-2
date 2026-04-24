@@ -19,6 +19,7 @@ export function useUser() {
             if (response.status !== 'Failure') {
                 const data = response.payload as User
                 const userInfos: User = {
+                    id: data.id,
                     name: data.name,
                     email: data.email,
                     level: data.level,
@@ -47,6 +48,7 @@ export function useUser() {
                 await putToken('authToken', data.token);
                 setIsLogin(true)
                 const userInfos: User = {
+                    id: data.userId,
                     name: data.userName,
                     email: data.email,
                     avatarUri: null,
@@ -71,6 +73,7 @@ export function useUser() {
                 await putToken('authToken', data.token);
                 setIsLogin(true)
                 const userInfos: User = {
+                    id: data.userId,
                     name: data.userName,
                     email: data.email,
                     avatarUri: null,
@@ -178,6 +181,28 @@ export function useUser() {
         }
     }
 
+    async function deletePost(postId: string) {
+        try {
+            const http = await httpClient;
+            const response = await http.delete(`/api/post/${postId}`);
+            return response.status !== 'Failure';
+        } catch (error) {
+            console.error("deletePost failed:", error);
+            return false;
+        }
+    }
+
+    async function deleteTopic(topicId: string) {
+        try {
+            const http = await httpClient;
+            const response = await http.delete(`/api/topic/${topicId}`);
+            return response.status !== 'Failure';
+        } catch (error) {
+            console.error("deleteTopic failed:", error);
+            return false;
+        }
+    }
+
     return {
         isLogin,
         getUser,
@@ -189,6 +214,8 @@ export function useUser() {
         getPublicProfile,
         getUserTopics,
         getUserPosts,
-        getUserVegetables
+        getUserVegetables,
+        deletePost,
+        deleteTopic
     };
 }
