@@ -22,16 +22,18 @@ interface PostListProps {
     loading: boolean;
     onLike: (postId: string) => void;
     onComment: (postId: string) => void;
+    onDelete?: (postId: string) => void;
 }
 
-export default function PostList({ posts, loading, onLike, onComment }: PostListProps) {
+export default function PostList({ posts, loading, onLike, onComment, onDelete }: PostListProps) {
     const renderItem = useCallback(({ item }: { item: Post }) => (
         <PostCard
             post={item}
             onLike={onLike}
             onComment={onComment}
+            onDelete={onDelete}
         />
-    ), [onLike, onComment]);
+    ), [onLike, onComment, onDelete]);
 
     const keyExtractor = useCallback((item: Post) => item.id, []);
 

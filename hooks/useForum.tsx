@@ -280,6 +280,20 @@ export function useForum() {
         }
     }, [httpClient]);
 
+    /**
+     * Supprime un sujet et le retire de la liste locale.
+     * @param {string} topicId - Identifiant du sujet à supprimer.
+     * @returns {Promise<"Success" | "Failure">} Statut de la requête.
+     */
+    const deleteTopic = useCallback(async (topicId: string): Promise<"Success" | "Failure"> => {
+        const http = await httpClient;
+        const response = await http.delete(`/api/topic/${topicId}`);
+        if (response.status !== "Failure") {
+            setTopics(topics.filter(t => t.id !== topicId));
+        }
+        return response.status;
+    }, [httpClient, topics, setTopics]);
+
     return {
         loadTags,
         loadTopics,
@@ -290,5 +304,6 @@ export function useForum() {
         getUserStats,
         getUserTopics,
         getUserComments,
+        deleteTopic,
     };
 }

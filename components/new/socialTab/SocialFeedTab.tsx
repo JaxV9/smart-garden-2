@@ -11,7 +11,7 @@ import { ScrollView, StyleSheet, Text, TouchableOpacity } from 'react-native';
 
 export const SocialFeedTab = () => {
     const { posts } = useSocialContext();
-    const { loadPosts, createPost, toggleLike, addComment, loadComments } = useSocial();
+    const { loadPosts, createPost, toggleLike, addComment, loadComments, deletePost } = useSocial();
     const [loading, setLoading] = useState(false);
     const [createModalVisible, setCreateModalVisible] = useState(false);
     const [commentsModalVisible, setCommentsModalVisible] = useState(false);
@@ -63,6 +63,10 @@ export const SocialFeedTab = () => {
         await loadData();
     };
 
+    const handleDelete = async (postId: string) => {
+        await deletePost(postId);
+    };
+
 
     return (
         <>
@@ -84,6 +88,7 @@ export const SocialFeedTab = () => {
                     loading={loading}
                     onLike={handleLike}
                     onComment={handleCommentPress}
+                    onDelete={handleDelete}
                 />
             </ScrollView>
 

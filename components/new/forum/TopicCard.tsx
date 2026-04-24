@@ -1,7 +1,9 @@
 import { getTimeAgo } from '@/utils/dateFormatter';
+import { useUserContext } from '@/contexts/user.context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useState } from 'react';
+import { Alert, Modal, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 
 interface Tag {
     tag: {
@@ -27,11 +29,15 @@ interface Topic {
 interface TopicCardProps {
     topic: Topic;
     onPress: () => void;
+    onDelete?: (topicId: string) => void;
 }
 
-export default function TopicCard({ topic, onPress }: TopicCardProps) {
+export default function TopicCard({ topic, onPress, onDelete }: TopicCardProps) {
     const router = useRouter();
-    
+    const { user } = useUserContext();
+    const [menuVisible, setMenuVisible] = useState(false);
+    const isOwner = user?.id === topic.author.id;
+
     const getTagStyle = (tagName: string) => {
         const tagStyles: Record<string, any> = {
             'Maladies': styles.tagMaladies,
@@ -43,17 +49,44 @@ export default function TopicCard({ topic, onPress }: TopicCardProps) {
         return tagStyles[tagName] || {};
     };
 
+    const handleDelete = () => {
+        setMenuVisible(false);
+        Alert.alert(
+            'Supprimer le sujet',
+            'Es-tu sûr de vouloir supprimer ce sujet ? Tous les commentaires associés seront également supprimés.',
+            [
+                { text: 'Annuler', style: 'cancel' },
+                {
+                    text: 'Supprimer',
+                    style: 'destructive',
+                    onPress: () => onDelete?.(topic.id),
+                },
+            ]
+        );
+    };
+
     return (
         <TouchableOpacity style={styles.topicCard} onPress={onPress}>
-            <View style={styles.topicTagsContainer}>
-                {topic.tags.map((tagRelation, index) => (
-                    <View
-                        key={index}
-                        style={[styles.topicTag, getTagStyle(tagRelation.tag.name)]}
+            <View style={styles.topicHeader}>
+                <View style={styles.topicTagsContainer}>
+                    {topic.tags.map((tagRelation, index) => (
+                        <View
+                            key={index}
+                            style={[styles.topicTag, getTagStyle(tagRelation.tag.name)]}
+                        >
+                            <Text style={styles.topicTagText}>{tagRelation.tag.name}</Text>
+                        </View>
+                    ))}
+                </View>
+                {isOwner && (
+                    <TouchableOpacity
+                        onPress={(e) => { e.stopPropagation(); setMenuVisible(true); }}
+                        style={styles.menuButton}
+                        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                     >
-                        <Text style={styles.topicTagText}>{tagRelation.tag.name}</Text>
-                    </View>
-                ))}
+                        <Ionicons name="ellipsis-vertical" size={20} color="#9ca3af" />
+                    </TouchableOpacity>
+                )}
             </View>
 
             <Text style={styles.topicTitle}>{topic.title}</Text>
@@ -75,6 +108,27 @@ export default function TopicCard({ topic, onPress }: TopicCardProps) {
                     <Text style={styles.statText}>{topic.viewCount} vues</Text>
                 </View>
             </View>
+
+            {/* Menu modal */}
+            <Modal
+                visible={menuVisible}
+                transparent
+                animationType="fade"
+                onRequestClose={() => setMenuVisible(false)}
+            >
+                <TouchableWithoutFeedback onPress={() => setMenuVisible(false)}>
+                    <View style={styles.modalOverlay}>
+                        <TouchableWithoutFeedback>
+                            <View style={styles.menuCard}>
+                                <TouchableOpacity style={styles.menuItem} onPress={handleDelete}>
+                                    <Ionicons name="trash-outline" size={18} color="#ef4444" />
+                                    <Text style={styles.menuItemTextDanger}>Supprimer le sujet</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </TouchableWithoutFeedback>
+                    </View>
+                </TouchableWithoutFeedback>
+            </Modal>
         </TouchableOpacity>
     );
 }
@@ -91,11 +145,17 @@ const styles = StyleSheet.create({
         shadowRadius: 3,
         elevation: 2,
     },
+    topicHeader: {
+        flexDirection: 'row',
+        alignItems: 'flex-start',
+        justifyContent: 'space-between',
+        marginBottom: 10,
+    },
     topicTagsContainer: {
         flexDirection: 'row',
         gap: 8,
-        marginBottom: 10,
         flexWrap: 'wrap',
+        flex: 1,
     },
     topicTag: {
         paddingHorizontal: 12,
@@ -112,6 +172,10 @@ const styles = StyleSheet.create({
         fontSize: 12,
         fontWeight: '500',
         color: '#333',
+    },
+    menuButton: {
+        padding: 4,
+        marginLeft: 8,
     },
     topicTitle: {
         fontSize: 18,
@@ -150,5 +214,35 @@ const styles = StyleSheet.create({
     statText: {
         fontSize: 14,
         color: '#666',
+    },
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.3)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    menuCard: {
+        backgroundColor: 'white',
+        borderRadius: 12,
+        padding: 8,
+        minWidth: 200,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.15,
+        shadowRadius: 8,
+        elevation: 8,
+    },
+    menuItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 10,
+        paddingVertical: 12,
+        paddingHorizontal: 16,
+        borderRadius: 8,
+    },
+    menuItemTextDanger: {
+        fontSize: 15,
+        color: '#ef4444',
+        fontWeight: '500',
     },
 });

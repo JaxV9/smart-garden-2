@@ -25,7 +25,7 @@ export const ForumFeedTab = () => {
 
 
     const { tags, topics } = useForumContext();
-    const { loadTags, loadTopics, createTopic } = useForum();
+    const { loadTags, loadTopics, createTopic, deleteTopic } = useForum();
 
 
     const selectedTagName = selectedTagId
@@ -89,6 +89,10 @@ export const ForumFeedTab = () => {
         }, [selectedTagId])
     );
 
+    const handleDeleteTopic = async (topicId: string) => {
+        await deleteTopic(topicId);
+    };
+
 
     return (
         <>
@@ -118,6 +122,7 @@ export const ForumFeedTab = () => {
                     topics={filteredTopics}
                     loading={loading}
                     onTopicPress={(topicId) => router.push(`/forum/topic/${topicId}`)}
+                    onDelete={handleDeleteTopic}
                 />
             </ScrollView>
 
