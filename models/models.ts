@@ -1,4 +1,5 @@
 export type User = {
+  id?: string;
   name: string;
   email: string;
   avatarUri?: string | null;
@@ -40,6 +41,7 @@ export interface GardenVegetable extends Vegetable {
 
 export type LoginInfos = {
   token: string;
+  userId: string;
   userName: string;
   email: string;
   level: string | null;
@@ -75,6 +77,12 @@ export type AddVegetableToGardenResponse = {
 };
 
 export type TaskPriority = "LOW" | "MEDIUM" | "HIGH";
+
+export const TaskPriorityLabels: Record<TaskPriority, string> = {
+  LOW: "Faible",
+  MEDIUM: "Moyenne",
+  HIGH: "Élevée",
+};
 
 export type Task = {
   id: string;

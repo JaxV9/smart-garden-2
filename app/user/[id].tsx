@@ -1,9 +1,6 @@
-import { useUser } from '@/hooks/useUser';
-import { Ionicons } from '@expo/vector-icons';
-import { BlurView } from 'expo-blur';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useUserContext } from '@/contexts/user.context';
+import { useGarden } from '@/hooks/useGarden';
 
 type PublicProfile = {
     id: string;
@@ -30,7 +27,10 @@ type PublicProfile = {
 export default function UserProfileScreen() {
     const { id } = useLocalSearchParams<{ id: string }>();
     const router = useRouter();
-    const { getPublicProfile, getUserTopics, getUserPosts, getUserVegetables } = useUser();
+    const { getPublicProfile, getUserTopics, getUserPosts, getUserVegetables, deletePost, deleteTopic } = useUser();
+    const { removeVegetablesFromGarden } = useGarden();
+    const { user } = useUserContext();
+    const isOwnProfile = user?.id === id;
     const [profile, setProfile] = useState<PublicProfile | null>(null);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState<'none' | 'plants' | 'contributions' | 'topics'>('none');
@@ -53,9 +53,6 @@ export default function UserProfileScreen() {
         fetchProfile();
     }, [id]);
 
-    useEffect(() => {
-        if (activeTab === 'none') return;
-
         async function fetchActivity() {
             setLoadingActivity(true);
             if (activeTab === 'topics') {
@@ -70,8 +67,65 @@ export default function UserProfileScreen() {
             }
             setLoadingActivity(false);
         }
+
+    useEffect(() => {
+        if (activeTab === 'none') return;
         fetchActivity();
     }, [activeTab, id]);
+
+    const handleDeleteTopic = (topicId: string) => {
+        Alert.alert(
+            "Supprimer le sujet",
+            "Es-tu sûr de vouloir supprimer ce sujet ? Cette action est irréversible et supprimera tous les commentaires associés.",
+            [
+                { text: "Annuler", style: "cancel" },
+                { 
+                    text: "Supprimer", 
+                    style: "destructive",
+                    onPress: async () => {
+                        const success = await deleteTopic(topicId);
+                        if (success) fetchActivity();
+                    }
+                }
+            ]
+        );
+    };
+
+    const handleDeletePost = (postId: string) => {
+        Alert.alert(
+            "Supprimer le post",
+            "Es-tu sûr de vouloir supprimer ce post ?",
+            [
+                { text: "Annuler", style: "cancel" },
+                { 
+                    text: "Supprimer", 
+                    style: "destructive",
+                    onPress: async () => {
+                        const success = await deletePost(postId);
+                        if (success) fetchActivity();
+                    }
+                }
+            ]
+        );
+    };
+
+    const handleDeleteVegetable = (vegId: string) => {
+        Alert.alert(
+            "Retirer du jardin",
+            "Es-tu sûr de vouloir retirer cette plante de ton jardin ?",
+            [
+                { text: "Annuler", style: "cancel" },
+                { 
+                    text: "Retirer", 
+                    style: "destructive",
+                    onPress: async () => {
+                        const success = await removeVegetablesFromGarden({ gardenVegetableId: vegId } as any);
+                        if (success === "Success") fetchActivity();
+                    }
+                }
+            ]
+        );
+    };
 
     if (loading) {
         return (
@@ -251,45 +305,61 @@ export default function UserProfileScreen() {
                             ) : (
                                 <View style={styles.activityList}>
                                     {activeTab === 'topics' && (
-                                        topics.length > 0 ? topics.map((topic) => (
-                                            <TouchableOpacity
-                                                key={topic.id}
-                                                style={styles.activityItem}
-                                                onPress={() => router.push({ pathname: '/forum/topic/[id]', params: { id: topic.id } })}
-                                            >
-                                                <View style={styles.activityItemMain}>
+                                            <View key={topic.id} style={styles.activityItem}>
+                                                <TouchableOpacity
+                                                    style={styles.activityItemMain}
+                                                    onPress={() => router.push({ pathname: '/forum/topic/[id]', params: { id: topic.id } })}
+                                                >
                                                     <Ionicons name="chatbubbles-outline" size={20} color="#5B8E55" />
-                                                    <Text style={styles.activityItemTitle} numberOfLines={1}>{topic.title}</Text>
-                                                </View>
-                                                <Text style={styles.activityItemMeta}>{topic._count?.comments || 0} réponses</Text>
-                                            </TouchableOpacity>
+                                                    <View style={{ flex: 1 }}>
+                                                        <Text style={styles.activityItemTitle} numberOfLines={1}>{topic.title}</Text>
+                                                        <Text style={styles.activityItemMeta}>{topic._count?.comments || 0} réponses</Text>
+                                                    </View>
+                                                </TouchableOpacity>
+                                                {isOwnProfile && (
+                                                    <TouchableOpacity onPress={() => handleDeleteTopic(topic.id)} style={styles.deleteActionButton}>
+                                                        <Ionicons name="trash-outline" size={18} color="#ef4444" />
+                                                    </TouchableOpacity>
+                                                )}
+                                            </View>
                                         )) : <Text style={styles.emptyText}>Aucun sujet créé.</Text>
                                     )}
 
                                     {activeTab === 'contributions' && (
-                                        posts.length > 0 ? posts.map((post) => (
-                                            <TouchableOpacity
-                                                key={post.id}
-                                                style={styles.activityItem}
-                                                onPress={() => router.push({ pathname: '/social' })}
-                                            >
-                                                <View style={styles.activityItemMain}>
+                                            <View key={post.id} style={styles.activityItem}>
+                                                <TouchableOpacity
+                                                    style={styles.activityItemMain}
+                                                    onPress={() => router.push({ pathname: '/social' })}
+                                                >
                                                     <Ionicons name="image-outline" size={20} color="#0284c7" />
-                                                    <Text style={styles.activityItemTitle} numberOfLines={1}>{post.content}</Text>
-                                                </View>
-                                                <Text style={styles.activityItemMeta}>{post._count?.likes || 0} j'aime • {post._count?.comments || 0} com.</Text>
-                                            </TouchableOpacity>
+                                                    <View style={{ flex: 1 }}>
+                                                        <Text style={styles.activityItemTitle} numberOfLines={1}>{post.content}</Text>
+                                                        <Text style={styles.activityItemMeta}>{post._count?.likes || 0} j'aime • {post._count?.comments || 0} com.</Text>
+                                                    </View>
+                                                </TouchableOpacity>
+                                                {isOwnProfile && (
+                                                    <TouchableOpacity onPress={() => handleDeletePost(post.id)} style={styles.deleteActionButton}>
+                                                        <Ionicons name="trash-outline" size={18} color="#ef4444" />
+                                                    </TouchableOpacity>
+                                                )}
+                                            </View>
                                         )) : <Text style={styles.emptyText}>Aucun post créé.</Text>
                                     )}
 
                                     {activeTab === 'plants' && (
-                                        vegetables.length > 0 ? vegetables.map((veg) => (
                                             <View key={veg.id} style={styles.activityItem}>
                                                 <View style={styles.activityItemMain}>
                                                     <Ionicons name="leaf-outline" size={20} color="#5B8E55" />
-                                                    <Text style={styles.activityItemTitle}>{veg.vegetableId.charAt(0).toUpperCase() + veg.vegetableId.slice(1)}</Text>
+                                                    <View style={{ flex: 1 }}>
+                                                        <Text style={styles.activityItemTitle}>{veg.vegetableId.charAt(0).toUpperCase() + veg.vegetableId.slice(1)}</Text>
+                                                        <Text style={styles.activityItemMeta}>Ajoutée le {new Date(veg.createdAt).toLocaleDateString()}</Text>
+                                                    </View>
                                                 </View>
-                                                <Text style={styles.activityItemMeta}>Ajoutée le {new Date(veg.createdAt).toLocaleDateString()}</Text>
+                                                {isOwnProfile && (
+                                                    <TouchableOpacity onPress={() => handleDeleteVegetable(veg.id)} style={styles.deleteActionButton}>
+                                                        <Ionicons name="trash-outline" size={18} color="#ef4444" />
+                                                    </TouchableOpacity>
+                                                )}
                                             </View>
                                         )) : <Text style={styles.emptyText}>Aucune plante ajoutée.</Text>
                                     )}
@@ -658,5 +728,10 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         color: '#9ca3af',
         paddingVertical: 20,
+    },
+    deleteActionButton: {
+        padding: 8,
+        borderRadius: 8,
+        backgroundColor: '#fff1f2',
     },
 });
