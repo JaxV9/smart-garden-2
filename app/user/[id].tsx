@@ -1,3 +1,8 @@
+import { useUser } from '@/hooks/useUser';
+import { Ionicons } from '@expo/vector-icons';
+import { BlurView } from 'expo-blur';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useUserContext } from '@/contexts/user.context';
 import { useGarden } from '@/hooks/useGarden';
@@ -53,20 +58,20 @@ export default function UserProfileScreen() {
         fetchProfile();
     }, [id]);
 
-        async function fetchActivity() {
-            setLoadingActivity(true);
-            if (activeTab === 'topics') {
-                const data = await getUserTopics(id);
-                setTopics(data);
-            } else if (activeTab === 'contributions') {
-                const data = await getUserPosts(id);
-                setPosts(data);
-            } else if (activeTab === 'plants') {
-                const data = await getUserVegetables(id);
-                setVegetables(data);
-            }
-            setLoadingActivity(false);
+    const fetchActivity = async () => {
+        setLoadingActivity(true);
+        if (activeTab === 'topics') {
+            const data = await getUserTopics(id);
+            setTopics(data as any[]);
+        } else if (activeTab === 'contributions') {
+            const data = await getUserPosts(id);
+            setPosts(data as any[]);
+        } else if (activeTab === 'plants') {
+            const data = await getUserVegetables(id);
+            setVegetables(data as any[]);
         }
+        setLoadingActivity(false);
+    };
 
     useEffect(() => {
         if (activeTab === 'none') return;
@@ -305,6 +310,7 @@ export default function UserProfileScreen() {
                             ) : (
                                 <View style={styles.activityList}>
                                     {activeTab === 'topics' && (
+                                        topics.length > 0 ? topics.map((topic) => (
                                             <View key={topic.id} style={styles.activityItem}>
                                                 <TouchableOpacity
                                                     style={styles.activityItemMain}
@@ -326,6 +332,7 @@ export default function UserProfileScreen() {
                                     )}
 
                                     {activeTab === 'contributions' && (
+                                        posts.length > 0 ? posts.map((post) => (
                                             <View key={post.id} style={styles.activityItem}>
                                                 <TouchableOpacity
                                                     style={styles.activityItemMain}
@@ -347,6 +354,7 @@ export default function UserProfileScreen() {
                                     )}
 
                                     {activeTab === 'plants' && (
+                                        vegetables.length > 0 ? vegetables.map((veg) => (
                                             <View key={veg.id} style={styles.activityItem}>
                                                 <View style={styles.activityItemMain}>
                                                     <Ionicons name="leaf-outline" size={20} color="#5B8E55" />

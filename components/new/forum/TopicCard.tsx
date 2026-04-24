@@ -1,37 +1,53 @@
 import { getTimeAgo } from '@/utils/dateFormatter';
+import { useUserContext } from '@/contexts/user.context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useState } from 'react';
+import {
+    ActivityIndicator, Alert, Modal, ScrollView, StyleSheet, Text,
+    TextInput, TouchableOpacity, TouchableWithoutFeedback, View
+} from 'react-native';
 
 interface Tag {
-    tag: {
-        name: string;
-    };
+    tag: { id?: string; name: string };
 }
 
 interface Topic {
     id: string;
     title: string;
     tags: Tag[];
-    author: {
-        id: string;
-        name?: string;
-    };
+    author: { id: string; name?: string };
     createdAt: string;
-    _count: {
-        comments: number;
-    };
+    _count: { comments: number };
     viewCount: number;
+}
+
+interface AllTag {
+    id: string;
+    name: string;
 }
 
 interface TopicCardProps {
     topic: Topic;
     onPress: () => void;
+    onDelete?: (topicId: string) => void;
+    onUpdate?: (topicId: string, title: string, content: string, tagIds: string[]) => Promise<void>;
+    allTags?: AllTag[];
 }
 
-export default function TopicCard({ topic, onPress }: TopicCardProps) {
+export default function TopicCard({ topic, onPress, onDelete, onUpdate, allTags = [] }: TopicCardProps) {
     const router = useRouter();
-    
+    const { user } = useUserContext();
+    const [menuVisible, setMenuVisible] = useState(false);
+    const [editVisible, setEditVisible] = useState(false);
+    const [editTitle, setEditTitle] = useState(topic.title);
+    const [editContent, setEditContent] = useState('');
+    const [editTagIds, setEditTagIds] = useState<string[]>(
+        topic.tags.map(t => t.tag.id).filter(Boolean) as string[]
+    );
+    const [saving, setSaving] = useState(false);
+    const isOwner = user?.id === topic.author.id;
+
     const getTagStyle = (tagName: string) => {
         const tagStyles: Record<string, any> = {
             'Maladies': styles.tagMaladies,
@@ -43,17 +59,57 @@ export default function TopicCard({ topic, onPress }: TopicCardProps) {
         return tagStyles[tagName] || {};
     };
 
+    const handleDelete = () => {
+        setMenuVisible(false);
+        Alert.alert(
+            'Supprimer le sujet',
+            'Es-tu sûr de vouloir supprimer ce sujet ? Tous les commentaires associés seront également supprimés.',
+            [
+                { text: 'Annuler', style: 'cancel' },
+                { text: 'Supprimer', style: 'destructive', onPress: () => onDelete?.(topic.id) },
+            ]
+        );
+    };
+
+    const handleEditOpen = () => {
+        setEditTitle(topic.title);
+        setEditContent('');
+        setEditTagIds(topic.tags.map(t => t.tag.id).filter(Boolean) as string[]);
+        setMenuVisible(false);
+        setEditVisible(true);
+    };
+
+    const toggleTag = (tagId: string) => {
+        setEditTagIds(prev => prev.includes(tagId) ? prev.filter(id => id !== tagId) : [...prev, tagId]);
+    };
+
+    const handleEditSave = async () => {
+        if (!editTitle.trim()) return;
+        setSaving(true);
+        await onUpdate?.(topic.id, editTitle.trim(), editContent.trim(), editTagIds);
+        setSaving(false);
+        setEditVisible(false);
+    };
+
     return (
         <TouchableOpacity style={styles.topicCard} onPress={onPress}>
-            <View style={styles.topicTagsContainer}>
-                {topic.tags.map((tagRelation, index) => (
-                    <View
-                        key={index}
-                        style={[styles.topicTag, getTagStyle(tagRelation.tag.name)]}
+            <View style={styles.topicHeader}>
+                <View style={styles.topicTagsContainer}>
+                    {topic.tags.map((tagRelation, index) => (
+                        <View key={index} style={[styles.topicTag, getTagStyle(tagRelation.tag.name)]}>
+                            <Text style={styles.topicTagText}>{tagRelation.tag.name}</Text>
+                        </View>
+                    ))}
+                </View>
+                {isOwner && (
+                    <TouchableOpacity
+                        onPress={(e) => { e.stopPropagation(); setMenuVisible(true); }}
+                        style={styles.menuButton}
+                        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                     >
-                        <Text style={styles.topicTagText}>{tagRelation.tag.name}</Text>
-                    </View>
-                ))}
+                        <Ionicons name="ellipsis-vertical" size={20} color="#9ca3af" />
+                    </TouchableOpacity>
+                )}
             </View>
 
             <Text style={styles.topicTitle}>{topic.title}</Text>
@@ -75,6 +131,95 @@ export default function TopicCard({ topic, onPress }: TopicCardProps) {
                     <Text style={styles.statText}>{topic.viewCount} vues</Text>
                 </View>
             </View>
+
+            {/* Menu ⋮ */}
+            <Modal visible={menuVisible} transparent animationType="fade" onRequestClose={() => setMenuVisible(false)}>
+                <TouchableWithoutFeedback onPress={() => setMenuVisible(false)}>
+                    <View style={styles.modalOverlay}>
+                        <TouchableWithoutFeedback>
+                            <View style={styles.menuCard}>
+                                <TouchableOpacity style={styles.menuItem} onPress={handleEditOpen}>
+                                    <Ionicons name="pencil-outline" size={18} color="#374151" />
+                                    <Text style={styles.menuItemText}>Modifier le sujet</Text>
+                                </TouchableOpacity>
+                                <View style={styles.menuDivider} />
+                                <TouchableOpacity style={styles.menuItem} onPress={handleDelete}>
+                                    <Ionicons name="trash-outline" size={18} color="#ef4444" />
+                                    <Text style={styles.menuItemTextDanger}>Supprimer le sujet</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </TouchableWithoutFeedback>
+                    </View>
+                </TouchableWithoutFeedback>
+            </Modal>
+
+            {/* Modal d'édition */}
+            <Modal visible={editVisible} transparent animationType="slide" onRequestClose={() => setEditVisible(false)}>
+                <TouchableWithoutFeedback onPress={() => setEditVisible(false)}>
+                    <View style={styles.editOverlay}>
+                        <TouchableWithoutFeedback>
+                            <View style={styles.editCard}>
+                                <View style={styles.editHeader}>
+                                    <Text style={styles.editTitle}>Modifier le sujet</Text>
+                                    <TouchableOpacity onPress={() => setEditVisible(false)}>
+                                        <Ionicons name="close" size={24} color="#374151" />
+                                    </TouchableOpacity>
+                                </View>
+                                <ScrollView showsVerticalScrollIndicator={false}>
+                                    <Text style={styles.fieldLabel}>Titre</Text>
+                                    <TextInput
+                                        style={styles.editInput}
+                                        value={editTitle}
+                                        onChangeText={setEditTitle}
+                                        placeholder="Titre du sujet..."
+                                        placeholderTextColor="#9ca3af"
+                                    />
+
+                                    <Text style={styles.fieldLabel}>Description (laisser vide pour ne pas modifier)</Text>
+                                    <TextInput
+                                        style={[styles.editInput, styles.editTextArea]}
+                                        value={editContent}
+                                        onChangeText={setEditContent}
+                                        multiline
+                                        numberOfLines={5}
+                                        textAlignVertical="top"
+                                        placeholder="Description du sujet..."
+                                        placeholderTextColor="#9ca3af"
+                                    />
+
+                                    {allTags.length > 0 && (
+                                        <>
+                                            <Text style={styles.fieldLabel}>Tags</Text>
+                                            <View style={styles.tagsRow}>
+                                                {allTags.map(tag => {
+                                                    const selected = editTagIds.includes(tag.id);
+                                                    return (
+                                                        <TouchableOpacity
+                                                            key={tag.id}
+                                                            onPress={() => toggleTag(tag.id)}
+                                                            style={[styles.tagChip, selected && styles.tagChipSelected]}
+                                                        >
+                                                            <Text style={[styles.tagChipText, selected && styles.tagChipTextSelected]}>{tag.name}</Text>
+                                                        </TouchableOpacity>
+                                                    );
+                                                })}
+                                            </View>
+                                        </>
+                                    )}
+
+                                    <TouchableOpacity
+                                        style={[styles.editSaveBtn, saving && { opacity: 0.6 }]}
+                                        onPress={handleEditSave}
+                                        disabled={saving}
+                                    >
+                                        {saving ? <ActivityIndicator color="white" /> : <Text style={styles.editSaveBtnText}>Enregistrer</Text>}
+                                    </TouchableOpacity>
+                                </ScrollView>
+                            </View>
+                        </TouchableWithoutFeedback>
+                    </View>
+                </TouchableWithoutFeedback>
+            </Modal>
         </TouchableOpacity>
     );
 }
@@ -91,64 +236,50 @@ const styles = StyleSheet.create({
         shadowRadius: 3,
         elevation: 2,
     },
-    topicTagsContainer: {
-        flexDirection: 'row',
-        gap: 8,
-        marginBottom: 10,
-        flexWrap: 'wrap',
-    },
-    topicTag: {
-        paddingHorizontal: 12,
-        paddingVertical: 6,
-        borderRadius: 15,
-        backgroundColor: '#e5e5e5',
-    },
+    topicHeader: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 10 },
+    topicTagsContainer: { flexDirection: 'row', gap: 8, flexWrap: 'wrap', flex: 1 },
+    topicTag: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 15, backgroundColor: '#e5e5e5' },
     tagMaladies: { backgroundColor: '#bbf7d0' },
     tagResolu: { backgroundColor: '#bfdbfe' },
     tagRecolte: { backgroundColor: '#fde68a' },
     tagPlantation: { backgroundColor: '#fed7aa' },
     tagArrosage: { backgroundColor: '#ddd6fe' },
-    topicTagText: {
-        fontSize: 12,
-        fontWeight: '500',
-        color: '#333',
+    topicTagText: { fontSize: 12, fontWeight: '500', color: '#333' },
+    menuButton: { padding: 4, marginLeft: 8 },
+    topicTitle: { fontSize: 18, fontWeight: '600', color: '#000', marginBottom: 8, lineHeight: 24 },
+    topicMeta: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
+    topicAuthor: { fontSize: 14, color: '#666' },
+    authorName: { fontWeight: 'bold', color: '#5B8E55' },
+    topicTime: { fontSize: 14, color: '#999', marginLeft: 5 },
+    topicStats: { flexDirection: 'row', gap: 20 },
+    statItem: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+    statText: { fontSize: 14, color: '#666' },
+    // Menu
+    modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.3)', justifyContent: 'center', alignItems: 'center' },
+    menuCard: {
+        backgroundColor: 'white', borderRadius: 12, padding: 8, minWidth: 200,
+        shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.15, shadowRadius: 8, elevation: 8,
     },
-    topicTitle: {
-        fontSize: 18,
-        fontWeight: '600',
-        color: '#000',
-        marginBottom: 8,
-        lineHeight: 24,
+    menuItem: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 12, paddingHorizontal: 16, borderRadius: 8 },
+    menuItemText: { fontSize: 15, color: '#374151', fontWeight: '500' },
+    menuItemTextDanger: { fontSize: 15, color: '#ef4444', fontWeight: '500' },
+    menuDivider: { height: 1, backgroundColor: '#f3f4f6', marginHorizontal: 8 },
+    // Edit modal
+    editOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },
+    editCard: { backgroundColor: 'white', borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 20, paddingBottom: 40, maxHeight: '90%' },
+    editHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
+    editTitle: { fontSize: 18, fontWeight: '700', color: '#111827' },
+    fieldLabel: { fontSize: 14, fontWeight: '600', color: '#374151', marginBottom: 8, marginTop: 4 },
+    editInput: {
+        backgroundColor: '#f9fafb', borderRadius: 12, padding: 14, fontSize: 15,
+        color: '#111827', borderWidth: 1, borderColor: '#e5e7eb', marginBottom: 14,
     },
-    topicMeta: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginBottom: 12,
-    },
-    topicAuthor: {
-        fontSize: 14,
-        color: '#666',
-    },
-    authorName: {
-        fontWeight: 'bold',
-        color: '#5B8E55',
-    },
-    topicTime: {
-        fontSize: 14,
-        color: '#999',
-        marginLeft: 5,
-    },
-    topicStats: {
-        flexDirection: 'row',
-        gap: 20,
-    },
-    statItem: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 6,
-    },
-    statText: {
-        fontSize: 14,
-        color: '#666',
-    },
+    editTextArea: { minHeight: 110, paddingTop: 12 },
+    tagsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 16 },
+    tagChip: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20, backgroundColor: '#e5e5e5', borderWidth: 2, borderColor: 'transparent' },
+    tagChipSelected: { borderColor: '#5B8E55', backgroundColor: '#e5f5f0' },
+    tagChipText: { fontSize: 13, color: '#374151', fontWeight: '500' },
+    tagChipTextSelected: { color: '#5B8E55', fontWeight: '700' },
+    editSaveBtn: { backgroundColor: '#5B8E55', paddingVertical: 14, borderRadius: 12, alignItems: 'center', marginTop: 8 },
+    editSaveBtnText: { color: 'white', fontSize: 16, fontWeight: '600' },
 });
