@@ -136,6 +136,48 @@ export function useUser() {
         }
     }
 
+    async function getUserTopics(id: string) {
+        try {
+            const http = await httpClient;
+            const response = await http.get(`/api/user/${id}/topics`);
+            if (response.status !== 'Failure') {
+                return response.payload;
+            }
+            return [];
+        } catch (error) {
+            console.error("getUserTopics failed:", error);
+            return [];
+        }
+    }
+
+    async function getUserPosts(id: string) {
+        try {
+            const http = await httpClient;
+            const response = await http.get(`/api/user/${id}/posts`);
+            if (response.status !== 'Failure') {
+                return response.payload;
+            }
+            return [];
+        } catch (error) {
+            console.error("getUserPosts failed:", error);
+            return [];
+        }
+    }
+
+    async function getUserVegetables(id: string) {
+        try {
+            const http = await httpClient;
+            const response = await http.get(`/api/user/${id}/vegetables`);
+            if (response.status !== 'Failure') {
+                return response.payload;
+            }
+            return [];
+        } catch (error) {
+            console.error("getUserVegetables failed:", error);
+            return [];
+        }
+    }
+
     return {
         isLogin,
         getUser,
@@ -144,6 +186,9 @@ export function useUser() {
         logout,
         updateUser,
         updateAvatar,
-        getPublicProfile
+        getPublicProfile,
+        getUserTopics,
+        getUserPosts,
+        getUserVegetables
     };
 }

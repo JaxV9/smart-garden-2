@@ -3,7 +3,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 type PublicProfile = {
     id: string;
@@ -18,17 +18,31 @@ type PublicProfile = {
         tutorials: number;
         comments: number;
     };
+    garden?: {
+        name: string;
+        location: string;
+    };
+    spaces?: {
+        spaceName: string;
+    }[];
 };
 
 export default function UserProfileScreen() {
     const { id } = useLocalSearchParams<{ id: string }>();
     const router = useRouter();
-    const { getPublicProfile } = useUser();
+    const { getPublicProfile, getUserTopics, getUserPosts, getUserVegetables } = useUser();
     const [profile, setProfile] = useState<PublicProfile | null>(null);
     const [loading, setLoading] = useState(true);
+    const [activeTab, setActiveTab] = useState<'none' | 'plants' | 'contributions' | 'topics'>('none');
+
+    const [topics, setTopics] = useState<any[]>([]);
+    const [posts, setPosts] = useState<any[]>([]);
+    const [vegetables, setVegetables] = useState<any[]>([]);
+    const [loadingActivity, setLoadingActivity] = useState(false);
 
     useEffect(() => {
         async function fetchProfile() {
+            console.log("Fetching profile for ID:", id);
             setLoading(true);
             const data = await getPublicProfile(id);
             if (data) {
@@ -38,6 +52,26 @@ export default function UserProfileScreen() {
         }
         fetchProfile();
     }, [id]);
+
+    useEffect(() => {
+        if (activeTab === 'none') return;
+
+        async function fetchActivity() {
+            setLoadingActivity(true);
+            if (activeTab === 'topics') {
+                const data = await getUserTopics(id);
+                setTopics(data);
+            } else if (activeTab === 'contributions') {
+                const data = await getUserPosts(id);
+                setPosts(data);
+            } else if (activeTab === 'plants') {
+                const data = await getUserVegetables(id);
+                setVegetables(data);
+            }
+            setLoadingActivity(false);
+        }
+        fetchActivity();
+    }, [activeTab, id]);
 
     if (loading) {
         return (
@@ -60,7 +94,7 @@ export default function UserProfileScreen() {
     }
 
     // Calculer les contributions s'il y a des stats
-    const totalContributions = profile.stats 
+    const totalContributions = profile.stats
         ? profile.stats.topics + profile.stats.posts + profile.stats.tutorials + profile.stats.comments
         : 0;
 
@@ -68,7 +102,6 @@ export default function UserProfileScreen() {
 
     return (
         <View style={styles.container}>
-            {/* Header Mince */}
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
                     <Ionicons name="arrow-back" size={24} color="#111827" />
@@ -77,8 +110,7 @@ export default function UserProfileScreen() {
                 <View style={styles.headerRight} />
             </View>
 
-            <View style={styles.content}>
-                {/* En-tête du profil central */}
+            <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
                 <View style={styles.profileHeader}>
                     <View style={styles.avatar}>
                         <Text style={styles.avatarLetter}>{initial}</Text>
@@ -93,20 +125,25 @@ export default function UserProfileScreen() {
                     <Text style={styles.joinedText}>
                         Membre depuis le {new Date(profile.createdAt).toLocaleDateString()}
                     </Text>
+                    {!profile.isPrivate && profile.garden && (
+                        <View style={styles.headerGardenInfo}>
+                            <Ionicons name="location" size={14} color="#6b7280" />
+                            <Text style={styles.headerGardenText}>
+                                {profile.garden.name} • {profile.garden.location}
+                            </Text>
+                        </View>
+                    )}
                 </View>
 
-                {/* Section Stats (Floutée si privé) */}
                 <View style={styles.statsSection}>
-                    {(profile.isPrivate) ? (
-                        <>
-                            {/* Dummy layout for visual blur effect */}
+                    {profile.isPrivate ? (
+                        <View>
                             <View style={[styles.statsGrid, { opacity: 0.3 }]}>
                                 <View style={styles.statCard}><Text style={styles.statNumber}>-</Text><Text style={styles.statLabel}>Plantes</Text></View>
                                 <View style={styles.statCard}><Text style={styles.statNumber}>-</Text><Text style={styles.statLabel}>Contributions</Text></View>
                                 <View style={styles.statCard}><Text style={styles.statNumber}>-</Text><Text style={styles.statLabel}>Sujets</Text></View>
                             </View>
-                            
-                            {/* Overlay privé */}
+
                             <View style={StyleSheet.absoluteFill}>
                                 <BlurView intensity={20} style={styles.blurOverlay}>
                                     <View style={styles.privateCard}>
@@ -118,36 +155,150 @@ export default function UserProfileScreen() {
                                     </View>
                                 </BlurView>
                             </View>
-                        </>
+                        </View>
                     ) : (
                         <View style={styles.statsGrid}>
-                            <View style={styles.statCard}>
+                            <TouchableOpacity
+                                style={styles.statCard}
+                                onPress={() => setActiveTab(activeTab === 'plants' ? 'none' : 'plants')}
+                            >
                                 <View style={[styles.statIconContainer, { backgroundColor: '#e5f5f0' }]}>
                                     <Ionicons name="leaf" size={24} color="#5B8E55" />
                                 </View>
                                 <Text style={styles.statNumber}>{profile.stats?.gardenVegetable || 0}</Text>
                                 <Text style={styles.statLabel}>Plantes</Text>
-                            </View>
+                                {activeTab === 'plants' && <View style={styles.activeIndicator} />}
+                            </TouchableOpacity>
 
-                            <View style={styles.statCard}>
+                            <TouchableOpacity
+                                style={styles.statCard}
+                                onPress={() => setActiveTab(activeTab === 'contributions' ? 'none' : 'contributions')}
+                            >
                                 <View style={[styles.statIconContainer, { backgroundColor: '#e0f2fe' }]}>
                                     <Ionicons name="create" size={24} color="#0284c7" />
                                 </View>
                                 <Text style={styles.statNumber}>{totalContributions}</Text>
                                 <Text style={styles.statLabel}>Contributions</Text>
-                            </View>
+                                {activeTab === 'contributions' && <View style={styles.activeIndicator} />}
+                            </TouchableOpacity>
 
-                            <View style={styles.statCard}>
+                            <TouchableOpacity
+                                style={styles.statCard}
+                                onPress={() => setActiveTab(activeTab === 'topics' ? 'none' : 'topics')}
+                            >
                                 <View style={[styles.statIconContainer, { backgroundColor: '#fef3c7' }]}>
                                     <Ionicons name="chatbubbles" size={24} color="#d97706" />
                                 </View>
                                 <Text style={styles.statNumber}>{profile.stats?.topics || 0}</Text>
                                 <Text style={styles.statLabel}>Sujets créés</Text>
-                            </View>
+                                {activeTab === 'topics' && <View style={styles.activeIndicator} />}
+                            </TouchableOpacity>
                         </View>
                     )}
                 </View>
-            </View>
+
+                {!profile.isPrivate && (profile.garden || (profile.spaces && profile.spaces.length > 0)) && (
+                    <View style={{ paddingHorizontal: 20, paddingBottom: 20 }}>
+                        <View style={styles.gardenInfoCard}>
+                            <View style={styles.gardenInfoHeader}>
+                                <Ionicons name="home" size={20} color="#5B8E55" />
+                                <Text style={styles.gardenInfoTitle}>Son Jardin</Text>
+                            </View>
+                            {profile.garden && (
+                                <View style={styles.gardenDetails}>
+                                    <View style={styles.gardenDetailItem}>
+                                        <Text style={styles.gardenDetailLabel}>Nom</Text>
+                                        <Text style={styles.gardenDetailValue}>{profile.garden.name || 'Jardin sans nom'}</Text>
+                                    </View>
+                                    <View style={styles.gardenDetailItem}>
+                                        <Text style={styles.gardenDetailLabel}>Localisation</Text>
+                                        <Text style={styles.gardenDetailValue}>{profile.garden.location || 'Inconnue'}</Text>
+                                    </View>
+                                </View>
+                            )}
+                            {profile.spaces && profile.spaces.length > 0 && (
+                                <View style={styles.spacesSection}>
+                                    <Text style={styles.spacesLabel}>Espaces du jardin</Text>
+                                    <View style={styles.spacesChips}>
+                                        {profile.spaces.map((space, idx) => (
+                                            <View key={idx} style={styles.spaceChip}>
+                                                <Text style={styles.spaceChipText}>{space.spaceName}</Text>
+                                            </View>
+                                        ))}
+                                    </View>
+                                </View>
+                            )}
+                        </View>
+                    </View>
+                )}
+
+                {activeTab !== 'none' && (
+                    <View style={{ paddingHorizontal: 20, paddingBottom: 20 }}>
+                        <View style={styles.activitySection}>
+                            <View style={styles.activityHeader}>
+                                <Text style={styles.activityTitle}>
+                                    {activeTab === 'plants' && 'Ses Plantes'}
+                                    {activeTab === 'contributions' && 'Ses Contributions'}
+                                    {activeTab === 'topics' && 'Ses Sujets'}
+                                </Text>
+                                <TouchableOpacity onPress={() => setActiveTab('none')}>
+                                    <Ionicons name="close-circle" size={24} color="#6b7280" />
+                                </TouchableOpacity>
+                            </View>
+
+                            {loadingActivity ? (
+                                <ActivityIndicator size="small" color="#5B8E55" style={{ padding: 20 }} />
+                            ) : (
+                                <View style={styles.activityList}>
+                                    {activeTab === 'topics' && (
+                                        topics.length > 0 ? topics.map((topic) => (
+                                            <TouchableOpacity
+                                                key={topic.id}
+                                                style={styles.activityItem}
+                                                onPress={() => router.push({ pathname: '/forum/topic/[id]', params: { id: topic.id } })}
+                                            >
+                                                <View style={styles.activityItemMain}>
+                                                    <Ionicons name="chatbubbles-outline" size={20} color="#5B8E55" />
+                                                    <Text style={styles.activityItemTitle} numberOfLines={1}>{topic.title}</Text>
+                                                </View>
+                                                <Text style={styles.activityItemMeta}>{topic._count?.comments || 0} réponses</Text>
+                                            </TouchableOpacity>
+                                        )) : <Text style={styles.emptyText}>Aucun sujet créé.</Text>
+                                    )}
+
+                                    {activeTab === 'contributions' && (
+                                        posts.length > 0 ? posts.map((post) => (
+                                            <TouchableOpacity
+                                                key={post.id}
+                                                style={styles.activityItem}
+                                                onPress={() => router.push({ pathname: '/social' })}
+                                            >
+                                                <View style={styles.activityItemMain}>
+                                                    <Ionicons name="image-outline" size={20} color="#0284c7" />
+                                                    <Text style={styles.activityItemTitle} numberOfLines={1}>{post.content}</Text>
+                                                </View>
+                                                <Text style={styles.activityItemMeta}>{post._count?.likes || 0} j'aime • {post._count?.comments || 0} com.</Text>
+                                            </TouchableOpacity>
+                                        )) : <Text style={styles.emptyText}>Aucun post créé.</Text>
+                                    )}
+
+                                    {activeTab === 'plants' && (
+                                        vegetables.length > 0 ? vegetables.map((veg) => (
+                                            <View key={veg.id} style={styles.activityItem}>
+                                                <View style={styles.activityItemMain}>
+                                                    <Ionicons name="leaf-outline" size={20} color="#5B8E55" />
+                                                    <Text style={styles.activityItemTitle}>{veg.vegetableId.charAt(0).toUpperCase() + veg.vegetableId.slice(1)}</Text>
+                                                </View>
+                                                <Text style={styles.activityItemMeta}>Ajoutée le {new Date(veg.createdAt).toLocaleDateString()}</Text>
+                                            </View>
+                                        )) : <Text style={styles.emptyText}>Aucune plante ajoutée.</Text>
+                                    )}
+                                </View>
+                            )}
+                        </View>
+                    </View>
+                )}
+            </ScrollView>
         </View>
     );
 }
@@ -339,5 +490,173 @@ const styles = StyleSheet.create({
         color: '#4b5563',
         textAlign: 'center',
         lineHeight: 20,
+    },
+    gardenInfoCard: {
+        backgroundColor: 'white',
+        borderRadius: 16,
+        padding: 16,
+        marginTop: 15,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.05,
+        shadowRadius: 2.22,
+        elevation: 2,
+    },
+    gardenInfoHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 12,
+        gap: 8,
+        borderBottomWidth: 1,
+        borderBottomColor: '#f3f4f6',
+        paddingBottom: 8,
+    },
+    gardenInfoTitle: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: '#111827',
+    },
+    gardenDetails: {
+        gap: 10,
+    },
+    gardenDetailItem: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    gardenDetailLabel: {
+        fontSize: 14,
+        color: '#6b7280',
+    },
+    gardenDetailValue: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: '#111827',
+    },
+    headerGardenInfo: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginTop: 6,
+        gap: 4,
+    },
+    headerGardenText: {
+        fontSize: 14,
+        color: '#6b7280',
+        fontWeight: '500',
+    },
+    spacesSection: {
+        marginTop: 15,
+        borderTopWidth: 1,
+        borderTopColor: '#f3f4f6',
+        paddingTop: 12,
+    },
+    spacesLabel: {
+        fontSize: 13,
+        color: '#6b7280',
+        marginBottom: 8,
+    },
+    spacesChips: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        gap: 8,
+    },
+    spaceChip: {
+        backgroundColor: '#f3f4f6',
+        paddingHorizontal: 10,
+        paddingVertical: 5,
+        borderRadius: 20,
+    },
+    spaceChipText: {
+        fontSize: 12,
+        color: '#374151',
+        fontWeight: '500',
+    },
+    scrollContent: {
+        paddingBottom: 40,
+    },
+    activeIndicator: {
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        height: 4,
+        backgroundColor: '#5B8E55',
+        borderBottomLeftRadius: 16,
+        borderBottomRightRadius: 16,
+    },
+    activitySection: {
+        backgroundColor: 'white',
+        borderRadius: 16,
+        padding: 20,
+        marginTop: 15,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.05,
+        shadowRadius: 2.22,
+        elevation: 2,
+    },
+    activityHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 20,
+        borderBottomWidth: 1,
+        borderBottomColor: '#f3f4f6',
+        paddingBottom: 10,
+    },
+    activityTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#111827',
+    },
+    placeholderActivity: {
+        padding: 40,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    placeholderText: {
+        marginTop: 10,
+        fontSize: 16,
+        color: '#6b7280',
+        fontWeight: '500',
+    },
+    placeholderSubtext: {
+        marginTop: 5,
+        fontSize: 12,
+        color: '#9ca3af',
+        textAlign: 'center',
+    },
+    activityList: {
+        gap: 12,
+    },
+    activityItem: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingVertical: 12,
+        borderBottomWidth: 1,
+        borderBottomColor: '#f3f4f6',
+    },
+    activityItemMain: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 12,
+        flex: 1,
+    },
+    activityItemTitle: {
+        fontSize: 15,
+        color: '#111827',
+        fontWeight: '500',
+        flex: 1,
+    },
+    activityItemMeta: {
+        fontSize: 12,
+        color: '#6b7280',
+        marginLeft: 10,
+    },
+    emptyText: {
+        textAlign: 'center',
+        color: '#9ca3af',
+        paddingVertical: 20,
     },
 });

@@ -10,6 +10,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Switch,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useGardenContext } from '@/contexts/garden.context';
@@ -26,7 +27,7 @@ const LEVEL_LABELS: Record<string, string> = {
 
 export default function ProfileScreen() {
   const { user } = useUserContext();
-  const { logout } = useUser();
+  const { logout, updateUser } = useUser();
   const { gardenInfo } = useGardenContext();
   const { loadGardenInfo } = useGardenInfo();
 
@@ -111,6 +112,27 @@ export default function ProfileScreen() {
             </View>
             <Text style={styles.rowText}>Déconnexion</Text>
           </TouchableOpacity>
+        </View>
+ 
+        {/* Block: Confidentialité */}
+        <View style={styles.blockCard}>
+          <View style={styles.gardenHeader}>
+            <View style={styles.gardenHeaderLeft}>
+              <View style={styles.iconCircle}>
+                <Feather name="eye-off" size={18} color={COLORS.greenDark} />
+              </View>
+              <Text style={styles.gardenTitle}>Profil Privé</Text>
+            </View>
+            <Switch
+              value={user?.isPrivate || false}
+              onValueChange={(val) => updateUser({ isPrivate: val })}
+              trackColor={{ false: "#e5e5e5", true: COLORS.greenDark }}
+              thumbColor={"#ffffff"}
+            />
+          </View>
+          <Text style={[styles.infoLabel, { marginLeft: 52, marginTop: -4 }]}>
+            Masquer vos statistiques aux autres utilisateurs
+          </Text>
         </View>
 
         {/* Block: Garden information */}
