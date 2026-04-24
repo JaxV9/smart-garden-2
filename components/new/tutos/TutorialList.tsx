@@ -25,16 +25,20 @@ interface TutorialListProps {
     loading: boolean;
     onLike: (tutorialId: string) => void;
     onPress: (tutorialId: string) => void;
+    onDelete?: (tutorialId: string) => void;
+    onUpdate?: (tutorialId: string, tutorialData: any) => Promise<void>;
 }
 
-export default function TutorialList({ tutorials, loading, onLike, onPress }: TutorialListProps) {
+export default function TutorialList({ tutorials, loading, onLike, onPress, onDelete, onUpdate }: TutorialListProps) {
     const renderItem = useCallback(({ item }: { item: Tutorial }) => (
         <TutorialCard
             tutorial={item}
             onLike={onLike}
             onPress={onPress}
+            onDelete={onDelete}
+            onUpdate={onUpdate}
         />
-    ), [onLike, onPress]);
+    ), [onLike, onPress, onDelete, onUpdate]);
 
     const keyExtractor = useCallback((item: Tutorial) => item.id, []);
 

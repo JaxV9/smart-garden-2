@@ -25,7 +25,7 @@ export const ForumFeedTab = () => {
 
 
     const { tags, topics } = useForumContext();
-    const { loadTags, loadTopics, createTopic, deleteTopic } = useForum();
+    const { loadTags, loadTopics, createTopic, deleteTopic, updateTopic } = useForum();
 
 
     const selectedTagName = selectedTagId
@@ -93,6 +93,17 @@ export const ForumFeedTab = () => {
         await deleteTopic(topicId);
     };
 
+    const handleUpdateTopic = async (topicId: string, title: string, content: string, tagIds: string[]) => {
+        const result = await updateTopic(topicId, title, content, tagIds);
+        if (result === 'Success') {
+            setLoading(true);
+            await loadTopics(selectedTagId || undefined);
+            setLoading(false);
+        } else {
+            alert('Erreur lors de la modification du sujet');
+        }
+    };
+
 
     return (
         <>
@@ -123,6 +134,8 @@ export const ForumFeedTab = () => {
                     loading={loading}
                     onTopicPress={(topicId) => router.push(`/forum/topic/${topicId}`)}
                     onDelete={handleDeleteTopic}
+                    onUpdate={handleUpdateTopic}
+                    allTags={tags}
                 />
             </ScrollView>
 

@@ -230,6 +230,23 @@ export function useTutorials() {
 
 
     /**
+     * Met à jour un tutoriel.
+     */
+    const updateTutorial = useCallback(async (
+        tutorialId: string,
+        tutorialData: Partial<CreateTutorialPayload>
+    ): Promise<"Success" | "Failure"> => {
+        const http = await httpClient;
+        const response = await http.put(`/api/tutorial/${tutorialId}`, tutorialData);
+        if (response.status !== "Failure") {
+            const updated = response.payload as Tutorial;
+            setTutorials(tutorials.map((t: Tutorial) => t.id === tutorialId ? updated : t));
+        }
+        return response.status;
+    }, [httpClient, tutorials, setTutorials]);
+
+
+    /**
      * Récupère les tutoriels créés par l'utilisateur connecté.
      * @returns {Promise<Tutorial[]>} Liste de tutoriels (vide si échec).
      */
@@ -276,6 +293,7 @@ export function useTutorials() {
         toggleLike,
         incrementViewCount,
         deleteTutorial,
+        updateTutorial,
         getUserTutorials,
         getCategories,
     };

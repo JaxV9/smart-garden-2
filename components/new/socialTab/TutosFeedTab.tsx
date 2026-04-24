@@ -12,7 +12,7 @@ import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 
 export const TutosFeedTab = () => {
     const router = useRouter();
     const { tutorials } = useTutorialsContext();
-    const { loadTutorials, createTutorial, toggleLike } = useTutorials();
+    const { loadTutorials, createTutorial, toggleLike, updateTutorial, deleteTutorial } = useTutorials();
 
     const [loading, setLoading] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
@@ -62,6 +62,19 @@ export const TutosFeedTab = () => {
         setFilterModalVisible(false);
     };
 
+    const handleUpdateTutorial = async (tutorialId: string, tutorialData: any) => {
+        const result = await updateTutorial(tutorialId, tutorialData);
+        if (result === 'Success') {
+            await loadData();
+        } else {
+            alert('Erreur lors de la modification du tutoriel');
+        }
+    };
+
+    const handleDeleteTutorial = async (tutorialId: string) => {
+        await deleteTutorial(tutorialId);
+    };
+
     const filteredTutorials = tutorials.filter(tutorial =>
         tutorial.title.toLowerCase().includes(searchQuery.toLowerCase())
     );
@@ -104,6 +117,8 @@ export const TutosFeedTab = () => {
                     loading={loading}
                     onLike={handleLike}
                     onPress={handleTutorialPress}
+                    onUpdate={handleUpdateTutorial}
+                    onDelete={handleDeleteTutorial}
                 />
             </ScrollView>
 
