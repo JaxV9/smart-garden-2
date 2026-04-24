@@ -1,5 +1,5 @@
-import { useLocalSearchParams } from "expo-router";
-import React, { useEffect } from "react";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import React from "react";
 import { Text, View } from "react-native";
 
 import { styles } from "../../../css/vegetableDetailsStyle";
@@ -15,10 +15,10 @@ import { PlantGrid } from "../../../components/new/vegetableDetail/PlantGrid";
 import { TipsList } from "../../../components/new/vegetableDetail/TipsList";
 import { VegetableHeader } from "../../../components/new/vegetableDetail/VegetableHeader";
 import { VegetableMeta } from "../../../components/new/vegetableDetail/VegetableMeta";
-import { useUser } from "@/hooks/useUser";
 
 export default function Index() {
   const { vegetableId } = useLocalSearchParams<{ vegetableId: string }>();
+  const router = useRouter();
   const vm = useVegetableDetails(vegetableId);
 
   const { addVegetableToGarden, removeVegetablesFromGarden } = useGarden()
@@ -55,11 +55,8 @@ export default function Index() {
   }
 
   if (vm.state === "not_found") {
-    return (
-      <View style={styles.emptyContainer}>
-        <Text style={styles.emptyText}>Plante introuvable.</Text>
-      </View>
-    );
+    router.replace('/login');
+    return null;
   }
 
   return (
