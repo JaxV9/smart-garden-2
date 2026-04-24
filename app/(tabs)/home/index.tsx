@@ -6,6 +6,7 @@ import { useGarden } from "@/hooks/useGarden";
 import { useVegetable } from "@/hooks/useVegetable";
 import { useEffect, useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Header  } from "@/components/new/header/header";
 
 export default function Index() {
   const [currentSection, setCurrentSection] = useState<HomeSection>("resume");
@@ -25,8 +26,8 @@ export default function Index() {
 
   return (
     <View style={styles.container}>
+      <Header/>
       <View style={styles.gap16}>
-        <Text style={styles.title}>Mon jardin</Text>
         <View style={styles.headerBtnContainer}>
           <Pressable
             onPress={() => setCurrentSection("resume")}
@@ -59,13 +60,11 @@ export default function Index() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 64,
-    paddingLeft: 8,
-    paddingRight: 8,
-    gap: 16,
     backgroundColor: "#F9FAFB",
   },
   gap16: {
+    paddingHorizontal: 8,
+    paddingTop: 16,
     gap: 16,
   },
   gap8: {
@@ -77,9 +76,10 @@ const styles = StyleSheet.create({
   headerBtnContainer: {
     flexDirection: "row",
     gap: 16,
-    paddingBottom: 16,
+    paddingVertical: 16,
     borderBottomWidth: 1,
     borderBottomColor: "#F1F1F1",
+    backgroundColor: "#F9FAFB",
   },
   headerBtnSelected: {
     backgroundColor: "#61b4586f",
@@ -99,3 +99,4 @@ const styles = StyleSheet.create({
     fontSize: 18,
   },
 });
+

@@ -5,6 +5,7 @@ import { useVegetable } from '@/hooks/useVegetable';
 import { Vegetable } from '@/models/models';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { Header  } from "@/components/new/header/header";
 import { useEffect, useMemo, useState } from 'react';
 import { Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
@@ -108,13 +109,7 @@ export default function Index() {
 
   return (
     <View style={styles.screen}>
-      <View style={styles.header}>
-        <View style={styles.headerLeft}>
-          <Ionicons name="leaf-outline" size={20} color="#FFFFFF" />
-          <Text style={styles.headerTitle}>Jardin</Text>
-        </View>
-        <Ionicons name="notifications-outline" size={20} color="#FFFFFF" />
-      </View>
+      <Header/>
 
       <ScrollView
         style={styles.container}
@@ -254,27 +249,6 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: '#F3F4F6',
-  },
-  header: {
-    height: 92,
-    paddingTop: 44,
-    paddingHorizontal: 18,
-    backgroundColor: '#5A7F54',
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  headerLeft: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#FFFFFF',
   },
 
   container: {

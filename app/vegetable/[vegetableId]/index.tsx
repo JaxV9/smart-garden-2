@@ -1,4 +1,4 @@
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import React from "react";
 import { Text, View } from "react-native";
 
@@ -18,6 +18,7 @@ import { VegetableMeta } from "../../../components/new/vegetableDetail/Vegetable
 
 export default function Index() {
   const { vegetableId } = useLocalSearchParams<{ vegetableId: string }>();
+  const router = useRouter();
   const vm = useVegetableDetails(vegetableId);
 
   const { addVegetableToGarden, removeVegetablesFromGarden } = useGarden()
@@ -54,11 +55,8 @@ export default function Index() {
   }
 
   if (vm.state === "not_found") {
-    return (
-      <View style={styles.emptyContainer}>
-        <Text style={styles.emptyText}>Plante introuvable.</Text>
-      </View>
-    );
+    router.replace('/login');
+    return null;
   }
 
   return (
