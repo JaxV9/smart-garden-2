@@ -165,6 +165,19 @@ export function useSocial() {
     }, [httpClient, posts, setPosts]);
 
     /**
+     * Met à jour le contenu d'un post.
+     */
+    const updatePost = useCallback(async (postId: string, content: string): Promise<"Success" | "Failure"> => {
+        const http = await httpClient;
+        const response = await http.put(`/api/post/${postId}`, { content });
+        if (response.status !== "Failure") {
+            const updated = response.payload as Post;
+            setPosts(posts.map(p => p.id === postId ? { ...p, content: updated.content } : p));
+        }
+        return response.status;
+    }, [httpClient, posts, setPosts]);
+
+    /**
      * Récupère les posts créés par l'utilisateur connecté.
      * @returns {Promise<Post[]>} Liste de posts (vide si échec).
      */
@@ -213,6 +226,7 @@ export function useSocial() {
         addComment,
         loadComments,
         deletePost,
+        updatePost,
         getUserPosts,
         incrementPostView,
     };

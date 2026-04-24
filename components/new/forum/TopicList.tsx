@@ -7,12 +7,20 @@ interface TopicListProps {
     loading: boolean;
     onTopicPress: (topicId: string) => void;
     onDelete?: (topicId: string) => void;
+    onUpdate?: (topicId: string, title: string, content: string, tagIds: string[]) => Promise<void>;
+    allTags?: { id: string; name: string }[];
 }
 
-export default function TopicList({ topics, loading, onTopicPress, onDelete }: TopicListProps) {
+export default function TopicList({ topics, loading, onTopicPress, onDelete, onUpdate, allTags }: TopicListProps) {
     const renderItem = useCallback(({ item }: { item: any }) => (
-        <TopicCard topic={item} onPress={() => onTopicPress(item.id)} onDelete={onDelete} />
-    ), [onTopicPress, onDelete]);
+        <TopicCard
+            topic={item}
+            onPress={() => onTopicPress(item.id)}
+            onDelete={onDelete}
+            onUpdate={onUpdate}
+            allTags={allTags}
+        />
+    ), [onTopicPress, onDelete, onUpdate, allTags]);
 
     const keyExtractor = useCallback((item: any) => item.id, []);
 
