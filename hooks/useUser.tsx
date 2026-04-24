@@ -203,6 +203,17 @@ export function useUser() {
         }
     }
 
+    async function forgotPassword(email: string): Promise<"Success" | "Failure"> {
+        try {
+            const http = await httpClient;
+            const response = await http.post('/api/auth/forgot-password', { email });
+            return response.status;
+        } catch (error) {
+            console.error("forgotPassword failed:", error);
+            return "Failure";
+        }
+    }
+
     return {
         isLogin,
         getUser,
@@ -216,6 +227,7 @@ export function useUser() {
         getUserPosts,
         getUserVegetables,
         deletePost,
-        deleteTopic
+        deleteTopic,
+        forgotPassword
     };
 }
