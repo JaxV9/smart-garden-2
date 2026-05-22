@@ -4,11 +4,12 @@ import { Success } from "@jaslay/http";
 import { router } from "expo-router";
 import { useFetch } from "./useFetch";
 import { useStorage } from "./useStorage";
+import { updateActivityStreak } from "@/utils/activity";
 
 
 
 export function useUser() {
-    const { setUser, isLogin, setIsLogin } = useUserContext()
+    const { setUser, isLogin, setIsLogin, setActivityStreak } = useUserContext()
     const { httpClient } = useFetch(undefined)
     const { putToken, getToken, deleteToken } = useStorage()
 
@@ -28,6 +29,9 @@ export function useUser() {
                 };
                 setUser(userInfos)
                 setIsLogin(true)
+                if (data.id) {
+                    updateActivityStreak(data.id).then(streak => setActivityStreak(streak));
+                }
             }
             return response.status
         } catch (error) {
@@ -58,6 +62,9 @@ export function useUser() {
                     isPrivate: data.isPrivate
                 };
                 setUser(userInfos)
+                if (data.userId) {
+                    updateActivityStreak(data.userId).then(streak => setActivityStreak(streak));
+                }
             }
             return response.status
         } catch (error) {
@@ -83,6 +90,9 @@ export function useUser() {
                     level: null
                 };
                 setUser(userInfos)
+                if (data.userId) {
+                    updateActivityStreak(data.userId).then(streak => setActivityStreak(streak));
+                }
             }
             return response.status
         } catch (error) {
@@ -95,6 +105,8 @@ export function useUser() {
     async function logout(): Promise<Success> {
         await deleteToken('authToken');
         setIsLogin(false);
+        setUser(undefined);
+        setActivityStreak(0);
         router.push('/')
         return 'Success';
     }

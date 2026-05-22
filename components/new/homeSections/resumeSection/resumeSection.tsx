@@ -1,4 +1,5 @@
 import { useGardenContext } from '@/contexts/garden.context';
+import { useUserContext } from '@/contexts/user.context';
 import { useTasks } from '@/hooks/useTasks';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
@@ -6,7 +7,8 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 
 export const ResumeSection = () => {
-    const { gardenVegetables } = useGardenContext()
+    const { gardenVegetables } = useGardenContext();
+    const { activityStreak } = useUserContext();
     const { tasks } = useTasks();
 
     const completedTasksCount = tasks.filter(task => task.completed).length;
@@ -24,7 +26,7 @@ export const ResumeSection = () => {
                         <Text style={styles.label}>Tâches complétées</Text>
                     </View>
                     <View style={[styles.item, styles.activity]}>
-                        <Text style={styles.numbers}>3</Text>
+                        <Text style={styles.numbers}>{activityStreak}</Text>
                         <Text style={styles.label}>Jours d'activité</Text>
                     </View>
                     <View style={[styles.item, styles.sensor]}>
