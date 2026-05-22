@@ -10,8 +10,7 @@ export default function Index() {
 
     const { getTitle, getSubTitle, getIcon, currentStep,
         stepNumber, previousStep, nextStep, setGardenName, setGardenLocation,
-        setGardenLevel, canGoForward, confirm, error, gardenName,
-        gardenLocation, allInputsFilled, loading } = useOnboarding()
+        setGardenLevel, canGoForward, confirm, error, gardenName, allInputsFilled, loading } = useOnboarding()
 
 
     return (
@@ -28,7 +27,7 @@ export default function Index() {
                     <GardenNameInput gardenName={gardenName} setGardenName={setGardenName} />
                 }
                 {currentStep === 1 &&
-                    <GardenLocationInput gardenLocation={gardenLocation} setGardenLocation={setGardenLocation} />
+                    <GardenLocationInput setGardenLocation={setGardenLocation} />
                 }
                 {currentStep === 2 &&
                     <GardenLevelChoice setGardenLevel={setGardenLevel} />

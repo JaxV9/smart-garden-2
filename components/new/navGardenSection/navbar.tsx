@@ -1,6 +1,6 @@
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-export type HomeSection = 'tasks' | 'plants' | 'calendar'
+export type HomeSection = 'resume' | 'plants'
 
 type NavBarGardenSectionType = {
   currentSectionProps: HomeSection,
@@ -13,17 +13,17 @@ export const NavBarGardenSection = ({ currentSectionProps, setCurrentSectionProp
   return (
     <>
       <View style={styles.container}>
+        <TouchableOpacity style={[styles.button, currentSectionProps === "resume" && styles.selected]}
+          onPress={() => setCurrentSectionProps('resume')}>
+          <Text style={styles.text} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.85}>
+            Resume
+          </Text>
+        </TouchableOpacity>
         <TouchableOpacity style={[styles.button, currentSectionProps === "plants" && styles.selected]}
           onPress={() => setCurrentSectionProps('plants')}>
-          <Text style={styles.text}>Plantes</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={[styles.button, currentSectionProps === "tasks" && styles.selected]}
-          onPress={() => setCurrentSectionProps('tasks')}>
-          <Text style={styles.text}>Tâches</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={[styles.button, currentSectionProps === "calendar" && styles.selected]}
-          onPress={() => setCurrentSectionProps('calendar')}>
-          <Text style={styles.text}>Calendrier</Text>
+          <Text style={styles.text} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.85}>
+            Plantes
+          </Text>
         </TouchableOpacity>
       </View>
     </>
@@ -43,16 +43,19 @@ const styles = StyleSheet.create({
     borderColor: "#E2E2E2"
   },
   button: {
+    flex: 1,
+    alignItems: 'center',
     paddingTop: 8,
     paddingBottom: 8,
-    paddingLeft: 16,
-    paddingRight: 16,
+    paddingLeft: 6,
+    paddingRight: 6,
     borderRadius: 20
   },
   selected: {
     backgroundColor: "#D7DCC7",
   },
   text: {
-    fontSize: 18,
+    fontSize: 16,
+    textAlign: 'center',
   }
 });

@@ -3,7 +3,7 @@ import { LoginUserPayload } from "@/models/models";
 import { Failure, Success } from "@jaslay/http";
 import { router } from "expo-router";
 import { useState } from "react";
-import { ActivityIndicator, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, StyleSheet, Text, TextInput, TouchableOpacity, View, Modal, TouchableWithoutFeedback, Alert } from "react-native";
 
 
 export default function RegisterScreen() {
@@ -12,7 +12,13 @@ export default function RegisterScreen() {
 
     const [error, setError] = useState<string | null>(null)
     const [loading, setLoading] = useState<boolean>(false)
-    const { login } = useUser()
+
+    // Forgot password state
+    const [forgotModalVisible, setForgotModalVisible] = useState<boolean>(false);
+    const [forgotEmail, setForgotEmail] = useState<string>('');
+    const [forgotLoading, setForgotLoading] = useState<boolean>(false);
+
+    const { login, forgotPassword } = useUser()
 
     const validateForm = (): boolean => {
         setError(null);
@@ -44,6 +50,19 @@ export default function RegisterScreen() {
         return router.replace('/');
     };
 
+    const handleForgotPassword = async () => {
+        if (!forgotEmail) {
+            Alert.alert("Erreur", "Veuillez entrer votre email");
+            return;
+        }
+        setForgotLoading(true);
+        await forgotPassword(forgotEmail);
+        setForgotLoading(false);
+        setForgotModalVisible(false);
+        setForgotEmail('');
+        Alert.alert("Email envoyé", "Si ce compte existe, un email contenant votre nouveau mot de passe a été envoyé.");
+    };
+
     return (
         <View style={styles.container}>
             <Text style={styles.title}>Connexion</Text>
@@ -55,6 +74,7 @@ export default function RegisterScreen() {
             <TextInput
                 style={styles.input}
                 placeholder="Email"
+                placeholderTextColor="#111827"
                 value={email}
                 onChangeText={setEmail}
                 keyboardType="email-address"
@@ -63,10 +83,14 @@ export default function RegisterScreen() {
             <TextInput
                 style={styles.input}
                 placeholder="Mot de passe"
+                placeholderTextColor="#111827"
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry />
 
+            <TouchableOpacity style={styles.forgotPasswordContainer} onPress={() => setForgotModalVisible(true)}>
+                <Text style={styles.forgotPasswordText}>Mot de passe oublié ?</Text>
+            </TouchableOpacity>
 
             <TouchableOpacity
                 style={styles.button}
@@ -81,9 +105,42 @@ export default function RegisterScreen() {
 
             <TouchableOpacity
                 style={styles.linkButton}
-                onPress={() => router.replace('/register')}>
-                <Text style={styles.linkText}>Se créer un compte</Text>
+                onPress={() => router.replace('/starting')}>
+                <Text style={styles.linkText}>Retour</Text>
             </TouchableOpacity>
+
+            {/* Modal Mot de passe oublié */}
+            <Modal visible={forgotModalVisible} transparent animationType="fade" onRequestClose={() => setForgotModalVisible(false)}>
+                <TouchableWithoutFeedback onPress={() => setForgotModalVisible(false)}>
+                    <View style={styles.modalOverlay}>
+                        <TouchableWithoutFeedback>
+                            <View style={styles.modalCard}>
+                                <Text style={styles.modalTitle}>Mot de passe oublié</Text>
+                                <Text style={styles.modalText}>
+                                    Entrez votre adresse email. Nous vous enverrons un nouveau mot de passe temporaire.
+                                </Text>
+                                <TextInput
+                                    style={styles.input}
+                                    placeholder="Votre email"
+                                    placeholderTextColor="#111827"
+                                    value={forgotEmail}
+                                    onChangeText={setForgotEmail}
+                                    keyboardType="email-address"
+                                    autoCapitalize="none"
+                                />
+                                <View style={styles.modalButtons}>
+                                    <TouchableOpacity style={styles.modalCancelBtn} onPress={() => setForgotModalVisible(false)}>
+                                        <Text style={styles.modalCancelBtnText}>Annuler</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity style={styles.modalSubmitBtn} onPress={handleForgotPassword} disabled={forgotLoading}>
+                                        {forgotLoading ? <ActivityIndicator color="white" /> : <Text style={styles.modalSubmitBtnText}>Envoyer</Text>}
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
+                        </TouchableWithoutFeedback>
+                    </View>
+                </TouchableWithoutFeedback>
+            </Modal>
         </View>
     );
 }
@@ -133,5 +190,73 @@ const styles = StyleSheet.create({
         color: 'red',
         marginBottom: 15,
         textAlign: 'center',
+    },
+    forgotPasswordContainer: {
+        alignItems: 'flex-end',
+        marginBottom: 10,
+    },
+    forgotPasswordText: {
+        color: '#4CAF50',
+        fontSize: 14,
+        fontWeight: '500',
+    },
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 20,
+    },
+    modalCard: {
+        backgroundColor: 'white',
+        borderRadius: 16,
+        padding: 24,
+        width: '100%',
+        maxWidth: 400,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.1,
+        shadowRadius: 8,
+        elevation: 5,
+    },
+    modalTitle: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: '#111827',
+        marginBottom: 10,
+    },
+    modalText: {
+        fontSize: 14,
+        color: '#4b5563',
+        marginBottom: 20,
+        lineHeight: 20,
+    },
+    modalButtons: {
+        flexDirection: 'row',
+        justifyContent: 'flex-end',
+        gap: 12,
+        marginTop: 10,
+    },
+    modalCancelBtn: {
+        paddingVertical: 10,
+        paddingHorizontal: 16,
+        borderRadius: 8,
+        backgroundColor: '#f3f4f6',
+    },
+    modalCancelBtnText: {
+        color: '#374151',
+        fontWeight: '600',
+    },
+    modalSubmitBtn: {
+        paddingVertical: 10,
+        paddingHorizontal: 16,
+        borderRadius: 8,
+        backgroundColor: '#4CAF50',
+        minWidth: 90,
+        alignItems: 'center',
+    },
+    modalSubmitBtnText: {
+        color: 'white',
+        fontWeight: '600',
     },
 });

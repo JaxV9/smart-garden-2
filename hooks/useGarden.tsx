@@ -1,6 +1,6 @@
 import { useGardenContext } from "@/contexts/garden.context";
 import { useVegetablesContext } from "@/contexts/vegetables.context";
-import { AddVegetableToGardenPayload, GardenVegetablePayload, Vegetable } from "@/models/models";
+import { AddVegetableToGardenPayload, GardenVegetable, GardenVegetablePayload } from "@/models/models";
 import { useFetch } from "./useFetch";
 
 
@@ -15,16 +15,19 @@ export function useGarden() {
 
         const response = await http.get('/api/user/vegetables');
         if (response.status !== 'Failure') {
+
             const gardenVegetables = response.payload as GardenVegetablePayload[]
             const vegetables = gardenVegetables.map((gardenVegetable) => {
-                return vegetablesContext.find(vegetable => vegetable.id === gardenVegetable.vegetableId)
-            }) as Vegetable[]
+                const temp = vegetablesContext.find(vegetable => vegetable.id === gardenVegetable.vegetableId) as GardenVegetable;
+                temp.gardenVegetableId = gardenVegetable.id
+                return temp
+            }) as GardenVegetable[]
             setGardenVegetables(vegetables)
         }
         return response.status
     }
 
-    async function addVegetableToGarden(vegetable: Vegetable): Promise<"Success" | "Failure"> {
+    async function addVegetableToGarden(vegetable: GardenVegetable): Promise<"Success" | "Failure"> {
         const payload: AddVegetableToGardenPayload = { vegetableId: vegetable.id };
         const http = await httpClient
         const response = await http.post('/api/user/vegetable', payload);
@@ -32,15 +35,17 @@ export function useGarden() {
         return response.status
     }
 
-    async function removeVegetablesFromGarden(vegetableId: string): Promise<"Success" | "Failure"> {
+    async function removeVegetablesFromGarden(vegetable: GardenVegetable): Promise<"Success" | "Failure"> {
         const http = await httpClient
-        const response = await http.delete(`/api/user/vegetable/${vegetableId}`)
+        const response = await http.delete(`/api/user/vegetable/${vegetable.gardenVegetableId}`)
+        loadGardenVegetables()
         return response.status;
     }
 
     return {
         loadGardenVegetables,
         addVegetableToGarden,
-        removeVegetablesFromGarden
+        removeVegetablesFromGarden,
+        gardenVegetables
     };
 }

@@ -253,9 +253,14 @@ export const styles = StyleSheet.create({
         width: "100%",
         height: 50,
         borderRadius: 10,
-        backgroundColor: "#5A7F54",
         alignItems: "center",
         justifyContent: "center",
+    },
+    green: {
+        backgroundColor: "#5A7F54",
+    },
+    red: {
+        backgroundColor: "#ea333cff"
     },
     ctaText: {
         color: "#FFFFFF",

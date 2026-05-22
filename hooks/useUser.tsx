@@ -19,9 +19,11 @@ export function useUser() {
             if (response.status !== 'Failure') {
                 const data = response.payload as User
                 const userInfos: User = {
+                    id: data.id,
                     name: data.name,
                     email: data.email,
-                    level: data.level
+                    level: data.level,
+                    isPrivate: data.isPrivate
                 };
                 setUser(userInfos)
                 setIsLogin(true)
@@ -38,18 +40,20 @@ export function useUser() {
             const response = await http.post('/api/login', payload);
             if (response.status !== 'Failure') {
                 const data = response.payload as LoginInfos
-
                 const isTokenAlreadyExists = await getToken('authToken');
+                console.log("Existing token:", isTokenAlreadyExists);
                 if (isTokenAlreadyExists !== null) {
                     await deleteToken('authToken');
                 }
                 await putToken('authToken', data.token);
                 setIsLogin(true)
                 const userInfos: User = {
+                    id: data.userId,
                     name: data.userName,
                     email: data.email,
                     avatarUri: null,
-                    level: data.level
+                    level: data.level,
+                    isPrivate: data.isPrivate
                 };
                 setUser(userInfos)
             }
@@ -69,6 +73,7 @@ export function useUser() {
                 await putToken('authToken', data.token);
                 setIsLogin(true)
                 const userInfos: User = {
+                    id: data.userId,
                     name: data.userName,
                     email: data.email,
                     avatarUri: null,
@@ -95,15 +100,118 @@ export function useUser() {
         setUser(prev => prev ? { ...prev, avatarUri: uri } : prev);
     }
 
-    function updateUser(updates: { name?: string; email?: string }) {
+    async function updateUser(updates: { name?: string; email?: string; level?: string | null; password?: string, isPrivate?: boolean, phone?: string, bio?: string }): Promise<"Success" | "Failure"> {
         setUser((prev) =>
             prev
-                ? {
-                    ...prev,
-                    ...updates,
+            ? {
+                ...prev,
+                ...updates,
                 }
-                : prev
-        );
+            : prev
+    );
+
+        try {
+            const http = await httpClient;
+            const response = await http.put("/api/user", updates);
+
+            if (response.status !== "Failure") {
+            await getUser();
+            }
+
+            return response.status;
+        } catch (error) {
+            console.error("updateUser failed:", error);
+            return "Failure";
+        }
+    }
+
+    async function getPublicProfile(id: string) {
+        try {
+            const http = await httpClient;
+            const response = await http.get(`/api/user/${id}/profile`);
+            if (response.status !== 'Failure') {
+                return response.payload;
+            }
+            return null;
+        } catch (error) {
+            console.error("getPublicProfile failed:", error);
+            return null;
+        }
+    }
+
+    async function getUserTopics(id: string) {
+        try {
+            const http = await httpClient;
+            const response = await http.get(`/api/user/${id}/topics`);
+            if (response.status !== 'Failure') {
+                return response.payload;
+            }
+            return [];
+        } catch (error) {
+            console.error("getUserTopics failed:", error);
+            return [];
+        }
+    }
+
+    async function getUserPosts(id: string) {
+        try {
+            const http = await httpClient;
+            const response = await http.get(`/api/user/${id}/posts`);
+            if (response.status !== 'Failure') {
+                return response.payload;
+            }
+            return [];
+        } catch (error) {
+            console.error("getUserPosts failed:", error);
+            return [];
+        }
+    }
+
+    async function getUserVegetables(id: string) {
+        try {
+            const http = await httpClient;
+            const response = await http.get(`/api/user/${id}/vegetables`);
+            if (response.status !== 'Failure') {
+                return response.payload;
+            }
+            return [];
+        } catch (error) {
+            console.error("getUserVegetables failed:", error);
+            return [];
+        }
+    }
+
+    async function deletePost(postId: string) {
+        try {
+            const http = await httpClient;
+            const response = await http.delete(`/api/post/${postId}`);
+            return response.status !== 'Failure';
+        } catch (error) {
+            console.error("deletePost failed:", error);
+            return false;
+        }
+    }
+
+    async function deleteTopic(topicId: string) {
+        try {
+            const http = await httpClient;
+            const response = await http.delete(`/api/topic/${topicId}`);
+            return response.status !== 'Failure';
+        } catch (error) {
+            console.error("deleteTopic failed:", error);
+            return false;
+        }
+    }
+
+    async function forgotPassword(email: string): Promise<"Success" | "Failure"> {
+        try {
+            const http = await httpClient;
+            const response = await http.post('/api/auth/forgot-password', { email });
+            return response.status;
+        } catch (error) {
+            console.error("forgotPassword failed:", error);
+            return "Failure";
+        }
     }
 
     return {
@@ -113,6 +221,13 @@ export function useUser() {
         createUser,
         logout,
         updateUser,
-        updateAvatar
+        updateAvatar,
+        getPublicProfile,
+        getUserTopics,
+        getUserPosts,
+        getUserVegetables,
+        deletePost,
+        deleteTopic,
+        forgotPassword
     };
 }

@@ -7,6 +7,7 @@ import React, { useState } from 'react';
 import {
   Alert,
   Image,
+  Modal,
   ScrollView,
   StyleSheet,
   Text,
@@ -16,9 +17,16 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { GardenerLevel } from '@/models/models';
+
 const DEFAULT_AVATAR = require('@/assets/images/avatar.png');
 
-type ExperienceLevel = 'Débutant' | 'Intermédiaire' | 'Expert';
+const LEVEL_LABELS: Record<string, string> = {
+  beginner: 'Débutant.e',
+  amateur: 'Amateur.trice',
+  advanced: 'Avancé.e',
+  enthusiast: 'Passionné.e',
+};
 
 export default function PersonalInfoScreen() {
   const { user } = useUserContext();
@@ -26,9 +34,15 @@ export default function PersonalInfoScreen() {
 
   const [pseudo, setPseudo] = useState<string>(user?.name ?? '');
   const [email, setEmail] = useState<string>(user?.email ?? '');
-  const [experience, setExperience] = useState<ExperienceLevel>('Débutant');
-  const [password, setPassword] = useState<string>(''); // champ vide
+  const [experience, setExperience] = useState<GardenerLevel>(
+    (user?.level as GardenerLevel) ?? 'beginner'
+  );
   const [isExperienceOpen, setIsExperienceOpen] = useState(false);
+  const [isPasswordModalVisible, setIsPasswordModalVisible] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [isNewPasswordVisible, setIsNewPasswordVisible] = useState(false);
+  const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] = useState(false);
 
   const [avatarUri, setAvatarUri] = useState<string | undefined>(
     user?.avatarUri ?? undefined
@@ -71,27 +85,70 @@ export default function PersonalInfoScreen() {
     setIsExperienceOpen((prev) => !prev);
   };
 
-  const handleSelectExperience = (level: ExperienceLevel) => {
+  const handleSelectExperience = (level: GardenerLevel) => {
     setExperience(level);
     setIsExperienceOpen(false);
   };
 
-  const handleChangePasswordPress = () => {
-    Alert.alert(
-      'Info',
-      'Changer de mot de passe à faire plus tard.'
-    );
+  const resetPasswordModal = () => {
+    setNewPassword('');
+    setConfirmPassword('');
+    setIsNewPasswordVisible(false);
+    setIsConfirmPasswordVisible(false);
   };
 
-  const handleSave = () => {
-    // Updates the User in context
-    updateUser({
+  const handleChangePasswordPress = () => {
+    resetPasswordModal();
+    setIsPasswordModalVisible(true);
+  };
+
+  const handleClosePasswordModal = () => {
+    setIsPasswordModalVisible(false);
+    resetPasswordModal();
+  };
+
+  const handleSubmitPasswordChange = async () => {
+    if (!newPassword || !confirmPassword) {
+      Alert.alert('Erreur', 'Veuillez remplir les deux champs.');
+      return;
+    }
+
+    if (newPassword.length < 8) {
+      Alert.alert('Erreur', 'Le mot de passe doit contenir au moins 8 caractères.');
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      Alert.alert('Erreur', 'Les mots de passe ne correspondent pas.');
+      return;
+    }
+
+    const status = await updateUser({ password: newPassword });
+
+    if (status === 'Failure') {
+      Alert.alert('Erreur', 'Impossible de modifier le mot de passe.');
+      return;
+    }
+
+    handleClosePasswordModal();
+    Alert.alert('Succès', 'Le mot de passe a bien été mis à jour.');
+  };
+
+  const handleSave = async () => {
+    const status = await updateUser({
       name: pseudo || user?.name || '',
       email: email || user?.email || '',
+      level: experience,
     });
 
-    Alert.alert('Succès', 'Vos informations ont été mises à jour.');
+    if (status === "Failure") {
+      Alert.alert("Erreur", "Impossible d'enregistrer vos informations.");
+      return;
+    }
+
+    Alert.alert("Succès", "Vos informations ont été mises à jour.");
   };
+
 
   const currentAvatarSource = avatarUri ? { uri: avatarUri } : DEFAULT_AVATAR;
 
@@ -198,7 +255,7 @@ export default function PersonalInfoScreen() {
               onPress={toggleExperienceDropdown}
             >
               <Text style={[styles.input, styles.textOnlyInput]}>
-                {experience}
+                {LEVEL_LABELS[experience] ?? experience}
               </Text>
               <Feather
                 name={isExperienceOpen ? 'chevron-up' : 'chevron-down'}
@@ -210,7 +267,7 @@ export default function PersonalInfoScreen() {
 
             {isExperienceOpen && (
               <View style={styles.dropdown}>
-                {(['Débutant', 'Intermédiaire', 'Expert'] as ExperienceLevel[]).map(
+                {(['beginner', 'amateur', 'advanced', 'enthusiast'] as GardenerLevel[]).map(
                   (level) => (
                     <TouchableOpacity
                       key={level}
@@ -226,7 +283,7 @@ export default function PersonalInfoScreen() {
                           experience === level && styles.dropdownItemTextActive,
                         ]}
                       >
-                        {level}
+                        {LEVEL_LABELS[level] ?? level}
                       </Text>
                     </TouchableOpacity>
                   )
@@ -235,37 +292,13 @@ export default function PersonalInfoScreen() {
             )}
           </View>
 
-          {/* Password */}
           <View style={styles.field}>
-            <Text style={styles.label}>Mot de passe</Text>
-            <View style={styles.inputWrapper}>
-              <Feather
-                name="key"
-                size={18}
-                color={COLORS.icon}
-                style={styles.leftIcon}
-              />
-              <TextInput
-                style={styles.input}
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry={true}
-                placeholder="●●●●●●●●"
-                placeholderTextColor={COLORS.placeholder}
-              />
-              <Feather
-                name="eye"
-                size={18}
-                color={COLORS.icon}
-                style={styles.rightIconButton}
-              />
-            </View>
-
             <TouchableOpacity
               onPress={handleChangePasswordPress}
               style={styles.changePasswordButton}
               activeOpacity={0.7}
             >
+              <Feather name="lock" size={16} color={COLORS.primary} />
               <Text style={styles.changePasswordText}>
                 Changer de mot de passe
               </Text>
@@ -282,6 +315,97 @@ export default function PersonalInfoScreen() {
           <Text style={styles.saveButtonText}>ENREGISTRER</Text>
         </TouchableOpacity>
       </ScrollView>
+
+      <Modal
+        visible={isPasswordModalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={handleClosePasswordModal}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalCard}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Changer le mot de passe</Text>
+              <TouchableOpacity
+                onPress={handleClosePasswordModal}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              >
+                <Feather name="x" size={20} color={COLORS.textDark} />
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.modalField}>
+              <Text style={styles.label}>Nouveau mot de passe</Text>
+              <View style={styles.inputWrapper}>
+                <Feather
+                  name="lock"
+                  size={18}
+                  color={COLORS.icon}
+                  style={styles.leftIcon}
+                />
+                <TextInput
+                  style={styles.input}
+                  value={newPassword}
+                  onChangeText={setNewPassword}
+                  placeholder="Nouveau mot de passe"
+                  placeholderTextColor={COLORS.placeholder}
+                  secureTextEntry={!isNewPasswordVisible}
+                  autoCapitalize="none"
+                />
+                <TouchableOpacity
+                  style={styles.rightIconButton}
+                  onPress={() => setIsNewPasswordVisible((prev) => !prev)}
+                >
+                  <Feather
+                    name={isNewPasswordVisible ? 'eye-off' : 'eye'}
+                    size={18}
+                    color={COLORS.icon}
+                  />
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            <View style={styles.modalField}>
+              <Text style={styles.label}>Confirmer le mot de passe</Text>
+              <View style={styles.inputWrapper}>
+                <Feather
+                  name="lock"
+                  size={18}
+                  color={COLORS.icon}
+                  style={styles.leftIcon}
+                />
+                <TextInput
+                  style={styles.input}
+                  value={confirmPassword}
+                  onChangeText={setConfirmPassword}
+                  placeholder="Confirmer le mot de passe"
+                  placeholderTextColor={COLORS.placeholder}
+                  secureTextEntry={!isConfirmPasswordVisible}
+                  autoCapitalize="none"
+                />
+                <TouchableOpacity
+                  style={styles.rightIconButton}
+                  onPress={() => setIsConfirmPasswordVisible((prev) => !prev)}
+                >
+                  <Feather
+                    name={isConfirmPasswordVisible ? 'eye-off' : 'eye'}
+                    size={18}
+                    color={COLORS.icon}
+                  />
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            <TouchableOpacity
+              style={styles.modalPrimaryButton}
+              activeOpacity={0.8}
+              onPress={handleSubmitPasswordChange}
+            >
+              <Text style={styles.modalPrimaryButtonText}>VALIDER</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -294,7 +418,7 @@ const COLORS = {
   border: '#E5E7EB',
   primary: '#4F8F46',
   icon: '#9CA3AF',
-  placeholder: '#9CA3AF',
+  placeholder: '#111827',
 };
 
 const styles = StyleSheet.create({
@@ -378,15 +502,16 @@ const styles = StyleSheet.create({
     marginLeft: 6,
   },
   changePasswordButton: {
-    marginTop: 10,
-    alignSelf: 'center',
+    marginTop: 6,
+    alignSelf: 'flex-start',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   changePasswordText: {
-    fontSize: 13,
-    color: COLORS.textMuted,
-    textAlign: 'center',
-    textDecorationLine: 'underline',
-    fontWeight: '400',
+    fontSize: 14,
+    color: COLORS.primary,
+    fontWeight: '600',
   },
   dropdown: {
     marginTop: 6,
@@ -424,5 +549,43 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     fontSize: 15,
     letterSpacing: 1,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(17, 24, 39, 0.32)',
+    justifyContent: 'center',
+    paddingHorizontal: 24,
+  },
+  modalCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 20,
+    gap: 16,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: COLORS.textDark,
+  },
+  modalField: {
+    gap: 6,
+  },
+  modalPrimaryButton: {
+    height: 48,
+    borderRadius: 10,
+    backgroundColor: COLORS.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  modalPrimaryButtonText: {
+    color: '#FFFFFF',
+    fontWeight: '700',
+    fontSize: 14,
+    letterSpacing: 0.4,
   },
 });
