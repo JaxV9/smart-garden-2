@@ -11,6 +11,7 @@ import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { Header } from '@/components/new/header/header';
 
 export default function TutosScreen() {
     const router = useRouter();
@@ -80,7 +81,9 @@ export default function TutosScreen() {
     return (
         <SafeAreaProvider>
             <View style={styles.container}>
-                <ForumHeader notificationCount={27} />
+                <View style={{ paddingTop: 64, paddingHorizontal: 20, paddingBottom: 10 }}>
+                    <Header text="Documentation" />
+                </View>
 
                 <ForumTabs activeTab={currentTab} setCurrentTab={setCurrentTab} />
 

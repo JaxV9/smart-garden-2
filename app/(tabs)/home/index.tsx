@@ -6,6 +6,7 @@ import { useGarden } from "@/hooks/useGarden";
 import { useVegetable } from "@/hooks/useVegetable";
 import { useEffect, useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Header } from "@/components/new/header/header";
 
 export default function Index() {
   const [currentSection, setCurrentSection] = useState<HomeSection>("resume");
@@ -26,7 +27,7 @@ export default function Index() {
   return (
     <View style={styles.container}>
       <View style={styles.gap16}>
-        <Text style={styles.title}>Mon jardin</Text>
+        <Header />
         <View style={styles.headerBtnContainer}>
           <Pressable
             onPress={() => setCurrentSection("resume")}
