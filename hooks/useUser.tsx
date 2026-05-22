@@ -21,6 +21,7 @@ export function useUser() {
                 const userInfos: User = {
                     id: data.id,
                     name: data.name,
+                    publicName: data.publicName,
                     email: data.email,
                     level: data.level,
                     isPrivate: data.isPrivate
@@ -50,6 +51,7 @@ export function useUser() {
                 const userInfos: User = {
                     id: data.userId,
                     name: data.userName,
+                    publicName: data.publicName || data.userName,
                     email: data.email,
                     avatarUri: null,
                     level: data.level,
@@ -75,6 +77,7 @@ export function useUser() {
                 const userInfos: User = {
                     id: data.userId,
                     name: data.userName,
+                    publicName: data.publicName || data.userName,
                     email: data.email,
                     avatarUri: null,
                     level: null
@@ -100,7 +103,7 @@ export function useUser() {
         setUser(prev => prev ? { ...prev, avatarUri: uri } : prev);
     }
 
-    async function updateUser(updates: { name?: string; email?: string; level?: string | null; password?: string, isPrivate?: boolean, phone?: string, bio?: string }): Promise<"Success" | "Failure"> {
+    async function updateUser(updates: { name?: string; email?: string; level?: string | null; password?: string, isPrivate?: boolean, phone?: string, bio?: string, publicName?: string | null }): Promise<"Success" | "Failure"> {
         setUser((prev) =>
             prev
             ? {

@@ -33,6 +33,7 @@ export default function PersonalInfoScreen() {
   const { updateAvatar, updateUser } = useUser();
 
   const [pseudo, setPseudo] = useState<string>(user?.name ?? '');
+  const [publicName, setPublicName] = useState<string>(user?.publicName ?? user?.name ?? '');
   const [email, setEmail] = useState<string>(user?.email ?? '');
   const [experience, setExperience] = useState<GardenerLevel>(
     (user?.level as GardenerLevel) ?? 'beginner'
@@ -79,6 +80,7 @@ export default function PersonalInfoScreen() {
   };
 
   const handleClearPseudo = () => setPseudo('');
+  const handleClearPublicName = () => setPublicName('');
   const handleClearEmail = () => setEmail('');
 
   const toggleExperienceDropdown = () => {
@@ -137,6 +139,7 @@ export default function PersonalInfoScreen() {
   const handleSave = async () => {
     const status = await updateUser({
       name: pseudo || user?.name || '',
+      publicName: publicName || user?.publicName || pseudo || user?.name || '',
       email: email || user?.email || '',
       level: experience,
     });
@@ -208,6 +211,34 @@ export default function PersonalInfoScreen() {
                 <TouchableOpacity
                   style={styles.rightIconButton}
                   onPress={handleClearPseudo}
+                >
+                  <Feather name="x" size={16} color={COLORS.icon} />
+                </TouchableOpacity>
+              )}
+            </View>
+          </View>
+
+          {/* Nom public */}
+          <View style={styles.field}>
+            <Text style={styles.label}>Nom public</Text>
+            <View style={styles.inputWrapper}>
+              <Feather
+                name="user"
+                size={18}
+                color={COLORS.icon}
+                style={styles.leftIcon}
+              />
+              <TextInput
+                style={styles.input}
+                value={publicName}
+                onChangeText={setPublicName}
+                placeholder="Votre nom public"
+                placeholderTextColor={COLORS.placeholder}
+              />
+              {publicName.length > 0 && (
+                <TouchableOpacity
+                  style={styles.rightIconButton}
+                  onPress={handleClearPublicName}
                 >
                   <Feather name="x" size={16} color={COLORS.icon} />
                 </TouchableOpacity>

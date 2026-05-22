@@ -1,6 +1,7 @@
 export type User = {
   id?: string;
   name: string;
+  publicName?: string | null;
   email: string;
   avatarUri?: string | null;
   level: string | null;
@@ -46,6 +47,7 @@ export type LoginInfos = {
   email: string;
   level: string | null;
   isPrivate?: boolean;
+  publicName?: string | null;
 };
 
 export type SensorMeasure = {

@@ -50,6 +50,10 @@ export default function ProfileScreen() {
     router.push('../profile/personal-info');
   };
 
+  const handleCommunityProfilePress = () => {
+    router.push('../profile/community');
+  };
+
   const handleLogoutPress = () => {
     setIsLogoutModalVisible(true);
   };
@@ -99,6 +103,18 @@ export default function ProfileScreen() {
               <Feather name="user" size={20} color={COLORS.greenDark} />
             </View>
             <Text style={styles.rowText}>Informations personnelles</Text>
+            <Feather name="chevron-right" size={20} color={COLORS.greenDark} />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.row}
+            activeOpacity={0.7}
+            onPress={handleCommunityProfilePress}
+          >
+            <View style={styles.iconCircle}>
+              <Feather name="users" size={20} color={COLORS.greenDark} />
+            </View>
+            <Text style={styles.rowText}>Profil communautaire</Text>
             <Feather name="chevron-right" size={20} color={COLORS.greenDark} />
           </TouchableOpacity>
 
