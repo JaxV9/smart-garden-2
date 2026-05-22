@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { Task } from '@/components/new/task/task';
 import { router } from 'expo-router';
 import { BackButton } from '@/components/new/backButton/backButton';
@@ -10,11 +10,8 @@ export default function Index() {
             <View style={styles.headerContainer}>
                 <Header />
             </View>
-            <View style={styles.navRow}>
-                <View style={styles.backButtonContainer}>
-                    <BackButton callback={() => router.replace('/home')} />
-                </View>
-                <Text style={styles.pageTitle}>Tâches</Text>
+            <View style={styles.backButtonRow}>
+                <BackButton callback={() => router.replace('/home')} />
             </View>
             <Task />
         </View>
@@ -29,25 +26,10 @@ const styles = StyleSheet.create({
     },
     headerContainer: {
         paddingHorizontal: 20,
-        marginBottom: 4,
+        paddingBottom: 10,
     },
-    navRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        position: 'relative',
+    backButtonRow: {
         paddingHorizontal: 20,
-        height: 40,
         marginBottom: 8,
     },
-    backButtonContainer: {
-        position: 'absolute',
-        left: 20,
-        zIndex: 10,
-    },
-    pageTitle: {
-        fontSize: 24,
-        fontWeight: '600',
-        color: '#111827',
-    }
 });

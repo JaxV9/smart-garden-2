@@ -62,7 +62,7 @@ const styles = StyleSheet.create({
     container: {
         gap: 28,
         position: 'absolute',
-        top: 160,
+        top: 120,
         left: 0,
         right: 0,
         bottom: 0

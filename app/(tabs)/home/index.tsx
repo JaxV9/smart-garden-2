@@ -26,7 +26,7 @@ export default function Index() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.gap16}>
+      <View style={styles.headerContainer}>
         <Header />
         <View style={styles.headerBtnContainer}>
           <Pressable
@@ -61,19 +61,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingTop: 64,
-    paddingLeft: 8,
-    paddingRight: 8,
+    paddingHorizontal: 20,
     gap: 16,
     backgroundColor: "#F9FAFB",
   },
-  gap16: {
+  headerContainer: {
+    paddingBottom: 10,
     gap: 16,
-  },
-  gap8: {
-    gap: 8,
-  },
-  title: {
-    fontSize: 22,
   },
   headerBtnContainer: {
     flexDirection: "row",
