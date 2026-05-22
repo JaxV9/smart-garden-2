@@ -1,8 +1,7 @@
-import { BackButton } from "@/components/new/backButton/backButton";
+
 import { CalendarComp } from "@/components/new/calendar/calendar";
-import { Header } from "@/components/new/header/header";
+import AppHeader from "@/components/new/ui/AppHeader";
 import { useCalendar } from "@/hooks/useCalendar";
-import { router } from "expo-router";
 import { StyleSheet, View } from "react-native";
 
 export default function Calendar() {
@@ -10,12 +9,13 @@ export default function Calendar() {
 
     return (
         <View style={styles.container}>
-            <View style={styles.headerContainer}>
-                <Header />
-            </View>
-            <View style={styles.backButtonRow}>
-                <BackButton callback={() => router.replace('/home')} />
-            </View>
+            <AppHeader
+                title="Calendrier"
+                showBack={true}
+                showNotifications={true}
+                fallbackRoute="/home"
+            />
+
             <CalendarComp calendarProp={calendar} />
         </View>
     );
@@ -24,15 +24,6 @@ export default function Calendar() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        paddingTop: 64,
-        backgroundColor: '#F9FAFB'
-    },
-    headerContainer: {
-        paddingHorizontal: 20,
-        paddingBottom: 10,
-    },
-    backButtonRow: {
-        paddingHorizontal: 20,
-        marginBottom: 8,
+        backgroundColor: '#F9FAFB',
     },
 });

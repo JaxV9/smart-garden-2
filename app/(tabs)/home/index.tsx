@@ -1,15 +1,18 @@
-import { ResumeSection } from "@/components/new/homeSections/resumeSection/resumeSection";
 import { PlantsSection } from "@/components/new/homeSections/plantsSection/plantsSection";
-import { HomeSection } from "@/components/new/navGardenSection/navbar";
+import { ResumeSection } from "@/components/new/homeSections/resumeSection/resumeSection";
+import AppHeader from "@/components/new/ui/AppHeader";
+import { useGardenContext } from "@/contexts/garden.context";
 import { useVegetablesContext } from "@/contexts/vegetables.context";
 import { useGarden } from "@/hooks/useGarden";
 import { useVegetable } from "@/hooks/useVegetable";
 import { useEffect, useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
-import { Header } from "@/components/new/header/header";
 
 export default function Index() {
-  const [currentSection, setCurrentSection] = useState<HomeSection>("resume");
+  const [currentSection, setCurrentSection] = useState<"resume" | "plants">("resume");
+
+  const { gardenInfo } = useGardenContext();
+
   const { loadGardenVegetables } = useGarden();
   const { vegetablesContext } = useVegetablesContext();
   const { loadVegetables } = useVegetable();
@@ -24,33 +27,38 @@ export default function Index() {
     }
   }, [vegetablesContext]);
 
+  const gardenTitle = gardenInfo?.name ?? "Mon jardin";
+
   return (
     <View style={styles.container}>
-      <View style={styles.headerContainer}>
-        <Header />
-        <View style={styles.headerBtnContainer}>
-          <Pressable
-            onPress={() => setCurrentSection("resume")}
-            style={
-              currentSection === "resume"
-                ? styles.headerBtnSelected
-                : styles.headerBtn
-            }
-          >
-            <Text style={styles.headerTxtBtn}>Résumé</Text>
-          </Pressable>
-          <Pressable
-            onPress={() => setCurrentSection("plants")}
-            style={
-              currentSection === "plants"
-                ? styles.headerBtnSelected
-                : styles.headerBtn
-            }
-          >
-            <Text style={styles.headerTxtBtn}>Mes plantes</Text>
-          </Pressable>
-        </View>
+      <AppHeader
+        title={gardenTitle}
+        showBack={false}
+        showNotifications={true}
+      />
+
+      <View style={styles.tabsContainer}>
+        <Pressable
+          onPress={() => setCurrentSection("resume")}
+          style={[
+            styles.tabBtn,
+            currentSection === "resume" && styles.tabBtnSelected,
+          ]}
+        >
+          <Text style={styles.tabText}>Résumé</Text>
+        </Pressable>
+
+        <Pressable
+          onPress={() => setCurrentSection("plants")}
+          style={[
+            styles.tabBtn,
+            currentSection === "plants" && styles.tabBtnSelected,
+          ]}
+        >
+          <Text style={styles.tabText}>Mes plantes</Text>
+        </Pressable>
       </View>
+
       {currentSection === "resume" && <ResumeSection />}
       {currentSection === "plants" && <PlantsSection />}
     </View>
@@ -60,37 +68,32 @@ export default function Index() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 64,
-    paddingHorizontal: 20,
-    gap: 16,
     backgroundColor: "#F9FAFB",
   },
-  headerContainer: {
-    paddingBottom: 10,
-    gap: 16,
-  },
-  headerBtnContainer: {
+
+  tabsContainer: {
     flexDirection: "row",
     gap: 16,
-    paddingBottom: 16,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: "#F1F1F1",
   },
-  headerBtnSelected: {
-    backgroundColor: "#61b4586f",
-    padding: 8,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "#5B8E55",
-  },
-  headerBtn: {
+
+  tabBtn: {
     backgroundColor: "#F1F1F1",
     padding: 8,
     borderRadius: 8,
     borderWidth: 1,
     borderColor: "#E5E7EB",
   },
-  headerTxtBtn: {
-    fontSize: 18,
+
+  tabBtnSelected: {
+    backgroundColor: "#61b4586f",
+    borderColor: "#5B8E55",
+  },
+
+  tabText: {
+    fontSize: 16,
   },
 });

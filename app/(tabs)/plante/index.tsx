@@ -1,3 +1,4 @@
+import AppHeader from '@/components/new/ui/AppHeader';
 import { VegetableCard } from '@/components/new/vegetablesList/vegetable/vegetable';
 import { VegetablesList } from '@/components/new/vegetablesList/vegetableList';
 import { useVegetablesContext } from '@/contexts/vegetables.context';
@@ -282,13 +283,7 @@ export default function Index() {
 
   return (
     <View style={styles.screen}>
-      <View style={styles.header}>
-        <View style={styles.headerLeft}>
-          <Ionicons name="leaf-outline" size={20} color="#FFFFFF" />
-          <Text style={styles.headerTitle}>Jardin</Text>
-        </View>
-        <Ionicons name="notifications-outline" size={20} color="#FFFFFF" />
-      </View>
+      <AppHeader title="Jardin" showNotifications={true} />
 
       <ScrollView
         style={styles.container}
