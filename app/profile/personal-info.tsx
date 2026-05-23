@@ -442,14 +442,14 @@ export default function PersonalInfoScreen() {
 }
 
 const COLORS = {
-  background: '#FFFFFF',
-  textDark: '#111827',
+  background: '#F9FAFB',
+  textDark: '#1F2937',
   textMuted: '#6B7280',
-  inputBg: '#F9FAFB',
+  inputBg: '#FFFFFF',
   border: '#E5E7EB',
-  primary: '#4F8F46',
+  primary: '#5A7F54',
   icon: '#9CA3AF',
-  placeholder: '#111827',
+  placeholder: '#9CA3AF',
 };
 
 const styles = StyleSheet.create({
@@ -475,7 +475,7 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: 'center',
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: '800',
     color: COLORS.textDark,
   },
   avatarContainer: {
@@ -490,7 +490,7 @@ const styles = StyleSheet.create({
   },
   avatarName: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '700',
     color: COLORS.textDark,
   },
   form: {
@@ -502,6 +502,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 13,
+    fontWeight: '600',
     color: COLORS.textMuted,
     marginBottom: 6,
   },
@@ -509,11 +510,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: COLORS.inputBg,
-    borderRadius: 8,
+    borderRadius: 14,
     borderWidth: 1,
     borderColor: COLORS.border,
-    paddingHorizontal: 10,
-    height: 48,
+    paddingHorizontal: 12,
+    height: 50,
   },
   leftIcon: {
     marginRight: 6,
@@ -542,54 +543,64 @@ const styles = StyleSheet.create({
   changePasswordText: {
     fontSize: 14,
     color: COLORS.primary,
-    fontWeight: '600',
+    fontWeight: '700',
   },
   dropdown: {
     marginTop: 6,
-    borderRadius: 8,
+    borderRadius: 14,
     borderWidth: 1,
     borderColor: COLORS.border,
     backgroundColor: '#FFFFFF',
     overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 6,
+    elevation: 2,
   },
   dropdownItem: {
-    paddingVertical: 10,
-    paddingHorizontal: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
   },
   dropdownItemActive: {
-    backgroundColor: '#E0F2E9',
+    backgroundColor: '#EBF6EB',
   },
   dropdownItemText: {
     fontSize: 14,
     color: COLORS.textDark,
   },
   dropdownItemTextActive: {
-    fontWeight: '600',
+    fontWeight: '700',
     color: COLORS.primary,
   },
   saveButton: {
     height: 52,
-    borderRadius: 8,
+    borderRadius: 14,
     backgroundColor: COLORS.primary,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 'auto',
+    marginTop: 20,
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.12,
+    shadowRadius: 6,
+    elevation: 2,
   },
   saveButtonText: {
     color: '#FFFFFF',
-    fontWeight: '600',
+    fontWeight: '700',
     fontSize: 15,
-    letterSpacing: 1,
+    letterSpacing: 0.5,
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(17, 24, 39, 0.32)',
+    backgroundColor: 'rgba(17, 24, 39, 0.45)',
     justifyContent: 'center',
     paddingHorizontal: 24,
   },
   modalCard: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 16,
+    borderRadius: 20,
     padding: 20,
     gap: 16,
   },
@@ -600,7 +611,7 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: 18,
-    fontWeight: '700',
+    fontWeight: '800',
     color: COLORS.textDark,
   },
   modalField: {
@@ -608,7 +619,7 @@ const styles = StyleSheet.create({
   },
   modalPrimaryButton: {
     height: 48,
-    borderRadius: 10,
+    borderRadius: 12,
     backgroundColor: COLORS.primary,
     alignItems: 'center',
     justifyContent: 'center',

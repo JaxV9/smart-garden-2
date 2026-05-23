@@ -558,7 +558,7 @@ export default function Index() {
                 activeOpacity={0.8}
                 onPress={handleApplyFilters}
               >
-                <Text style={styles.modalApplyButtonText}>APPLIQUER</Text>
+                <Text style={styles.modalApplyButtonText}>Appliquer</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -722,56 +722,67 @@ const styles = StyleSheet.create({
   },
   modalFilterChip: {
     borderRadius: 999,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingHorizontal: 14,
+    paddingVertical: 7,
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
     borderColor: '#E5E7EB',
   },
   modalFilterChipSelected: {
-    backgroundColor: '#5A7F54',
-    borderColor: '#5A7F54',
+    backgroundColor: '#EBF6EB',
+    borderColor: 'rgba(90, 127, 84, 0.2)',
   },
   modalFilterChipText: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#111827',
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#4B5563',
   },
   modalFilterChipTextSelected: {
-    color: '#FFFFFF',
-    fontWeight: '600',
+    color: '#5A7F54',
+    fontWeight: '700',
   },
   modalFooter: {
+    flexDirection: 'row',
     paddingHorizontal: 20,
-    paddingTop: 12,
+    paddingTop: 16,
     paddingBottom: 24,
     borderTopWidth: 1,
-    borderTopColor: '#E5E7EB',
-    gap: 14,
+    borderTopColor: '#F3F4F6',
+    gap: 12,
     backgroundColor: '#FFFFFF',
   },
   modalResetButton: {
+    flex: 1,
+    height: 50,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 8,
+    backgroundColor: '#FFFFFF',
   },
   modalResetButtonText: {
     fontSize: 15,
     fontWeight: '700',
-    color: '#111827',
+    color: '#6B7280',
   },
   modalApplyButton: {
-    height: 52,
-    borderRadius: 12,
+    flex: 1,
+    height: 50,
+    borderRadius: 14,
     backgroundColor: '#5A7F54',
     alignItems: 'center',
     justifyContent: 'center',
+    shadowColor: '#5A7F54',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.12,
+    shadowRadius: 6,
+    elevation: 2,
   },
   modalApplyButtonText: {
     fontSize: 15,
     fontWeight: '700',
     color: '#FFFFFF',
-    letterSpacing: 0.5,
   },
   empty: {
     marginTop: 32,

@@ -81,17 +81,22 @@ const styles = StyleSheet.create({
         fontSize: 16
     },
     button: {
-        height: 48,
-        borderRadius: 10,
-        backgroundColor: "#16A34A",
+        height: 50,
+        borderRadius: 14,
+        backgroundColor: "#5A7F54",
         alignItems: "center",
         justifyContent: "center",
         marginBottom: 16,
+        shadowColor: '#5A7F54',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.12,
+        shadowRadius: 6,
+        elevation: 2,
     },
     btnTxt: {
         color: "#FFFFFF",
-        fontSize: 16,
-        fontWeight: "600",
+        fontSize: 15,
+        fontWeight: "700",
     },
     saveIconContainer: {
         width: 32,

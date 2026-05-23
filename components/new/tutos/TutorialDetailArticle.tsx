@@ -27,13 +27,13 @@ export default function TutorialDetailArticle({ tutorial, onLike }: TutorialDeta
     const getCategoryColor = (category: string) => {
         switch (category) {
             case 'ASTUCES':
-                return '#fde68a';
+                return '#FEF3C7';
             case 'DIY':
-                return '#fed7aa';
+                return '#FFEDD5';
             case 'TECHNIQUES':
-                return '#ddd6fe';
+                return '#EEF2FF';
             default:
-                return '#e5e5e5';
+                return '#F3F4F6';
         }
     };
 
@@ -50,7 +50,7 @@ export default function TutorialDetailArticle({ tutorial, onLike }: TutorialDeta
                 {/* Auteur */}
                 <View style={styles.authorContainer}>
                     <View style={styles.avatarPlaceholder}>
-                        <Ionicons name="person" size={20} color="#666" />
+                        <Ionicons name="person" size={20} color="#5A7F54" />
                     </View>
                     <View style={styles.authorInfo}>
                         <Text style={styles.authorName}>{tutorial.author.name || 'Utilisateur'}</Text>
@@ -98,18 +98,18 @@ const styles = StyleSheet.create({
         alignSelf: 'flex-start',
         paddingHorizontal: 12,
         paddingVertical: 6,
-        borderRadius: 15,
+        borderRadius: 999,
         marginBottom: 12,
     },
     categoryText: {
-        fontSize: 12,
-        fontWeight: '500',
-        color: '#333',
+        fontSize: 11,
+        fontWeight: '700',
+        color: '#374151',
     },
     title: {
         fontSize: 24,
-        fontWeight: '700',
-        color: '#000',
+        fontWeight: '800',
+        color: '#1F2937',
         marginBottom: 16,
         lineHeight: 32,
     },
@@ -123,7 +123,7 @@ const styles = StyleSheet.create({
         width: 40,
         height: 40,
         borderRadius: 20,
-        backgroundColor: '#e5e5e5',
+        backgroundColor: '#EBF6EB',
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -132,8 +132,8 @@ const styles = StyleSheet.create({
     },
     authorName: {
         fontSize: 15,
-        fontWeight: '600',
-        color: '#333',
+        fontWeight: '700',
+        color: '#5A7F54',
     },
     publishDate: {
         fontSize: 13,
@@ -147,7 +147,7 @@ const styles = StyleSheet.create({
         paddingBottom: 20,
         marginBottom: 20,
         borderBottomWidth: 1,
-        borderBottomColor: '#f0f0f0',
+        borderBottomColor: '#F3F4F6',
     },
     stats: {
         flexDirection: 'row',
@@ -168,8 +168,8 @@ const styles = StyleSheet.create({
         gap: 8,
         paddingHorizontal: 16,
         paddingVertical: 10,
-        backgroundColor: '#f5f5f5',
-        borderRadius: 20,
+        backgroundColor: '#F3F4F6',
+        borderRadius: 999,
     },
     likeText: {
         fontSize: 16,
@@ -182,6 +182,6 @@ const styles = StyleSheet.create({
     articleText: {
         fontSize: 16,
         lineHeight: 26,
-        color: '#333',
+        color: '#1F2937',
     },
 });

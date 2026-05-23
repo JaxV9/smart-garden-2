@@ -69,7 +69,7 @@ export const styles = StyleSheet.create({
     title: {
         fontSize: 26,
         fontWeight: "800",
-        color: "#2F6B3B",
+        color: "#5A7F54",
     },
     subRow: {
         marginTop: 4,
@@ -252,12 +252,17 @@ export const styles = StyleSheet.create({
     ctaButton: {
         width: "100%",
         height: 50,
-        borderRadius: 10,
+        borderRadius: 14,
         alignItems: "center",
         justifyContent: "center",
     },
     green: {
         backgroundColor: "#5A7F54",
+        shadowColor: "#5A7F54",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.12,
+        shadowRadius: 6,
+        elevation: 2,
     },
     red: {
         backgroundColor: "#ea333cff"

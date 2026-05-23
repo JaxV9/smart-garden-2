@@ -81,9 +81,11 @@ export default function TutosScreen() {
     return (
         <SafeAreaProvider>
             <View style={styles.container}>
-                <View style={{ paddingTop: 64, paddingHorizontal: 20, paddingBottom: 10 }}>
-                    <Header text="Documentation" />
-                </View>
+                <AppHeader
+                    title="Documentation"
+                    showBack={true}
+                    fallbackRoute="/home"
+                />
 
                 <ForumTabs activeTab={currentTab} setCurrentTab={setCurrentTab} />
 
@@ -147,7 +149,7 @@ export default function TutosScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#f5f5f5',
+        backgroundColor: '#F9FAFB',
     },
     content: {
         flex: 1,
@@ -155,38 +157,50 @@ const styles = StyleSheet.create({
     },
     scrollContent: {
         paddingBottom: 100,
+        paddingTop: 12,
     },
     createButton: {
-        backgroundColor: '#5B8E55',
-        paddingVertical: 16,
-        borderRadius: 12,
+        backgroundColor: '#5A7F54',
+        paddingVertical: 14,
+        borderRadius: 14,
         alignItems: 'center',
-        marginTop: 20,
-        marginBottom: 20,
+        marginTop: 8,
+        marginBottom: 16,
         flexDirection: 'row',
         justifyContent: 'center',
         gap: 8,
+        shadowColor: '#5A7F54',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.12,
+        shadowRadius: 6,
+        elevation: 2,
     },
     createButtonText: {
         color: 'white',
-        fontSize: 16,
-        fontWeight: '600',
+        fontSize: 15,
+        fontWeight: '700',
     },
     searchContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: 'white',
-        borderRadius: 12,
+        backgroundColor: '#FFFFFF',
+        borderRadius: 14,
         paddingHorizontal: 16,
         paddingVertical: 12,
-        marginBottom: 20,
+        marginBottom: 16,
         borderWidth: 1,
-        borderColor: '#e5e5e5',
+        borderColor: '#E5E7EB',
         gap: 10,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.02,
+        shadowRadius: 4,
+        elevation: 1,
     },
     searchInput: {
         flex: 1,
-        fontSize: 16,
-        color: '#333',
+        fontSize: 15,
+        fontWeight: '600',
+        color: '#1F2937',
     },
 });

@@ -497,9 +497,9 @@ export default function CommunityProfileScreen() {
 
 const COLORS = {
   background: '#F9FAFB',
-  greenDark: '#2F6F3A',
-  greenLightBg: '#EAF4E7',
-  textDark: '#111827',
+  greenDark: '#5A7F54',
+  greenLightBg: '#EBF6EB',
+  textDark: '#1F2937',
   textMuted: '#6B7280',
   border: '#E5E7EB',
   cardBg: '#FFFFFF',
@@ -508,24 +508,22 @@ const COLORS = {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: COLORS.background,
   },
   header: {
-    backgroundColor: '#FFFFFF',
-    height: 56,
+    backgroundColor: COLORS.background,
+    height: 60,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
+    paddingHorizontal: 20,
   },
   backButton: {
     padding: 4,
   },
   headerTitle: {
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: '800',
     color: COLORS.textDark,
   },
   container: {
@@ -533,7 +531,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.background,
   },
   scrollContent: {
-    padding: 16,
+    padding: 20,
     paddingBottom: 40,
   },
   userCard: {
@@ -546,7 +544,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
+    shadowOpacity: 0.02,
     shadowRadius: 8,
     elevation: 2,
   },
@@ -560,7 +558,7 @@ const styles = StyleSheet.create({
   },
   userName: {
     fontSize: 22,
-    fontWeight: '700',
+    fontWeight: '800',
     color: COLORS.textDark,
     marginBottom: 20,
   },
@@ -580,7 +578,7 @@ const styles = StyleSheet.create({
   },
   privacyLabel: {
     fontSize: 15,
-    fontWeight: '500',
+    fontWeight: '600',
     color: COLORS.textDark,
   },
   sectionHeader: {
@@ -591,16 +589,16 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 20,
-    fontWeight: '700',
+    fontWeight: '800',
     color: COLORS.textDark,
   },
   filterButton: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: COLORS.greenLightBg,
-    paddingHorizontal: 12,
+    paddingHorizontal: 14,
     paddingVertical: 8,
-    borderRadius: 20,
+    borderRadius: 999,
     gap: 6,
   },
   filterButtonActive: {
@@ -608,7 +606,7 @@ const styles = StyleSheet.create({
   },
   filterButtonText: {
     fontSize: 13,
-    fontWeight: '600',
+    fontWeight: '700',
     color: COLORS.greenDark,
   },
   filterButtonTextActive: {
@@ -623,7 +621,7 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: COLORS.cardBg,
     borderRadius: 20,
-    padding: 16,
+    padding: 20,
     borderWidth: 1,
     borderColor: COLORS.border,
     shadowColor: '#000',
@@ -640,30 +638,30 @@ const styles = StyleSheet.create({
   },
   tagBadge: {
     backgroundColor: COLORS.greenLightBg,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 999,
   },
   tagText: {
     fontSize: 11,
-    fontWeight: '700',
+    fontWeight: '800',
     color: COLORS.greenDark,
     letterSpacing: 0.5,
   },
   categoryBadge: {
     backgroundColor: '#F3F4F6',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 999,
   },
   categoryText: {
     fontSize: 11,
-    fontWeight: '600',
+    fontWeight: '700',
     color: COLORS.textMuted,
   },
   cardTitle: {
     fontSize: 16,
-    fontWeight: '700',
+    fontWeight: '800',
     color: COLORS.textDark,
     marginBottom: 8,
     lineHeight: 22,
@@ -699,12 +697,12 @@ const styles = StyleSheet.create({
   },
   statText: {
     fontSize: 12,
-    fontWeight: '500',
+    fontWeight: '600',
     color: COLORS.textMuted,
   },
   parentTopicTitle: {
     fontSize: 15,
-    fontWeight: '700',
+    fontWeight: '800',
     color: COLORS.textDark,
     marginBottom: 4,
   },
@@ -740,7 +738,7 @@ const styles = StyleSheet.create({
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(17, 24, 39, 0.4)',
+    backgroundColor: 'rgba(17, 24, 39, 0.45)',
     justifyContent: 'flex-end',
   },
   modalCard: {
@@ -751,7 +749,7 @@ const styles = StyleSheet.create({
     maxHeight: '80%',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.05,
     shadowRadius: 12,
     elevation: 8,
   },
@@ -766,7 +764,7 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: 18,
-    fontWeight: '700',
+    fontWeight: '800',
     color: COLORS.textDark,
   },
   modalScroll: {
@@ -777,7 +775,7 @@ const styles = StyleSheet.create({
   },
   filterSectionTitle: {
     fontSize: 15,
-    fontWeight: '600',
+    fontWeight: '700',
     color: COLORS.textDark,
     marginBottom: 12,
   },
@@ -787,24 +785,26 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   filterChip: {
-    backgroundColor: '#F3F4F6',
+    backgroundColor: '#FFFFFF',
     paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 20,
+    paddingVertical: 8,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
   },
   filterChipActive: {
     backgroundColor: COLORS.greenLightBg,
+    borderColor: 'rgba(90, 127, 84, 0.2)',
     borderWidth: 1,
-    borderColor: COLORS.greenDark,
   },
   filterChipText: {
-    fontSize: 14,
-    fontWeight: '500',
+    fontSize: 13,
+    fontWeight: '600',
     color: COLORS.textMuted,
   },
   filterChipTextActive: {
     color: COLORS.greenDark,
-    fontWeight: '600',
+    fontWeight: '700',
   },
   modalButtonsRow: {
     flexDirection: 'row',
@@ -812,29 +812,35 @@ const styles = StyleSheet.create({
   },
   modalResetButton: {
     flex: 1,
-    height: 48,
-    borderRadius: 12,
+    height: 50,
+    borderRadius: 14,
     borderWidth: 1,
     borderColor: COLORS.border,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: '#FFFFFF',
   },
   modalResetButtonText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: COLORS.textMuted,
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#6B7280',
   },
   modalApplyButton: {
     flex: 1.5,
-    height: 48,
-    borderRadius: 12,
+    height: 50,
+    borderRadius: 14,
     backgroundColor: COLORS.greenDark,
     alignItems: 'center',
     justifyContent: 'center',
+    shadowColor: COLORS.greenDark,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.12,
+    shadowRadius: 6,
+    elevation: 2,
   },
   modalApplyButtonText: {
-    fontSize: 14,
-    fontWeight: '600',
+    fontSize: 15,
+    fontWeight: '700',
     color: '#FFFFFF',
   },
 });

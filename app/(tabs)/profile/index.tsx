@@ -44,15 +44,15 @@ export default function ProfileScreen() {
   const gardenName = gardenInfo.name ?? 'Mon Jardin';
 
   const handlePersonalInfosPress = () => {
-    router.push('../profile/personal-info');
+    router.push('/profile/personal-info');
   };
 
   const handleCommunityProfilePress = () => {
-    router.push('../profile/community');
+    router.push('/profile/community');
   };
 
   const handleEditGardenPress = () => {
-    router.push('../profile/garden-info');
+    router.push('/profile/garden-info');
   };
 
   const handleConfirmLogout = async () => {
@@ -69,8 +69,8 @@ export default function ProfileScreen() {
 
       {/* HEADER */}
       <AppHeader
-        title={'Mon profile'}
-        showBack={true}
+        title={'Mon profil'}
+        showBack={false}
         showNotifications={true}
       />
 
@@ -108,7 +108,7 @@ export default function ProfileScreen() {
               <Feather
                 name="user"
                 size={20}
-                color="#2F6F3A"
+                color="#5A7F54"
               />
             </View>
 
@@ -119,7 +119,7 @@ export default function ProfileScreen() {
             <Feather
               name="chevron-right"
               size={20}
-              color="#2F6F3A"
+              color="#9CA3AF"
             />
           </TouchableOpacity>
 
@@ -131,7 +131,7 @@ export default function ProfileScreen() {
               <Feather
                 name="users"
                 size={20}
-                color="#2F6F3A"
+                color="#5A7F54"
               />
             </View>
 
@@ -142,7 +142,7 @@ export default function ProfileScreen() {
             <Feather
               name="chevron-right"
               size={20}
-              color="#2F6F3A"
+              color="#9CA3AF"
             />
           </TouchableOpacity>
 
@@ -154,7 +154,7 @@ export default function ProfileScreen() {
               <Feather
                 name="log-out"
                 size={20}
-                color="#2F6F3A"
+                color="#5A7F54"
               />
             </View>
 
@@ -172,7 +172,7 @@ export default function ProfileScreen() {
                 <Feather
                   name="eye-off"
                   size={18}
-                  color="#2F6F3A"
+                  color="#5A7F54"
                 />
               </View>
 
@@ -188,7 +188,7 @@ export default function ProfileScreen() {
               }
               trackColor={{
                 false: '#e5e5e5',
-                true: '#2F6F3A',
+                true: '#5A7F54',
               }}
               thumbColor="#ffffff"
             />
@@ -207,7 +207,7 @@ export default function ProfileScreen() {
                 <Feather
                   name="settings"
                   size={18}
-                  color="#2F6F3A"
+                  color="#5A7F54"
                 />
               </View>
 
@@ -223,7 +223,7 @@ export default function ProfileScreen() {
               <Feather
                 name="edit-3"
                 size={16}
-                color="#2F6F3A"
+                color="#5A7F54"
               />
 
               <Text style={styles.editButtonText}>
@@ -293,7 +293,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 24,
     paddingTop: 16,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#F9FAFB',
 
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
@@ -301,12 +301,14 @@ const styles = StyleSheet.create({
 
   profileCard: {
     flexDirection: 'row',
-    backgroundColor: '#E4F1DC',
+    backgroundColor: '#EBF6EB',
     padding: 16,
     borderRadius: 20,
     marginTop: 16,
     marginBottom: 16,
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.03)',
   },
 
   avatar: {
@@ -322,8 +324,8 @@ const styles = StyleSheet.create({
 
   name: {
     fontSize: 18,
-    fontWeight: '700',
-    color: '#111827',
+    fontWeight: '800',
+    color: '#1F2937',
     marginBottom: 4,
   },
 
@@ -353,7 +355,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 10,
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
+    borderBottomColor: '#F3F4F6',
   },
 
   rowLast: {
@@ -364,7 +366,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#E9F2E3',
+    backgroundColor: '#EBF6EB',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
@@ -373,7 +375,8 @@ const styles = StyleSheet.create({
   rowText: {
     flex: 1,
     fontSize: 15,
-    color: '#111827',
+    fontWeight: '600',
+    color: '#374151',
   },
 
   gardenHeader: {
@@ -390,8 +393,8 @@ const styles = StyleSheet.create({
 
   gardenTitle: {
     fontSize: 15,
-    fontWeight: '600',
-    color: '#111827',
+    fontWeight: '700',
+    color: '#1F2937',
   },
 
   editButton: {
@@ -408,7 +411,8 @@ const styles = StyleSheet.create({
 
   editButtonText: {
     fontSize: 13,
-    color: '#2F6F3A',
+    fontWeight: '600',
+    color: '#5A7F54',
   },
 
   infoLine: {
@@ -424,7 +428,7 @@ const styles = StyleSheet.create({
   infoValue: {
     fontSize: 14,
     color: '#111827',
-    fontWeight: '500',
+    fontWeight: '600',
   },
 
   modalOverlay: {
