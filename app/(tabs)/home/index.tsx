@@ -45,7 +45,12 @@ export default function Index() {
             currentSection === "resume" && styles.tabBtnSelected,
           ]}
         >
-          <Text style={styles.tabText}>Résumé</Text>
+          <Text style={[
+            styles.tabText,
+            currentSection === "resume" && styles.tabTextSelected
+          ]}>
+            Résumé
+          </Text>
         </Pressable>
 
         <Pressable
@@ -55,7 +60,12 @@ export default function Index() {
             currentSection === "plants" && styles.tabBtnSelected,
           ]}
         >
-          <Text style={styles.tabText}>Mes plantes</Text>
+          <Text style={[
+            styles.tabText,
+            currentSection === "plants" && styles.tabTextSelected
+          ]}>
+            Mes plantes
+          </Text>
         </Pressable>
       </View>
 
@@ -70,30 +80,39 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#F9FAFB",
   },
-
   tabsContainer: {
     flexDirection: "row",
-    gap: 16,
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: "#F1F1F1",
+    backgroundColor: "#F3F4F6",
+    borderRadius: 14,
+    padding: 4,
+    marginHorizontal: 20,
+    marginTop: 16,
+    marginBottom: 8,
   },
-
   tabBtn: {
-    backgroundColor: "#F1F1F1",
-    padding: 8,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "#E5E7EB",
+    flex: 1,
+    paddingVertical: 10,
+    borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "transparent",
   },
-
   tabBtnSelected: {
-    backgroundColor: "#61b4586f",
-    borderColor: "#5B8E55",
+    backgroundColor: "#FFFFFF",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 2,
   },
-
   tabText: {
-    fontSize: 16,
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#6B7280",
+    letterSpacing: 0.1,
+  },
+  tabTextSelected: {
+    color: "#1F2937",
+    fontWeight: "800",
   },
 });
