@@ -3,7 +3,7 @@ import { useGardenContext } from '@/contexts/garden.context';
 import { useUserContext } from '@/contexts/user.context';
 import { useGardenInfo } from '@/hooks/useGardenInfo';
 import { useUser } from '@/hooks/useUser';
-import { Feather } from '@expo/vector-icons';
+import { Feather, Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
@@ -26,7 +26,7 @@ const LEVEL_LABELS: Record<string, string> = {
 };
 
 export default function ProfileScreen() {
-  const { user } = useUserContext();
+  const { user, isPremium } = useUserContext();
   const { logout, updateUser } = useUser();
   const { gardenInfo } = useGardenContext();
   const { loadGardenInfo } = useGardenInfo();
@@ -97,6 +97,41 @@ export default function ProfileScreen() {
             </Text>
           </View>
         </View>
+
+        {/* PREMIUM PROMOTION BANNER */}
+        {!isPremium ? (
+          <TouchableOpacity 
+            style={styles.premiumBanner} 
+            onPress={() => router.push('/premium' as any)}
+            activeOpacity={0.9}
+          >
+            <View style={styles.premiumBannerLeft}>
+              <View style={styles.crownCircle}>
+                <Ionicons name="ribbon" size={20} color="#B8860B" />
+              </View>
+              <View style={styles.premiumBannerTexts}>
+                <Text style={styles.premiumBannerTitle}>Devenir Smart Garden VIP 👑</Text>
+                <Text style={styles.premiumBannerSub}>Activez les tâches, conseils IA & calendrier.</Text>
+              </View>
+            </View>
+            <Ionicons name="chevron-forward" size={18} color="#D4AF37" />
+          </TouchableOpacity>
+        ) : (
+          <View style={[styles.premiumBanner, styles.premiumActiveBanner]}>
+            <View style={styles.premiumBannerLeft}>
+              <View style={[styles.crownCircle, { backgroundColor: '#FFFDF0' }]}>
+                <Ionicons name="star" size={20} color="#D4AF37" />
+              </View>
+              <View style={styles.premiumBannerTexts}>
+                <Text style={[styles.premiumBannerTitle, { color: '#B8860B' }]}>Membre VIP Ultra actif 👑</Text>
+                <Text style={styles.premiumBannerSub}>Vous profitez de toutes les fonctionnalités illimitées.</Text>
+              </View>
+            </View>
+            <TouchableOpacity onPress={() => router.push('/premium' as any)}>
+              <Text style={styles.manageVipText}>Gérer</Text>
+            </TouchableOpacity>
+          </View>
+        )}
 
         {/* ACCOUNT */}
         <View style={styles.blockCard}>
@@ -482,5 +517,56 @@ const styles = StyleSheet.create({
     color: '#111827',
     fontSize: 14,
     fontWeight: '500',
+  },
+  premiumBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#FCFAF0',
+    borderColor: '#FEF3C7',
+    borderWidth: 1.5,
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    marginBottom: 8,
+  },
+  premiumActiveBanner: {
+    backgroundColor: '#F0F9FF',
+    borderColor: '#E0F2FE',
+  },
+  premiumBannerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    flex: 1,
+  },
+  crownCircle: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#FEF3C7',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  premiumBannerTexts: {
+    flex: 1,
+  },
+  premiumBannerTitle: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: '#B8860B',
+    marginBottom: 2,
+  },
+  premiumBannerSub: {
+    fontSize: 11,
+    color: '#6B7280',
+    fontWeight: '500',
+  },
+  manageVipText: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#0284C7',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
   },
 });

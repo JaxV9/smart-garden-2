@@ -32,6 +32,12 @@ export default function RootLayout() {
                             animation: "slide_from_right",
                           }}
                         />
+                        <Stack.Screen
+                          name="premium/index"
+                          options={{
+                            animation: "slide_from_bottom",
+                          }}
+                        />
                       </Stack>
                     </NotificationProvider>
                   </TutorialsProvider>

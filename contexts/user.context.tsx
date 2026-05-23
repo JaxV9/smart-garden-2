@@ -8,6 +8,8 @@ interface UserContextType {
     setIsLogin: React.Dispatch<React.SetStateAction<boolean>>;
     activityStreak: number;
     setActivityStreak: React.Dispatch<React.SetStateAction<number>>;
+    isPremium: boolean;
+    setIsPremium: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -16,6 +18,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<User>();
     const [isLogin, setIsLogin] = useState<boolean>(false);
     const [activityStreak, setActivityStreak] = useState<number>(0);
+    const [isPremium, setIsPremium] = useState<boolean>(false);
 
     return (
         <UserContext.Provider value={{
@@ -24,7 +27,9 @@ export function UserProvider({ children }: { children: ReactNode }) {
             isLogin,
             setIsLogin,
             activityStreak,
-            setActivityStreak
+            setActivityStreak,
+            isPremium,
+            setIsPremium
         }}>
             {children}
         </UserContext.Provider>

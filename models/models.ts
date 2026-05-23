@@ -6,6 +6,7 @@ export type User = {
   avatarUri?: string | null;
   level: string | null;
   isPrivate?: boolean;
+  isPremium?: boolean;
 };
 
 export type Vegetable = {
@@ -48,6 +49,7 @@ export type LoginInfos = {
   level: string | null;
   isPrivate?: boolean;
   publicName?: string | null;
+  isPremium?: boolean;
 };
 
 export type SensorMeasure = {

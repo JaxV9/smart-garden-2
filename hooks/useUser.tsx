@@ -9,7 +9,7 @@ import { updateActivityStreak } from "@/utils/activity";
 
 
 export function useUser() {
-    const { setUser, isLogin, setIsLogin, setActivityStreak } = useUserContext()
+    const { setUser, isLogin, setIsLogin, setActivityStreak, setIsPremium } = useUserContext()
     const { httpClient } = useFetch(undefined)
     const { putToken, getToken, deleteToken } = useStorage()
 
@@ -25,10 +25,14 @@ export function useUser() {
                     publicName: data.publicName,
                     email: data.email,
                     level: data.level,
-                    isPrivate: data.isPrivate
+                    isPrivate: data.isPrivate,
+                    isPremium: data.isPremium
                 };
                 setUser(userInfos)
                 setIsLogin(true)
+                if (data.isPremium !== undefined) {
+                    setIsPremium(data.isPremium);
+                }
                 if (data.id) {
                     updateActivityStreak(data.id).then(streak => setActivityStreak(streak));
                 }
@@ -59,9 +63,13 @@ export function useUser() {
                     email: data.email,
                     avatarUri: null,
                     level: data.level,
-                    isPrivate: data.isPrivate
+                    isPrivate: data.isPrivate,
+                    isPremium: data.isPremium
                 };
                 setUser(userInfos)
+                if (data.isPremium !== undefined) {
+                    setIsPremium(data.isPremium);
+                }
                 if (data.userId) {
                     updateActivityStreak(data.userId).then(streak => setActivityStreak(streak));
                 }
@@ -115,7 +123,7 @@ export function useUser() {
         setUser(prev => prev ? { ...prev, avatarUri: uri } : prev);
     }
 
-    async function updateUser(updates: { name?: string; email?: string; level?: string | null; password?: string, isPrivate?: boolean, phone?: string, bio?: string, publicName?: string | null }): Promise<"Success" | "Failure"> {
+    async function updateUser(updates: { name?: string; email?: string; level?: string | null; password?: string, isPrivate?: boolean, phone?: string, bio?: string, publicName?: string | null, isPremium?: boolean }): Promise<"Success" | "Failure"> {
         setUser((prev) =>
             prev
             ? {

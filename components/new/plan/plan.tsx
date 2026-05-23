@@ -3,6 +3,8 @@ import { useGardenContext } from '@/contexts/garden.context';
 import { usePlan } from '@/hooks/usePlan';
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { useUserContext } from '@/contexts/user.context';
+import { useRouter } from 'expo-router';
 import { AreaManager } from './areaManager';
 import { GardenVegeList } from './gardenVegeList';
 import { SaveBtn } from './saveBtn';
@@ -12,6 +14,8 @@ import { ZoomItem } from './zoom';
 
 export const Plan = () => {
     const { gardenVegetables } = useGardenContext()
+    const { isPremium } = useUserContext();
+    const router = useRouter();
 
     const { scale, gardenSpaces, isUpdatingCel, spaceEditing, hasGarden, isSaving,
         shouldSave, toggleSpaceEditor, updateCelWithVege, editCel,
@@ -33,7 +37,13 @@ export const Plan = () => {
                 !hasGarden ?
                     <View style={styles.newSpaceNotif}>
                         <Text style={styles.newSpaceNotifLabel}>Vous n'avez pas encore d'espace de jardinage</Text>
-                        <Pressable style={styles.button} onPress={() => addNewSpace()}>
+                        <Pressable style={styles.button} onPress={() => {
+                            if (!isPremium && gardenSpaces.length >= 1) {
+                                router.push('/premium' as any);
+                            } else {
+                                addNewSpace();
+                            }
+                        }}>
                             <Text style={styles.btnTxt}>Ajouter un nouvel espace</Text>
                         </Pressable>
                     </View>

@@ -1,8 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, ScrollView, StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import { useFetch } from '@/hooks/useFetch';
 import { useNotificationContext } from '@/contexts/notification.context';
+import { useUserContext } from '@/contexts/user.context';
+import { useRouter } from 'expo-router';
 
 type SensorReading = {
   id: string;
@@ -53,6 +55,8 @@ function MetricCard({
 export function SensorsSection() {
   const { httpClient } = useFetch(undefined);
   const { addNotification } = useNotificationContext();
+  const { isPremium } = useUserContext();
+  const router = useRouter();
   const [reading, setReading] = useState<SensorReading | null>(null);
   const [hasData, setHasData] = useState(true);
   const [loading, setLoading] = useState(true);
@@ -166,7 +170,54 @@ export function SensorsSection() {
                 backgroundColor="#FFF9DB"
               />
             </View>
-            <Text style={styles.updated}>{updatedLabel}</Text>
+             <Text style={styles.updated}>{updatedLabel}</Text>
+          </View>
+        )}
+
+        {hasData && reading && (
+          <View style={[styles.card, styles.adviceCard, !isPremium && styles.lockedAdviceCard]}>
+            <View style={styles.adviceHeader}>
+              <View style={styles.adviceTitleWrapper}>
+                <Ionicons name="bulb" size={20} color="#D4AF37" />
+                <Text style={styles.adviceTitle}>Conseils intelligents (IA)</Text>
+              </View>
+              {!isPremium && (
+                <View style={styles.vipBadge}>
+                  <Text style={styles.vipBadgeText}>VIP</Text>
+                </View>
+              )}
+            </View>
+
+            {isPremium ? (
+              <View style={styles.adviceBody}>
+                {reading.value_numeric < 30 ? (
+                  <Text style={styles.adviceText}>
+                    ⚠️ <Text style={{ fontWeight: 'bold' }}>Humidité critique basse !</Text> Le terreau de votre {reading.sensor_name || 'Basilic'} est trop sec ({reading.value_numeric}%). Il est vivement conseillé d'arroser généreusement (environ 250ml d'eau tiède) pour restaurer l'humidité sans brusquer les racines.
+                  </Text>
+                ) : reading.value_numeric > 60 ? (
+                  <Text style={styles.adviceText}>
+                    🌊 <Text style={{ fontWeight: 'bold' }}>Alerte Sur-arrosage !</Text> Le niveau d'humidité est très élevé ({reading.value_numeric}%). Laissez sécher la terre pendant au moins 3 jours pour éviter l'asphyxie racinaire et prévenir le pourrissement.
+                  </Text>
+                ) : (
+                  <Text style={styles.adviceText}>
+                    🌿 <Text style={{ fontWeight: 'bold' }}>Humidité optimale !</Text> L'humidité du sol ({reading.value_numeric}%) et la température de ({FAKE_TEMPERATURE}°C) sont parfaites pour le métabolisme de votre plante. Pas besoin d'agir aujourd'hui, continuez ainsi !
+                  </Text>
+                )}
+              </View>
+            ) : (
+              <View style={styles.lockedAdviceBody}>
+                <Text style={styles.lockedAdviceSub}>
+                  Débloquez des recommandations d'arrosage et des diagnostics personnalisés générés par IA en temps réel.
+                </Text>
+                <TouchableOpacity 
+                  style={styles.unlockBtn}
+                  onPress={() => router.push('/premium' as any)}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.unlockBtnText}>Activer les conseils IA</Text>
+                </TouchableOpacity>
+              </View>
+            )}
           </View>
         )}
       </View>
@@ -254,5 +305,75 @@ const styles = StyleSheet.create({
   loader: {
     marginTop: 8,
     alignSelf: 'center',
+  },
+  adviceCard: {
+    borderColor: '#E2E8F0',
+  },
+  lockedAdviceCard: {
+    backgroundColor: '#FCFAF0',
+    borderColor: '#FEF3C7',
+    borderWidth: 1.5,
+  },
+  adviceHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  adviceTitleWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  adviceTitle: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#1E293B',
+  },
+  vipBadge: {
+    backgroundColor: '#FEF3C7',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 8,
+  },
+  vipBadgeText: {
+    color: '#D97706',
+    fontSize: 10,
+    fontWeight: '800',
+  },
+  adviceBody: {
+    paddingVertical: 4,
+  },
+  adviceText: {
+    fontSize: 14,
+    color: '#334155',
+    lineHeight: 20,
+  },
+  lockedAdviceBody: {
+    alignItems: 'center',
+    paddingVertical: 10,
+  },
+  lockedAdviceSub: {
+    fontSize: 13,
+    color: '#64748B',
+    textAlign: 'center',
+    lineHeight: 18,
+    marginBottom: 16,
+  },
+  unlockBtn: {
+    backgroundColor: '#D4AF37',
+    borderRadius: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    shadowColor: '#D4AF37',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 1,
+  },
+  unlockBtnText: {
+    color: '#FFFFFF',
+    fontSize: 12,
+    fontWeight: '800',
   },
 });

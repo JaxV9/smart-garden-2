@@ -1,6 +1,9 @@
-import { useLocalSearchParams } from "expo-router";
-import React from "react";
-import { Text, View } from "react-native";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import React, { useEffect, useRef } from "react";
+import { Text, View, TouchableOpacity, StyleSheet, Animated } from "react-native";
+import { useUserContext } from "@/contexts/user.context";
+import { Ionicons } from "@expo/vector-icons";
+import { BlurView } from "expo-blur";
 
 import { styles } from "../../../css/vegetableDetailsStyle";
 import { useVegetableDetails } from "../../../hooks/useVegetableDetails";
@@ -17,8 +20,31 @@ import { VegetableHeader } from "../../../components/new/vegetableDetail/Vegetab
 import { VegetableMeta } from "../../../components/new/vegetableDetail/VegetableMeta";
 
 export default function Index() {
+  const router = useRouter();
+  const { isPremium } = useUserContext();
   const { vegetableId } = useLocalSearchParams<{ vegetableId: string }>();
   const vm = useVegetableDetails(vegetableId);
+
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const scaleAnim = useRef(new Animated.Value(0.92)).current;
+
+  useEffect(() => {
+    if (!isPremium) {
+      Animated.parallel([
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 650,
+          useNativeDriver: true,
+        }),
+        Animated.spring(scaleAnim, {
+          toValue: 1,
+          friction: 7,
+          tension: 35,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }
+  }, [isPremium]);
 
   const { addVegetableToGarden, removeVegetablesFromGarden } = useGarden()
   const { gardenVegetables } = useGardenContext()
@@ -112,29 +138,51 @@ export default function Index() {
             />
           </View>
 
-          <Text style={styles.h2}>Calendrier de culture</Text>
-          <CultureCalendar
-            sowingRange={vm.sowingRange}
-            plantationRange={vm.plantationRange}
-            harvestRange={vm.harvestRange}
-          />
+          <View style={{ position: 'relative', marginTop: 24 }}>
+            <Text style={[styles.h2, { marginTop: 0 }]}>Calendrier de culture</Text>
+            <CultureCalendar
+              sowingRange={vm.sowingRange}
+              plantationRange={vm.plantationRange}
+              harvestRange={vm.harvestRange}
+            />
 
-          <Text style={styles.h2}>Conseils</Text>
-          <TipsList tips={vm.advices} />
+            <Text style={styles.h2}>Conseils</Text>
+            <TipsList tips={vm.advices} />
 
-          {vm.affinityPlants.length > 0 && (
-            <>
-              <Text style={styles.h2}>Plantes amies</Text>
-              <PlantGrid plants={vm.affinityPlants} prefix="a" />
-            </>
-          )}
+            {vm.affinityPlants.length > 0 && (
+              <>
+                <Text style={styles.h2}>Plantes amies</Text>
+                <PlantGrid plants={vm.affinityPlants} prefix="a" />
+              </>
+            )}
 
-          {vm.enemyPlants.length > 0 && (
-            <>
-              <Text style={styles.h2}>Plantes ennemies</Text>
-              <PlantGrid plants={vm.enemyPlants} prefix="e" />
-            </>
-          )}
+            {vm.enemyPlants.length > 0 && (
+              <>
+                <Text style={styles.h2}>Plantes ennemies</Text>
+                <PlantGrid plants={vm.enemyPlants} prefix="e" />
+              </>
+            )}
+
+            {!isPremium && (
+              <Animated.View style={[StyleSheet.absoluteFillObject, { opacity: fadeAnim }]}>
+                <BlurView intensity={75} tint="light" style={StyleSheet.absoluteFill} />
+                <Animated.View style={[styles.lockedContainer, { marginTop: 40, backgroundColor: 'transparent', borderWidth: 0, transform: [{ scale: scaleAnim }] }]}>
+                  <Ionicons name="lock-closed" size={36} color="#D4AF37" style={styles.lockIcon} />
+                  <Text style={styles.lockedTitle}>Informations de culture Premium 👑</Text>
+                  <Text style={styles.lockedSub}>
+                    Le calendrier de culture, les conseils de plantation avancés et les compagnonnages de plantes sont réservés aux membres VIP.
+                  </Text>
+                  <TouchableOpacity 
+                    style={styles.unlockBtn}
+                    onPress={() => router.push('/premium' as any)}
+                    activeOpacity={0.8}
+                  >
+                    <Text style={styles.unlockBtnText}>Débloquer les outils VIP - 6,99€</Text>
+                  </TouchableOpacity>
+                </Animated.View>
+              </Animated.View>
+            )}
+          </View>
         </View>
       </vm.Scroll>
       {
