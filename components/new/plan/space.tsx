@@ -104,6 +104,11 @@ export const Space = ({ scale, gardenSpace, isUpdatingCel, toggleSpaceEditor, up
         return vegetable.icons
     }
 
+    const parsedSpaceName = useMemo(() => {
+        const parts = gardenSpace.spaceName.split(' | ');
+        return parts.length > 1 ? parts[1] : gardenSpace.spaceName;
+    }, [gardenSpace.spaceName]);
+
     function changeName(newName: string): void {
         setIsEditingName(true)
         const currentName = gardenSpace.spaceName;
@@ -187,7 +192,7 @@ export const Space = ({ scale, gardenSpace, isUpdatingCel, toggleSpaceEditor, up
                 <View style={styles.spaceEditContainer} pointerEvents="box-none">
                     <TextInput
                         ref={inputRef}
-                        value={gardenSpace.spaceName}
+                        value={parsedSpaceName}
                         onChangeText={(newName) => changeName(newName)}
                         pointerEvents="auto"
                     />
