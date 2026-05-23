@@ -13,6 +13,7 @@ import {
     View,
 } from 'react-native';
 import { useUserContext } from '@/contexts/user.context';
+import { useTranslation } from '@/contexts/language.context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { AreaManager } from './areaManager';
@@ -25,6 +26,7 @@ import { ZoomItem } from './zoom';
 export const Plan = () => {
     const { gardenVegetables } = useGardenContext()
     const { isPremium } = useUserContext();
+    const { t } = useTranslation();
     const router = useRouter();
 
     const {
@@ -82,12 +84,12 @@ export const Plan = () => {
 
     const handleDeletePlan = (plan: string) => {
         Alert.alert(
-            "Supprimer le plan",
-            `Êtes-vous sûr de vouloir supprimer le plan "${plan}" et tous ses espaces ? Cette action est irréversible.`,
+            t('plan_delete_confirm_title'),
+            `${t('plan_delete_confirm_desc')}`,
             [
-                { text: "Annuler", style: "cancel" },
+                { text: t('btn_cancel'), style: "cancel" },
                 {
-                    text: "Supprimer",
+                    text: t('btn_delete'),
                     style: "destructive",
                     onPress: () => deletePlan(plan),
                 },
@@ -159,7 +161,7 @@ export const Plan = () => {
                         activeOpacity={0.8}
                     >
                         <Ionicons name="add-circle" size={18} color="#5A7F54" />
-                        <Text style={styles.addPlanBtnText}>Nouveau plan</Text>
+                        <Text style={styles.addPlanBtnText}>{t('plan_new_btn')}</Text>
                         {!isPremium && (
                             <Ionicons name="lock-closed" size={10} color="#D4AF37" style={{ marginLeft: 2 }} />
                         )}
@@ -195,9 +197,9 @@ export const Plan = () => {
 
             {!hasGarden || activeSpaces.length === 0 ? (
                 <View style={styles.newSpaceNotif}>
-                    <Text style={styles.newSpaceNotifLabel}>Vous n'avez pas encore d'espace dans ce plan de jardinage</Text>
+                    <Text style={styles.newSpaceNotifLabel}>{t('plan_no_spaces')}</Text>
                     <Pressable style={styles.button} onPress={() => addNewSpace()}>
-                        <Text style={styles.btnTxt}>Ajouter une zone / bac</Text>
+                        <Text style={styles.btnTxt}>{t('plan_add_zone')}</Text>
                     </Pressable>
                 </View>
             ) : (
@@ -234,12 +236,12 @@ export const Plan = () => {
                     <View style={styles.modalContent}>
                         <View style={styles.modalHeader}>
                             <Ionicons name="map-outline" size={24} color="#5A7F54" />
-                            <Text style={styles.modalTitle}>Nouveau potager</Text>
+                            <Text style={styles.modalTitle}>{t('plan_new_title')}</Text>
                         </View>
-                        <Text style={styles.modalLabel}>Donnez un nom à ce plan :</Text>
+                        <Text style={styles.modalLabel}>{t('plan_new_label')}</Text>
                         <TextInput
                             style={styles.modalInput}
-                            placeholder="Ex: Potager d'Hiver, Serre Sud..."
+                            placeholder={t('plan_new_placeholder')}
                             value={newPlanName}
                             onChangeText={setNewPlanName}
                             placeholderTextColor="#94A3B8"
@@ -253,13 +255,13 @@ export const Plan = () => {
                                     setNewPlanName("");
                                 }}
                             >
-                                <Text style={styles.cancelBtnText}>Annuler</Text>
+                                <Text style={styles.cancelBtnText}>{t('btn_cancel')}</Text>
                             </TouchableOpacity>
                             <TouchableOpacity
                                 style={[styles.modalBtn, styles.confirmBtn]}
                                 onPress={handleCreatePlan}
                             >
-                                <Text style={styles.confirmBtnText}>Créer</Text>
+                                <Text style={styles.confirmBtnText}>{t('btn_confirm')}</Text>
                             </TouchableOpacity>
                         </View>
                     </View>

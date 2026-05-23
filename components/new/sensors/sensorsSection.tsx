@@ -4,6 +4,7 @@ import { ActivityIndicator, ScrollView, StyleSheet, Text, View, TouchableOpacity
 import { useFetch } from '@/hooks/useFetch';
 import { useNotificationContext } from '@/contexts/notification.context';
 import { useUserContext } from '@/contexts/user.context';
+import { useTranslation } from '@/contexts/language.context';
 import { useRouter } from 'expo-router';
 
 type SensorReading = {
@@ -56,6 +57,7 @@ export function SensorsSection() {
   const { httpClient } = useFetch(undefined);
   const { addNotification } = useNotificationContext();
   const { isPremium } = useUserContext();
+  const { t } = useTranslation();
   const router = useRouter();
   const [reading, setReading] = useState<SensorReading | null>(null);
   const [hasData, setHasData] = useState(true);
@@ -122,13 +124,13 @@ export function SensorsSection() {
 
   const updatedLabel = (() => {
     if (!reading?.created_at) {
-      return 'Mis à jour: -';
+      return t('sensor_updated_never');
     }
     const date = new Date(reading.created_at);
     if (Number.isNaN(date.getTime())) {
-      return 'Mis à jour: -';
+      return t('sensor_updated_never');
     }
-    return `Mis à jour: ${date.toLocaleString('fr-FR')}`;
+    return `${t('sensor_updated_at')}${date.toLocaleString()}`;
   })();
 
   return (
@@ -137,7 +139,7 @@ export function SensorsSection() {
         {loading && <ActivityIndicator style={styles.loader} />}
         {!hasData && (
           <View style={styles.noDataCard}>
-            <Text style={styles.noDataText}>Aucune donnée capteur.</Text>
+            <Text style={styles.noDataText}>{t('sensor_no_data')}</Text>
           </View>
         )}
         {hasData && reading && (
@@ -152,7 +154,7 @@ export function SensorsSection() {
               <MetricCard
                 icon="water-outline"
                 value={`${reading.value_numeric}%`}
-                label="Humidité"
+                label={t('sensor_humidity')}
                 backgroundColor="#EAF4FF"
                 showPulse
                 valueColor="#111827"
@@ -160,13 +162,13 @@ export function SensorsSection() {
               <MetricCard
                 icon="thermometer-outline"
                 value={`${FAKE_TEMPERATURE}°C`}
-                label="Temp."
+                label={t('sensor_temp')}
                 backgroundColor="#FFF2E8"
               />
               <MetricCard
                 icon="sunny-outline"
                 value={`${FAKE_LIGHT}%`}
-                label="Lumière"
+                label={t('sensor_light')}
                 backgroundColor="#FFF9DB"
               />
             </View>
@@ -179,7 +181,7 @@ export function SensorsSection() {
             <View style={styles.adviceHeader}>
               <View style={styles.adviceTitleWrapper}>
                 <Ionicons name="bulb" size={20} color="#D4AF37" />
-                <Text style={styles.adviceTitle}>Conseils intelligents (IA)</Text>
+                <Text style={styles.adviceTitle}>{t('sensor_advice_title')}</Text>
               </View>
               {!isPremium && (
                 <View style={styles.vipBadge}>
@@ -191,30 +193,22 @@ export function SensorsSection() {
             {isPremium ? (
               <View style={styles.adviceBody}>
                 {reading.value_numeric < 30 ? (
-                  <Text style={styles.adviceText}>
-                    ⚠️ <Text style={{ fontWeight: 'bold' }}>Humidité critique basse !</Text> Le terreau de votre {reading.sensor_name || 'Basilic'} est trop sec ({reading.value_numeric}%). Il est vivement conseillé d'arroser généreusement (environ 250ml d'eau tiède) pour restaurer l'humidité sans brusquer les racines.
-                  </Text>
+                  <Text style={styles.adviceText}>{t('sensor_advice_low')}</Text>
                 ) : reading.value_numeric > 60 ? (
-                  <Text style={styles.adviceText}>
-                    🌊 <Text style={{ fontWeight: 'bold' }}>Alerte Sur-arrosage !</Text> Le niveau d'humidité est très élevé ({reading.value_numeric}%). Laissez sécher la terre pendant au moins 3 jours pour éviter l'asphyxie racinaire et prévenir le pourrissement.
-                  </Text>
+                  <Text style={styles.adviceText}>{t('sensor_advice_high')}</Text>
                 ) : (
-                  <Text style={styles.adviceText}>
-                    🌿 <Text style={{ fontWeight: 'bold' }}>Humidité optimale !</Text> L'humidité du sol ({reading.value_numeric}%) et la température de ({FAKE_TEMPERATURE}°C) sont parfaites pour le métabolisme de votre plante. Pas besoin d'agir aujourd'hui, continuez ainsi !
-                  </Text>
+                  <Text style={styles.adviceText}>{t('sensor_advice_opt')}</Text>
                 )}
               </View>
             ) : (
               <View style={styles.lockedAdviceBody}>
-                <Text style={styles.lockedAdviceSub}>
-                  Débloquez des recommandations d'arrosage et des diagnostics personnalisés générés par IA en temps réel.
-                </Text>
+                <Text style={styles.lockedAdviceSub}>{t('sensor_advice_locked_sub')}</Text>
                 <TouchableOpacity 
                   style={styles.unlockBtn}
                   onPress={() => router.push('/premium' as any)}
                   activeOpacity={0.8}
                 >
-                  <Text style={styles.unlockBtnText}>Activer les conseils IA</Text>
+                  <Text style={styles.unlockBtnText}>{t('sensor_advice_unlock_btn')}</Text>
                 </TouchableOpacity>
               </View>
             )}

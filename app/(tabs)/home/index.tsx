@@ -7,9 +7,11 @@ import { useGarden } from "@/hooks/useGarden";
 import { useVegetable } from "@/hooks/useVegetable";
 import { useEffect, useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
+import { useTranslation } from "@/contexts/language.context";
 
 export default function Index() {
   const [currentSection, setCurrentSection] = useState<"resume" | "plants">("resume");
+  const { t } = useTranslation();
 
   const { gardenInfo } = useGardenContext();
 
@@ -27,7 +29,7 @@ export default function Index() {
     }
   }, [vegetablesContext]);
 
-  const gardenTitle = gardenInfo?.name ?? "Mon jardin";
+  const gardenTitle = gardenInfo?.name ?? t('plan_default_name');
 
   return (
     <View style={styles.container}>
@@ -49,7 +51,7 @@ export default function Index() {
             styles.tabText,
             currentSection === "resume" && styles.tabTextSelected
           ]}>
-            Résumé
+            {t('home_tab_resume', 'Résumé')}
           </Text>
         </Pressable>
 
@@ -64,7 +66,7 @@ export default function Index() {
             styles.tabText,
             currentSection === "plants" && styles.tabTextSelected
           ]}>
-            Mes plantes
+            {t('home_tab_plants', 'Mes plantes')}
           </Text>
         </Pressable>
       </View>

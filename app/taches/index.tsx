@@ -1,6 +1,7 @@
 import { Task } from '@/components/new/task/task';
 import AppHeader from '@/components/new/ui/AppHeader';
 import { useUserContext } from '@/contexts/user.context';
+import { useTranslation } from '@/contexts/language.context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { BlurView } from 'expo-blur';
@@ -9,6 +10,7 @@ import { StyleSheet, View, Text, TouchableOpacity, Animated } from 'react-native
 
 export default function Index() {
     const { isPremium } = useUserContext();
+    const { t } = useTranslation();
     const router = useRouter();
 
     const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -50,23 +52,21 @@ export default function Index() {
                             <View style={styles.lockBadge}>
                                 <Ionicons name="ribbon" size={48} color="#D4AF37" />
                             </View>
-                            <Text style={styles.lockedTitle}>Gestion des Tâches VIP 👑</Text>
-                            <Text style={styles.lockedSub}>
-                                Organisez vos sessions de jardinage, planifiez les arrosages réguliers et ne manquez plus jamais le bon moment pour récolter.
-                            </Text>
+                            <Text style={styles.lockedTitle}>{t('tasks_locked_title')}</Text>
+                            <Text style={styles.lockedSub}>{t('tasks_locked_sub')}</Text>
                             
                             <View style={styles.miniFeatures}>
                                 <View style={styles.featureRow}>
                                     <Ionicons name="checkmark-circle" size={16} color="#5A7F54" />
-                                    <Text style={styles.featureText}>Création de tâches personnalisées</Text>
+                                    <Text style={styles.featureText}>{t('tasks_locked_feat_1')}</Text>
                                 </View>
                                 <View style={styles.featureRow}>
                                     <Ionicons name="checkmark-circle" size={16} color="#5A7F54" />
-                                    <Text style={styles.featureText}>Rappels automatiques de soin des plantes</Text>
+                                    <Text style={styles.featureText}>{t('tasks_locked_feat_2')}</Text>
                                 </View>
                                 <View style={styles.featureRow}>
                                     <Ionicons name="checkmark-circle" size={16} color="#5A7F54" />
-                                    <Text style={styles.featureText}>Badges de progression du jardinier</Text>
+                                    <Text style={styles.featureText}>{t('tasks_locked_feat_3')}</Text>
                                 </View>
                             </View>
 
@@ -75,7 +75,7 @@ export default function Index() {
                                 onPress={() => router.push('/premium' as any)}
                                 activeOpacity={0.8}
                             >
-                                <Text style={styles.unlockBtnText}>Débloquer le Suivi des Tâches - 6,99€</Text>
+                                <Text style={styles.unlockBtnText}>{t('tasks_locked_btn')}</Text>
                             </TouchableOpacity>
                             </Animated.View>
                     </Animated.View>

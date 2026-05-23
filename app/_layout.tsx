@@ -5,6 +5,7 @@ import { SocialProvider } from "@/contexts/social.context";
 import { ThemeProvider } from "@/contexts/themeContext";
 import { TutorialsProvider } from "@/contexts/tutorials.context";
 import { UserProvider } from "@/contexts/user.context";
+import { LanguageProvider } from "@/contexts/language.context";
 import { VegetablesProvider } from "@/contexts/vegetables.context";
 import { NotificationProvider } from "@/contexts/notification.context";
 import { Stack } from "expo-router";
@@ -12,8 +13,9 @@ import { Stack } from "expo-router";
 export default function RootLayout() {
   return (
     <UserProvider>
-      <ThemeProvider>
-        <BottomSheetProvider>
+      <LanguageProvider>
+        <ThemeProvider>
+          <BottomSheetProvider>
           <VegetablesProvider>
             <GardenProvider>
               <ForumProvider>
@@ -47,6 +49,7 @@ export default function RootLayout() {
           </VegetablesProvider>
         </BottomSheetProvider>
       </ThemeProvider>
+     </LanguageProvider>
     </UserProvider>
   );
 }

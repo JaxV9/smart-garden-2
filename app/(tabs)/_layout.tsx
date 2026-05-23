@@ -1,8 +1,11 @@
 import { Image } from "expo-image";
 import { Tabs } from "expo-router";
 import { Text, View } from "react-native";
+import { useTranslation } from "@/contexts/language.context";
 
 export default function RootLayout() {
+  const { t } = useTranslation();
+
   return (
     <Tabs screenOptions={{
       headerShown: false,
@@ -17,7 +20,7 @@ export default function RootLayout() {
     }}>
       <Tabs.Screen name="home/index"
         options={{
-          title: "Accueil",
+          title: t("tab_home"),
           tabBarIcon: ({ focused }) => (
             <View style={{ alignItems: 'center', justifyContent: 'center' }}>
               {focused && <View style={{ position: 'absolute', top: -12, width: 42, height: 4, backgroundColor: '#5B8E55', borderRadius: 4, borderBottomRightRadius: 4 }} />}
@@ -30,7 +33,7 @@ export default function RootLayout() {
         }} />
       <Tabs.Screen name="plante/index"
         options={{
-          title: "Documentation",
+          title: t("tab_documentation"),
           tabBarIcon: ({ focused }) => (
             <View style={{ alignItems: 'center', justifyContent: 'center' }}>
               {focused && <View style={{ position: 'absolute', top: -12, width: 42, height: 4, backgroundColor: '#5B8E55', borderRadius: 4, borderBottomRightRadius: 4 }} />}
@@ -43,7 +46,7 @@ export default function RootLayout() {
         }} />
       <Tabs.Screen name="social/index"
         options={{
-          title: "Communauté",
+          title: t("tab_community"),
           tabBarIcon: ({ focused }) => (
             <View style={{ alignItems: 'center', justifyContent: 'center' }}>
               {focused && <View style={{ position: 'absolute', top: -12, width: 42, height: 4, backgroundColor: '#5B8E55', borderRadius: 4, borderBottomRightRadius: 4 }} />}
@@ -56,7 +59,7 @@ export default function RootLayout() {
         }} />
       <Tabs.Screen name="profile/index"
         options={{
-          title: "Profil",
+          title: t("tab_profile"),
           tabBarIcon: ({ focused }) => (
             <View style={{ alignItems: 'center', justifyContent: 'center' }}>
               {focused && <View style={{ position: 'absolute', top: -12, width: 42, height: 4, backgroundColor: '#5B8E55', borderRadius: 4, borderBottomRightRadius: 4 }} />}

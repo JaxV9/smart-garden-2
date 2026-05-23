@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { usePathname, useRouter } from 'expo-router';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useTranslation } from '@/contexts/language.context';
 
 
 export type TabType = 'social' | 'forum' | 'tutos';
@@ -15,11 +16,12 @@ interface ForumTabsProps {
 export default function ForumTabs({ activeTab, setCurrentTab }: ForumTabsProps) {
     const router = useRouter();
     const pathname = usePathname();
+    const { t } = useTranslation();
 
-    const tabs: { id: TabType; label: string; icon: keyof typeof Ionicons.glyphMap; route: string }[] = [
-        { id: 'social', label: 'Social', icon: 'chatbubbles-outline', route: '/socia' },
-        { id: 'forum', label: 'Forum', icon: 'people-outline', route: '/(tabs)/social' },
-        { id: 'tutos', label: 'Tutos', icon: 'play-circle-outline', route: '/tutos' },
+    const tabs: { id: TabType; labelKey: string; icon: keyof typeof Ionicons.glyphMap }[] = [
+        { id: 'social', labelKey: 'forum_tab_social', icon: 'chatbubbles-outline' },
+        { id: 'forum', labelKey: 'forum_tab_forum', icon: 'people-outline' },
+        { id: 'tutos', labelKey: 'forum_tab_tutos', icon: 'play-circle-outline' },
     ];
 
 
@@ -43,7 +45,7 @@ export default function ForumTabs({ activeTab, setCurrentTab }: ForumTabsProps) 
                          color={activeTab === tab.id ? '#1F2937' : '#6B7280'}
                      />
                      <Text style={[styles.tabText, activeTab === tab.id && styles.tabTextActive]}>
-                         {tab.label}
+                         {t(tab.labelKey)}
                      </Text>
                  </TouchableOpacity>
              ))}

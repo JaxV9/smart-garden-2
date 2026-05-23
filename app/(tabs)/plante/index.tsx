@@ -7,6 +7,7 @@ import { Vegetable } from '@/models/models';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from '@/contexts/language.context';
 import {
   Modal,
   Pressable,
@@ -66,6 +67,7 @@ const getCurrentMonthFrench = () => {
 };
 
 export default function Index() {
+  const { t } = useTranslation();
   const { vegetablesContext } = useVegetablesContext();
   const { loadVegetables } = useVegetable();
 
@@ -283,7 +285,7 @@ export default function Index() {
 
   return (
     <View style={styles.screen}>
-      <AppHeader title="Jardin" showNotifications={true} />
+      <AppHeader title={t('tab_documentation')} showNotifications={true} />
 
       <ScrollView
         style={styles.container}
@@ -294,7 +296,7 @@ export default function Index() {
           <View style={styles.searchBox}>
             <Ionicons name="search-outline" size={18} color="#9CA3AF" />
             <TextInput
-              placeholder="Rechercher"
+              placeholder={t('doc_search_placeholder', 'Rechercher...')}
               placeholderTextColor="#9CA3AF"
               value={searchQuery}
               onChangeText={setSearchQuery}
@@ -321,10 +323,10 @@ export default function Index() {
         {activeFiltersCount > 0 && (
           <View style={styles.filterSubRow}>
             <Text style={styles.filterCountSubtext}>
-              {activeFiltersCount} {activeFiltersCount > 1 ? 'filtres sélectionnés' : 'filtre sélectionné'}
+              {activeFiltersCount} {activeFiltersCount > 1 ? t('doc_filters_selected') : t('doc_filters_selected_single')}
             </Text>
             <TouchableOpacity onPress={handleClearAll} style={styles.resetTextBtn}>
-              <Text style={styles.resetText}>Réinitialiser</Text>
+              <Text style={styles.resetText}>{t('doc_filters_reset')}</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -340,7 +342,7 @@ export default function Index() {
         </VegetablesList>
 
         {filteredVegetables.length === 0 && (
-          <Text style={styles.empty}>Aucune plante trouvée.</Text>
+          <Text style={styles.empty}>{t('doc_empty')}</Text>
         )}
       </ScrollView>
 
@@ -355,7 +357,7 @@ export default function Index() {
             <View style={styles.modalHeader}>
               <View style={{ width: 24 }} />
               <Text style={styles.modalTitle}>
-                Filtres{modalFiltersCount > 0 ? ` (${modalFiltersCount})` : ''}
+                {t('doc_filters_title')}{modalFiltersCount > 0 ? ` (${modalFiltersCount})` : ''}
               </Text>
               <TouchableOpacity onPress={() => setIsFilterModalVisible(false)} style={styles.closeButton}>
                 <Ionicons name="close" size={24} color="#111827" />
@@ -364,7 +366,7 @@ export default function Index() {
 
             <ScrollView style={styles.modalBody} showsVerticalScrollIndicator={false}>
               <View style={styles.modalFilterSection}>
-                <Text style={styles.modalFilterLabel}>Catégorie</Text>
+                <Text style={styles.modalFilterLabel}>{t('doc_filter_category')}</Text>
                 <View style={styles.modalOptionsWrap}>
                   {dynamicCategories.map((cat) => {
                     const isSelected = selectedCategories.includes(cat);
@@ -383,7 +385,7 @@ export default function Index() {
                             isSelected && styles.modalFilterChipTextSelected,
                           ]}
                         >
-                          {cat}
+                          {t('cat_' + cat.replace(/\s+/g, '_').toLowerCase(), cat)}
                         </Text>
                       </Pressable>
                     );
@@ -392,7 +394,7 @@ export default function Index() {
               </View>
 
               <View style={styles.modalFilterSection}>
-                <Text style={styles.modalFilterLabel}>Niveau de difficulté</Text>
+                <Text style={styles.modalFilterLabel}>{t('doc_filter_difficulty')}</Text>
                 <View style={styles.modalOptionsWrap}>
                   {dynamicDifficulties.map((diff) => {
                     const isSelected = selectedDifficulties.includes(diff);
@@ -411,7 +413,7 @@ export default function Index() {
                             isSelected && styles.modalFilterChipTextSelected,
                           ]}
                         >
-                          {diff}
+                          {t('diff_' + diff.toLowerCase(), diff)}
                         </Text>
                       </Pressable>
                     );
@@ -420,7 +422,7 @@ export default function Index() {
               </View>
 
               <View style={styles.modalFilterSection}>
-                <Text style={styles.modalFilterLabel}>Période de semis</Text>
+                <Text style={styles.modalFilterLabel}>{t('doc_filter_sowing_period')}</Text>
                 <TouchableOpacity
                   style={styles.checkboxRow}
                   activeOpacity={0.8}
@@ -431,7 +433,7 @@ export default function Index() {
                     size={20}
                     color={sowingNow ? '#5A7F54' : '#9CA3AF'}
                   />
-                  <Text style={styles.checkboxLabel}>A semer en ce moment</Text>
+                  <Text style={styles.checkboxLabel}>{t('doc_filter_sowing_now')}</Text>
                 </TouchableOpacity>
 
                 <View style={styles.modalOptionsWrap}>
@@ -452,7 +454,7 @@ export default function Index() {
                             isSelected && styles.modalFilterChipTextSelected,
                           ]}
                         >
-                          {month}
+                          {t('month_' + month.toLowerCase(), month)}
                         </Text>
                       </Pressable>
                     );
@@ -461,7 +463,7 @@ export default function Index() {
               </View>
 
               <View style={styles.modalFilterSection}>
-                <Text style={styles.modalFilterLabel}>Période pour planter</Text>
+                <Text style={styles.modalFilterLabel}>{t('doc_filter_planting_period')}</Text>
                 <TouchableOpacity
                   style={styles.checkboxRow}
                   activeOpacity={0.8}
@@ -472,7 +474,7 @@ export default function Index() {
                     size={20}
                     color={plantationNow ? '#5A7F54' : '#9CA3AF'}
                   />
-                  <Text style={styles.checkboxLabel}>A planter en ce moment</Text>
+                  <Text style={styles.checkboxLabel}>{t('doc_filter_planting_now')}</Text>
                 </TouchableOpacity>
 
                 <View style={styles.modalOptionsWrap}>
@@ -493,7 +495,7 @@ export default function Index() {
                             isSelected && styles.modalFilterChipTextSelected,
                           ]}
                         >
-                          {month}
+                          {t('month_' + month.toLowerCase(), month)}
                         </Text>
                       </Pressable>
                     );
@@ -502,7 +504,7 @@ export default function Index() {
               </View>
 
               <View style={styles.modalFilterSection}>
-                <Text style={styles.modalFilterLabel}>Période de récolte</Text>
+                <Text style={styles.modalFilterLabel}>{t('doc_filter_harvest_period')}</Text>
                 <TouchableOpacity
                   style={styles.checkboxRow}
                   activeOpacity={0.8}
@@ -513,7 +515,7 @@ export default function Index() {
                     size={20}
                     color={harvestNow ? '#5A7F54' : '#9CA3AF'}
                   />
-                  <Text style={styles.checkboxLabel}>A récolter en ce moment</Text>
+                  <Text style={styles.checkboxLabel}>{t('doc_filter_harvest_now')}</Text>
                 </TouchableOpacity>
 
                 <View style={styles.modalOptionsWrap}>
@@ -534,7 +536,7 @@ export default function Index() {
                             isSelected && styles.modalFilterChipTextSelected,
                           ]}
                         >
-                          {month}
+                          {t('month_' + month.toLowerCase(), month)}
                         </Text>
                       </Pressable>
                     );
@@ -550,7 +552,7 @@ export default function Index() {
                 activeOpacity={0.7}
                 onPress={handleResetFilters}
               >
-                <Text style={styles.modalResetButtonText}>Réinitialiser</Text>
+                <Text style={styles.modalResetButtonText}>{t('doc_filters_reset')}</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
@@ -558,7 +560,7 @@ export default function Index() {
                 activeOpacity={0.8}
                 onPress={handleApplyFilters}
               >
-                <Text style={styles.modalApplyButtonText}>Appliquer</Text>
+                <Text style={styles.modalApplyButtonText}>{t('doc_filters_apply')}</Text>
               </TouchableOpacity>
             </View>
           </View>

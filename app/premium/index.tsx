@@ -4,6 +4,7 @@ import { useUser } from '@/hooks/useUser';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
+import { useTranslation } from '@/contexts/language.context';
 import {
     Dimensions,
     Modal,
@@ -17,15 +18,15 @@ import {
 const { width } = Dimensions.get('window');
 
 const FEATURES = [
-    { name: 'Communauté active & Partage', free: 'Oui', ultra: 'Illimité', icon: 'people-outline' },
-    { name: 'Suivi métrique des capteurs', free: 'Oui', ultra: 'Temps Réel', icon: 'thermometer-outline' },
-    { name: 'Documentation plantes', free: 'Limité (Flouté)', ultra: '100% Complète', icon: 'book-outline' },
-    { name: 'Conseils intelligents IA', free: 'Non', ultra: 'Oui', icon: 'bulb-outline' },
-    { name: 'Suivi & Planification de tâches', free: 'Non', ultra: 'Oui', icon: 'checkmark-circle-outline' },
-    { name: 'Création de plan', free: 'Max 1 plan', ultra: 'Illimité', icon: 'map-outline' },
-    { name: 'Multi-potager', free: 'Non', ultra: 'Oui', icon: 'layers-outline' },
-    { name: 'Calendrier de plantation complet', free: 'Non', ultra: 'Oui', icon: 'calendar-outline' },
-    { name: 'Gestion collaborative', free: 'Non', ultra: 'Oui', icon: 'share-social-outline' },
+    { key: 'vip_perk_community', free: 'word_yes', ultra: 'word_unlimited', icon: 'people-outline' },
+    { key: 'vip_perk_sensors', free: 'word_yes', ultra: 'word_real_time', icon: 'thermometer-outline' },
+    { key: 'vip_perk_docs', free: 'word_limited', ultra: 'word_complete', icon: 'book-outline' },
+    { key: 'vip_perk_advice', free: 'word_no', ultra: 'word_yes', icon: 'bulb-outline' },
+    { key: 'vip_perk_tasks', free: 'word_no', ultra: 'word_yes', icon: 'checkmark-circle-outline' },
+    { key: 'vip_perk_plans', free: 'word_max_1_plan', ultra: 'word_unlimited', icon: 'map-outline' },
+    { key: 'vip_perk_multi_gardens', free: 'word_no', ultra: 'word_yes', icon: 'layers-outline' },
+    { key: 'vip_perk_calendar', free: 'word_no', ultra: 'word_yes', icon: 'calendar-outline' },
+    { key: 'vip_perk_collaboration', free: 'word_no', ultra: 'word_yes', icon: 'share-social-outline' },
 ];
 
 export default function PremiumScreen() {
@@ -33,6 +34,7 @@ export default function PremiumScreen() {
     const { isPremium, setIsPremium } = useUserContext();
     const { updateUser } = useUser();
     const [successModalVisible, setSuccessModalVisible] = useState(false);
+    const { t } = useTranslation();
 
     const handleSubscribe = async () => {
         if (isPremium) {
@@ -51,7 +53,7 @@ export default function PremiumScreen() {
 
     return (
         <View style={styles.screen}>
-            <AppHeader title="Smart Club" showBack={true} />
+            <AppHeader title={t('prem_title')} showBack={true} />
 
             <ScrollView style={styles.container} showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
 
@@ -59,12 +61,12 @@ export default function PremiumScreen() {
                     <View style={styles.badgeRow}>
                         <View style={styles.vipBadge}>
                             <Ionicons name="sparkles" size={12} color="#FFFFFF" />
-                            <Text style={styles.vipBadgeText}>MEMBRE D'ÉLITE</Text>
+                            <Text style={styles.vipBadgeText}>{t('prem_elite')}</Text>
                         </View>
                     </View>
-                    <Text style={styles.heroTitle}>Liberez le potentiel de votre potager 🌿</Text>
+                    <Text style={styles.heroTitle}>{t('prem_hero_title')}</Text>
                     <Text style={styles.heroSub}>
-                        Rejoignez des milliers de passionnés et accédez à tous les outils professionnels d'aide à la plantation et diagnostics IA.
+                        {t('prem_hero_sub')}
                     </Text>
                 </View>
 
@@ -72,12 +74,12 @@ export default function PremiumScreen() {
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
                         <View style={[styles.popularBadge, { marginBottom: 0 }]}>
                             <Ionicons name="star" size={10} color="#D97706" />
-                            <Text style={styles.popularText}>RECOMMANDÉ</Text>
+                            <Text style={styles.popularText}>{t('prem_recommended')}</Text>
                         </View>
                         {isPremium && (
                             <View style={[styles.activePlanBadge, { backgroundColor: '#FFFDF0', borderColor: '#FEF3C7', borderWidth: 1 }]}>
                                 <Ionicons name="ribbon" size={12} color="#D4AF37" />
-                                <Text style={[styles.activePlanText, { color: '#B8860B' }]}>Votre offre actuelle 👑</Text>
+                                <Text style={[styles.activePlanText, { color: '#B8860B' }]}>{t('vip_current_offer')}</Text>
                             </View>
                         )}
                     </View>
@@ -85,26 +87,26 @@ export default function PremiumScreen() {
                     <View style={styles.planHeader}>
                         <View>
                             <Text style={styles.premiumName}>Ultra VIP 👑</Text>
-                            <Text style={styles.premiumDesc}>Le meilleur de l'application</Text>
+                            <Text style={styles.premiumDesc}>{t('prem_best')}</Text>
                         </View>
                         <View style={styles.priceContainer}>
                             <Text style={styles.premiumPrice}>6,99 €</Text>
-                            <Text style={styles.premiumPeriod}>/ mois</Text>
+                            <Text style={styles.premiumPeriod}>{t('prem_month')}</Text>
                         </View>
                     </View>
 
                     <View style={styles.perksList}>
                         <View style={styles.perkRow}>
                             <Ionicons name="checkmark-circle" size={18} color="#D4AF37" />
-                            <Text style={styles.perkText}>Accès total à la documentation des plantes</Text>
+                            <Text style={styles.perkText}>{t('vip_perk_docs')}</Text>
                         </View>
                         <View style={styles.perkRow}>
                             <Ionicons name="checkmark-circle" size={18} color="#D4AF37" />
-                            <Text style={styles.perkText}>Diagnostics intelligents de capteurs par IA</Text>
+                            <Text style={styles.perkText}>{t('vip_perk_advice')}</Text>
                         </View>
                         <View style={styles.perkRow}>
                             <Ionicons name="checkmark-circle" size={18} color="#D4AF37" />
-                            <Text style={styles.perkText}>Calendrier de plantation & Tâches illimités</Text>
+                            <Text style={styles.perkText}>{t('vip_perk_calendar')}</Text>
                         </View>
                     </View>
 
@@ -114,7 +116,7 @@ export default function PremiumScreen() {
                         activeOpacity={0.8}
                     >
                         <Text style={[styles.subscribeBtnText, isPremium && { color: '#B8860B' }]}>
-                            {isPremium ? "Suspendre mon abonnement VIP" : "Devenir membre Ultra VIP"}
+                            {isPremium ? t('prem_unsubscribe') : t('prem_subscribe')}
                         </Text>
                         <Ionicons name="arrow-forward" size={16} color={isPremium ? "#B8860B" : "white"} />
                     </TouchableOpacity>
@@ -123,51 +125,51 @@ export default function PremiumScreen() {
                 <View style={[styles.planCard, styles.freePlanCard]}>
                     <View style={styles.planHeader}>
                         <View>
-                            <Text style={styles.planName}>Basic Free 🌱</Text>
-                            <Text style={styles.planDesc}>Pour débuter calmement</Text>
+                            <Text style={styles.planName}>{t('prem_basic')}</Text>
+                            <Text style={styles.planDesc}>{t('prem_basic_desc')}</Text>
                         </View>
                         <View style={styles.priceContainer}>
                             <Text style={styles.planPrice}>0 €</Text>
-                            <Text style={styles.planPeriod}>/ éternel</Text>
+                            <Text style={styles.planPeriod}>{t('prem_forever')}</Text>
                         </View>
                     </View>
 
                     {!isPremium && (
                         <View style={styles.activePlanBadge}>
                             <Ionicons name="checkmark-circle-outline" size={14} color="#6B7280" />
-                            <Text style={styles.activePlanText}>Votre offre actuelle</Text>
+                            <Text style={styles.activePlanText}>{t('prem_active')}</Text>
                         </View>
                     )}
                 </View>
 
                 <View style={styles.tableCard}>
-                    <Text style={styles.tableTitle}>Tableau comparatif des offres</Text>
+                    <Text style={styles.tableTitle}>{t('prem_table_title')}</Text>
 
                     <View style={styles.tableHeaderRow}>
                         <View style={styles.colFeature} />
-                        <View style={styles.colPlan}><Text style={styles.colPlanTitle}>Basic</Text></View>
-                        <View style={styles.colPlan}><Text style={[styles.colPlanTitle, styles.goldText]}>VIP</Text></View>
+                        <View style={styles.colPlan}><Text style={styles.colPlanTitle}>{t('word_basic')}</Text></View>
+                        <View style={styles.colPlan}><Text style={[styles.colPlanTitle, styles.goldText]}>{t('word_vip')}</Text></View>
                     </View>
 
                     {FEATURES.map((feature, idx) => {
                         const isEven = idx % 2 === 0;
-                        const isUltraPositive = feature.ultra !== 'Non';
-                        const isFreePositive = feature.free !== 'Non' && !feature.free.includes('Limité') && !feature.free.includes('Max');
-                        const isFreeWarning = feature.free.includes('Limité') || feature.free.includes('Max');
+                        const isUltraPositive = feature.ultra !== 'word_no';
+                        const isFreePositive = feature.free === 'word_yes';
+                        const isFreeWarning = feature.free !== 'word_yes' && feature.free !== 'word_no';
 
                         return (
-                            <View key={feature.name} style={[styles.tableRow, isEven && styles.evenRow]}>
+                            <View key={feature.key} style={[styles.tableRow, isEven && styles.evenRow]}>
                                 <View style={styles.colFeature}>
                                     <View style={styles.featureNameWrapper}>
                                         <Ionicons name={feature.icon as any} size={15} color="#5A7F54" style={styles.featureIcon} />
-                                        <Text style={styles.featureName} numberOfLines={1}>{feature.name}</Text>
+                                        <Text style={styles.featureName} numberOfLines={1}>{t(feature.key)}</Text>
                                     </View>
                                 </View>
 
                                 <View style={styles.colPlan}>
                                     {isFreeWarning ? (
                                         <View style={styles.badgeWarning}>
-                                            <Text style={styles.badgeWarningText}>{feature.free.split(' ')[0]}</Text>
+                                            <Text style={styles.badgeWarningText}>{t(feature.free)}</Text>
                                         </View>
                                     ) : isFreePositive ? (
                                         <Ionicons name="checkmark-circle" size={16} color="#22C55E" />
@@ -180,7 +182,7 @@ export default function PremiumScreen() {
                                     {isUltraPositive ? (
                                         <View style={styles.ultraSuccessBadge}>
                                             <Ionicons name="sparkles" size={11} color="#D4AF37" />
-                                            <Text style={styles.ultraSuccessText}>{feature.ultra.split(' ')[0]}</Text>
+                                            <Text style={styles.ultraSuccessText}>{t(feature.ultra)}</Text>
                                         </View>
                                     ) : (
                                         <Ionicons name="close-circle" size={16} color="#EF4444" />
@@ -192,7 +194,7 @@ export default function PremiumScreen() {
                 </View>
 
                 <Text style={styles.caveatText}>
-                    Abonnement mensuel sans engagement de durée. Vous pouvez modifier ou annuler votre offre à tout moment en un simple clic.
+                    {t('prem_caveat')}
                 </Text>
 
                 <View style={{ height: 40 }} />
@@ -209,16 +211,16 @@ export default function PremiumScreen() {
                         <View style={styles.modalIconBg}>
                             <Ionicons name="ribbon" size={48} color="#D4AF37" />
                         </View>
-                        <Text style={styles.modalTitle}>Bienvenue au Club VIP ! 🎉</Text>
+                        <Text style={styles.modalTitle}>{t('prem_welcome_success')}</Text>
                         <Text style={styles.modalSub}>
-                            Votre abonnement a bien été activé. Vous bénéficiez désormais de l'intégralité des outils, diagnostics et documentations de culture de façon illimitée !
+                            {t('prem_success_sub')}
                         </Text>
                         <TouchableOpacity
                             style={styles.modalBtn}
                             onPress={() => setSuccessModalVisible(false)}
                             activeOpacity={0.8}
                         >
-                            <Text style={styles.modalBtnText}>C'est parti !</Text>
+                            <Text style={styles.modalBtnText}>{t('prem_letsgo')}</Text>
                         </TouchableOpacity>
                     </View>
                 </View>

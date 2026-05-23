@@ -1,5 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { useTranslation } from '@/contexts/language.context';
 
 interface FilterButtonProps {
     selectedTagName?: string;
@@ -7,11 +8,12 @@ interface FilterButtonProps {
 }
 
 export default function FilterButton({ selectedTagName, onPress }: FilterButtonProps) {
+    const { t } = useTranslation();
     return (
         <TouchableOpacity style={styles.filterContainer} onPress={onPress}>
             <Ionicons name="filter-outline" size={18} color="#333" />
             <Text style={styles.filterText}>
-                {selectedTagName || 'Toutes les catégories'}
+                {selectedTagName || t('forum_filter_all')}
             </Text>
             <Ionicons name="chevron-down-outline" size={18} color="#333" />
         </TouchableOpacity>

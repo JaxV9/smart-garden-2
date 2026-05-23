@@ -2,6 +2,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useRef } from "react";
 import { Text, View, TouchableOpacity, StyleSheet, Animated } from "react-native";
 import { useUserContext } from "@/contexts/user.context";
+import { useTranslation } from "@/contexts/language.context";
 import { Ionicons } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
 
@@ -22,6 +23,7 @@ import { VegetableMeta } from "../../../components/new/vegetableDetail/Vegetable
 export default function Index() {
   const router = useRouter();
   const { isPremium } = useUserContext();
+  const { t } = useTranslation();
   const { vegetableId } = useLocalSearchParams<{ vegetableId: string }>();
   const vm = useVegetableDetails(vegetableId);
 
@@ -66,7 +68,7 @@ export default function Index() {
   if (vm.state === "loading") {
     return (
       <View style={styles.emptyContainer}>
-        <Text style={styles.emptyText}>Chargement…</Text>
+        <Text style={styles.emptyText}>{t('loading')}</Text>
       </View>
     );
   }
@@ -74,7 +76,7 @@ export default function Index() {
   if (vm.state === "error") {
     return (
       <View style={styles.emptyContainer}>
-        <Text style={styles.emptyText}>Erreur de chargement : {vm.error}</Text>
+        <Text style={styles.emptyText}>{t('error_loading')}{vm.error}</Text>
       </View>
     );
   }
@@ -82,7 +84,7 @@ export default function Index() {
   if (vm.state === "not_found") {
     return (
       <View style={styles.emptyContainer}>
-        <Text style={styles.emptyText}>Plante introuvable.</Text>
+        <Text style={styles.emptyText}>{t('plant_not_found')}</Text>
       </View>
     );
   }
@@ -107,58 +109,58 @@ export default function Index() {
             scientific={vm.scientific}
           />
 
-          <Text style={styles.h2}>Description</Text>
+          <Text style={styles.h2}>{t('plant_desc')}</Text>
           <Text style={styles.description}>{vm.vegetable.description}</Text>
 
-          <Text style={styles.h2}>Caractéristiques</Text>
+          <Text style={styles.h2}>{t('plant_features')}</Text>
           <View style={styles.featuresGrid}>
             <FeatureCard
               icon="calendar-outline"
-              title="Saison"
+              title={t('plant_feat_season')}
               value={vm.season || "—"}
               variant="neutral"
             />
             <FeatureCard
               icon="water-outline"
-              title="Arrosage"
+              title={t('plant_feat_watering')}
               value={vm.watering || "—"}
               variant="mint"
             />
             <FeatureCard
               icon="thermometer-outline"
-              title="Température"
+              title={t('plant_feat_temp')}
               value={vm.temp || "—"}
               variant="rose"
             />
             <FeatureCard
               icon="sunny-outline"
-              title="Soleil"
+              title={t('plant_feat_sun')}
               value={vm.sun || "—"}
               variant="sand"
             />
           </View>
 
           <View style={{ position: 'relative', marginTop: 24 }}>
-            <Text style={[styles.h2, { marginTop: 0 }]}>Calendrier de culture</Text>
+            <Text style={[styles.h2, { marginTop: 0 }]}>{t('plant_culture_calendar')}</Text>
             <CultureCalendar
               sowingRange={vm.sowingRange}
               plantationRange={vm.plantationRange}
               harvestRange={vm.harvestRange}
             />
 
-            <Text style={styles.h2}>Conseils</Text>
+            <Text style={styles.h2}>{t('plant_advice')}</Text>
             <TipsList tips={vm.advices} />
 
             {vm.affinityPlants.length > 0 && (
               <>
-                <Text style={styles.h2}>Plantes amies</Text>
+                <Text style={styles.h2}>{t('plant_affinity')}</Text>
                 <PlantGrid plants={vm.affinityPlants} prefix="a" />
               </>
             )}
 
             {vm.enemyPlants.length > 0 && (
               <>
-                <Text style={styles.h2}>Plantes ennemies</Text>
+                <Text style={styles.h2}>{t('plant_enemy')}</Text>
                 <PlantGrid plants={vm.enemyPlants} prefix="e" />
               </>
             )}
@@ -168,16 +170,14 @@ export default function Index() {
                 <BlurView intensity={75} tint="light" style={StyleSheet.absoluteFill} />
                 <Animated.View style={[styles.lockedContainer, { marginTop: 40, backgroundColor: 'transparent', borderWidth: 0, transform: [{ scale: scaleAnim }] }]}>
                   <Ionicons name="lock-closed" size={36} color="#D4AF37" style={styles.lockIcon} />
-                  <Text style={styles.lockedTitle}>Informations de culture Premium 👑</Text>
-                  <Text style={styles.lockedSub}>
-                    Le calendrier de culture, les conseils de plantation avancés et les compagnonnages de plantes sont réservés aux membres VIP.
-                  </Text>
+                  <Text style={styles.lockedTitle}>{t('plant_locked_title')}</Text>
+                  <Text style={styles.lockedSub}>{t('plant_locked_sub')}</Text>
                   <TouchableOpacity 
                     style={styles.unlockBtn}
                     onPress={() => router.push('/premium' as any)}
                     activeOpacity={0.8}
                   >
-                    <Text style={styles.unlockBtnText}>Débloquer les outils VIP - 6,99€</Text>
+                    <Text style={styles.unlockBtnText}>{t('plant_locked_btn')}</Text>
                   </TouchableOpacity>
                 </Animated.View>
               </Animated.View>
@@ -188,12 +188,12 @@ export default function Index() {
       {
         isInGarden(vm.vegetable) ?
           <GardenSheetCTA
-            insetsBottom={vm.insets.bottom} text={'RETIRER DU JARDIN'}
+            insetsBottom={vm.insets.bottom} text={t('plant_remove_garden')}
             callback={() => removeVegetablesFromGardenHandle(vm.vegetable.id)} isAlert={true}
           />
           :
           <GardenSheetCTA
-            insetsBottom={vm.insets.bottom} text={'AJOUTER AU JARDIN'}
+            insetsBottom={vm.insets.bottom} text={t('plant_add_garden')}
             callback={() => addVegetableToGarden(vm.vegetable)} isAlert={false}
           />
       }

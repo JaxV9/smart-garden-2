@@ -1,5 +1,6 @@
 import AppHeader from '@/components/new/ui/AppHeader';
 import { NotificationItem, useNotificationContext } from '@/contexts/notification.context';
+import { useTranslation } from '@/contexts/language.context';
 import { getTimeAgo } from '@/utils/dateFormatter';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -16,6 +17,7 @@ import {
 
 export default function NotificationsScreen() {
     const router = useRouter();
+    const { t } = useTranslation();
     const {
         notifications,
         sensorsEnabled,
@@ -76,7 +78,7 @@ export default function NotificationsScreen() {
     return (
         <View style={styles.screen}>
             <AppHeader
-                title="Notifications"
+                title={t('notif_title')}
                 showBack={true}
                 showNotifications={false}
             />
@@ -85,9 +87,9 @@ export default function NotificationsScreen() {
                 <View style={styles.configCard}>
                     <View style={styles.configHeader}>
                         <Ionicons name="settings-outline" size={20} color="#5A7F54" />
-                        <Text style={styles.configTitle}>Préférences des alertes</Text>
+                        <Text style={styles.configTitle}>{t('notif_pref_title')}</Text>
                     </View>
-                    <Text style={styles.configSub}>Configurez le type de notifications à recevoir en direct sur votre mobile.</Text>
+                    <Text style={styles.configSub}>{t('notif_pref_sub')}</Text>
 
                     <View style={styles.toggleRow}>
                         <View style={styles.toggleInfo}>
@@ -95,8 +97,8 @@ export default function NotificationsScreen() {
                                 <Ionicons name="water-outline" size={16} color="#EF4444" />
                             </View>
                             <View>
-                                <Text style={styles.toggleLabel}>Alertes des Capteurs</Text>
-                                <Text style={styles.toggleDesc}>Humidité critique, coup de chaud...</Text>
+                                <Text style={styles.toggleLabel}>{t('notif_sensors_label')}</Text>
+                                <Text style={styles.toggleDesc}>{t('notif_sensors_desc')}</Text>
                             </View>
                         </View>
                         <Switch
@@ -115,8 +117,8 @@ export default function NotificationsScreen() {
                                 <Ionicons name="calendar-outline" size={16} color="#5A7F54" />
                             </View>
                             <View>
-                                <Text style={styles.toggleLabel}>Rappels des Tâches</Text>
-                                <Text style={styles.toggleDesc}>Arrosage, taille, récoltes à faire</Text>
+                                <Text style={styles.toggleLabel}>{t('notif_tasks_label')}</Text>
+                                <Text style={styles.toggleDesc}>{t('notif_tasks_desc')}</Text>
                             </View>
                         </View>
                         <Switch
@@ -135,8 +137,8 @@ export default function NotificationsScreen() {
                                 <Ionicons name="chatbubbles-outline" size={16} color="#3B82F6" />
                             </View>
                             <View>
-                                <Text style={styles.toggleLabel}>Activité Communautaire</Text>
-                                <Text style={styles.toggleDesc}>Likes, commentaires de vos posts</Text>
+                                <Text style={styles.toggleLabel}>{t('notif_comm_label')}</Text>
+                                <Text style={styles.toggleDesc}>{t('notif_comm_desc')}</Text>
                             </View>
                         </View>
                         <Switch
@@ -149,15 +151,15 @@ export default function NotificationsScreen() {
                 </View>
 
                 <View style={styles.sectionHeader}>
-                    <Text style={styles.sectionTitle}>Vos Alertes</Text>
+                    <Text style={styles.sectionTitle}>{t('notif_alerts_section')}</Text>
                     {notifications.length > 0 && (
                         <View style={styles.actionButtons}>
                             <TouchableOpacity onPress={markAllAsRead} style={styles.actionBtn}>
-                                <Text style={styles.actionBtnText}>Tout lire</Text>
+                                <Text style={styles.actionBtnText}>{t('notif_action_read_all')}</Text>
                             </TouchableOpacity>
                             <Text style={styles.actionSep}>•</Text>
                             <TouchableOpacity onPress={clearAll} style={styles.actionBtn}>
-                                <Text style={styles.actionBtnTextDanger}>Effacer</Text>
+                                <Text style={styles.actionBtnTextDanger}>{t('notif_action_clear_all')}</Text>
                             </TouchableOpacity>
                         </View>
                     )}
@@ -168,10 +170,8 @@ export default function NotificationsScreen() {
                         <View style={styles.emptyIconCircle}>
                             <Ionicons name="notifications-off-outline" size={42} color="#5A7F54" />
                         </View>
-                        <Text style={styles.emptyTitle}>Tout est calme...</Text>
-                        <Text style={styles.emptyDesc}>
-                            Vos plantes profitent du soleil tranquillement. Aucune notification pour le moment !
-                        </Text>
+                        <Text style={styles.emptyTitle}>{t('notif_empty_title')}</Text>
+                        <Text style={styles.emptyDesc}>{t('notif_empty_desc')}</Text>
                     </View>
                 ) : (
                     <FlatList

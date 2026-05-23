@@ -5,11 +5,13 @@ import { router } from 'expo-router';
 import React from 'react';
 import { Pressable, StyleSheet, Text, View, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from '@/contexts/language.context';
 
 export const ResumeSection = () => {
     const { gardenVegetables } = useGardenContext();
     const { activityStreak } = useUserContext();
     const { tasks } = useTasks();
+    const { t } = useTranslation();
 
     const completedTasksCount = tasks.filter(task => task.completed).length;
 
@@ -21,15 +23,15 @@ export const ResumeSection = () => {
         >
             <View style={styles.welcomeCard}>
                 <View style={styles.welcomeLeft}>
-                    <Text style={styles.welcomeTitle}>Bonjour ! 👋</Text>
-                    <Text style={styles.welcomeSubtitle}>Prêt à prendre soin de vos plantes aujourd'hui ?</Text>
+                    <Text style={styles.welcomeTitle}>{t('home_welcome_title')}</Text>
+                    <Text style={styles.welcomeSubtitle}>{t('home_welcome_subtitle')}</Text>
                 </View>
                 <View style={styles.welcomeIconContainer}>
                     <Ionicons name="sunny" size={32} color="#F59E0B" />
                 </View>
             </View>
 
-            <Text style={styles.sectionHeaderTitle}>Tableau de bord</Text>
+            <Text style={styles.sectionHeaderTitle}>{t('home_dashboard')}</Text>
             
             <View style={styles.statsGrid}>
                 <View style={[styles.statCard, { backgroundColor: '#EBF6EB' }]}>
@@ -39,7 +41,7 @@ export const ResumeSection = () => {
                             <Ionicons name="leaf" size={16} color="#2E7D32" />
                         </View>
                     </View>
-                    <Text style={styles.statLabel}>Plantes cultivées</Text>
+                    <Text style={styles.statLabel}>{t('home_stat_plants')}</Text>
                 </View>
 
                 <View style={[styles.statCard, { backgroundColor: '#E6F8F3' }]}>
@@ -49,7 +51,7 @@ export const ResumeSection = () => {
                             <Ionicons name="checkmark-done" size={16} color="#00796B" />
                         </View>
                     </View>
-                    <Text style={styles.statLabel}>Tâches faites</Text>
+                    <Text style={styles.statLabel}>{t('home_stat_tasks')}</Text>
                 </View>
 
                 <View style={[styles.statCard, { backgroundColor: '#FFF3F2' }]}>
@@ -59,7 +61,7 @@ export const ResumeSection = () => {
                             <Ionicons name="flame" size={16} color="#C62828" />
                         </View>
                     </View>
-                    <Text style={styles.statLabel}>Jours actifs</Text>
+                    <Text style={styles.statLabel}>{t('home_stat_streak')}</Text>
                 </View>
 
                 <View style={[styles.statCard, { backgroundColor: '#F0F4FF' }]}>
@@ -69,11 +71,11 @@ export const ResumeSection = () => {
                             <Ionicons name="radio" size={16} color="#1565C0" />
                         </View>
                     </View>
-                    <Text style={styles.statLabel}>Capteur connecté</Text>
+                    <Text style={styles.statLabel}>{t('home_stat_sensors')}</Text>
                 </View>
             </View>
 
-            <Text style={styles.sectionHeaderTitle}>Mes outils</Text>
+            <Text style={styles.sectionHeaderTitle}>{t('home_tools')}</Text>
 
             <View style={styles.toolsList}>
                 <Pressable onPress={() => router.replace('/taches')} style={styles.toolCard}>
@@ -81,8 +83,8 @@ export const ResumeSection = () => {
                         <Ionicons name="checkbox" size={22} color="#2E7D32" />
                     </View>
                     <View style={styles.toolTextWrapper}>
-                        <Text style={styles.toolTitle}>Gestion des tâches</Text>
-                        <Text style={styles.toolSubtitle}>Planifier et suivre les actions quotidiennes</Text>
+                        <Text style={styles.toolTitle}>{t('home_tool_tasks_title')}</Text>
+                        <Text style={styles.toolSubtitle}>{t('home_tool_tasks_subtitle')}</Text>
                     </View>
                     <Ionicons name="chevron-forward" size={18} color="#9CA3AF" />
                 </Pressable>
@@ -92,8 +94,8 @@ export const ResumeSection = () => {
                         <Ionicons name="calendar" size={22} color="#00796B" />
                     </View>
                     <View style={styles.toolTextWrapper}>
-                        <Text style={styles.toolTitle}>Calendrier</Text>
-                        <Text style={styles.toolSubtitle}>Suivi chronologique de l'entretien</Text>
+                        <Text style={styles.toolTitle}>{t('home_tool_calendar_title')}</Text>
+                        <Text style={styles.toolSubtitle}>{t('home_tool_calendar_subtitle')}</Text>
                     </View>
                     <Ionicons name="chevron-forward" size={18} color="#9CA3AF" />
                 </Pressable>
@@ -103,8 +105,8 @@ export const ResumeSection = () => {
                         <Ionicons name="hardware-chip" size={22} color="#1565C0" />
                     </View>
                     <View style={styles.toolTextWrapper}>
-                        <Text style={styles.toolTitle}>Capteurs intelligents</Text>
-                        <Text style={styles.toolSubtitle}>Données de température et d'humidité en direct</Text>
+                        <Text style={styles.toolTitle}>{t('home_tool_sensors_title')}</Text>
+                        <Text style={styles.toolSubtitle}>{t('home_tool_sensors_subtitle')}</Text>
                     </View>
                     <Ionicons name="chevron-forward" size={18} color="#9CA3AF" />
                 </Pressable>
@@ -114,8 +116,8 @@ export const ResumeSection = () => {
                         <Ionicons name="map" size={22} color="#D97706" />
                     </View>
                     <View style={styles.toolTextWrapper}>
-                        <Text style={styles.toolTitle}>Plan du potager</Text>
-                        <Text style={styles.toolSubtitle}>Dessiner et organiser la disposition de vos bacs</Text>
+                        <Text style={styles.toolTitle}>{t('home_tool_plan_title')}</Text>
+                        <Text style={styles.toolSubtitle}>{t('home_tool_plan_subtitle')}</Text>
                     </View>
                     <Ionicons name="chevron-forward" size={18} color="#9CA3AF" />
                 </Pressable>

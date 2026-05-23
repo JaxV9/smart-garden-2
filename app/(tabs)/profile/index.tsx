@@ -1,6 +1,8 @@
 import AppHeader from '@/components/new/ui/AppHeader';
 import { useGardenContext } from '@/contexts/garden.context';
 import { useUserContext } from '@/contexts/user.context';
+import { useTranslation } from '@/contexts/language.context';
+import { languageLabels } from '@/constants/translations';
 import { useGardenInfo } from '@/hooks/useGardenInfo';
 import { useUser } from '@/hooks/useUser';
 import { Feather, Ionicons } from '@expo/vector-icons';
@@ -9,6 +11,7 @@ import React, { useEffect, useState } from 'react';
 import {
   Image,
   Modal,
+  ScrollView,
   StyleSheet,
   Switch,
   Text,
@@ -28,6 +31,7 @@ const LEVEL_LABELS: Record<string, string> = {
 export default function ProfileScreen() {
   const { user, isPremium } = useUserContext();
   const { logout, updateUser } = useUser();
+  const { t, language, changeLanguage } = useTranslation();
   const { gardenInfo } = useGardenContext();
   const { loadGardenInfo } = useGardenInfo();
 
@@ -69,13 +73,17 @@ export default function ProfileScreen() {
 
       {/* HEADER */}
       <AppHeader
-        title={'Mon profil'}
+        title={t('profile_title')}
         showBack={false}
         showNotifications={true}
       />
 
       {/* CONTENT */}
-      <View style={styles.container}>
+      <ScrollView 
+        style={styles.container} 
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
 
         {/* PROFILE CARD */}
         <View style={styles.profileCard}>
@@ -110,8 +118,8 @@ export default function ProfileScreen() {
                 <Ionicons name="ribbon" size={20} color="#B8860B" />
               </View>
               <View style={styles.premiumBannerTexts}>
-                <Text style={styles.premiumBannerTitle}>Devenir Smart Garden VIP 👑</Text>
-                <Text style={styles.premiumBannerSub}>Activez les tâches, conseils IA & calendrier.</Text>
+                <Text style={styles.premiumBannerTitle}>{t('vip_title')} 👑</Text>
+                <Text style={styles.premiumBannerSub}>{t('profile_vip_banner')}</Text>
               </View>
             </View>
             <Ionicons name="chevron-forward" size={18} color="#D4AF37" />
@@ -123,8 +131,8 @@ export default function ProfileScreen() {
                 <Ionicons name="star" size={20} color="#D4AF37" />
               </View>
               <View style={styles.premiumBannerTexts}>
-                <Text style={[styles.premiumBannerTitle, { color: '#B8860B' }]}>Membre VIP Ultra actif 👑</Text>
-                <Text style={styles.premiumBannerSub}>Vous profitez de toutes les fonctionnalités illimitées.</Text>
+                <Text style={[styles.premiumBannerTitle, { color: '#B8860B' }]}>{t('profile_premium_status_active')}</Text>
+                <Text style={styles.premiumBannerSub}>{t('vip_subtitle')}</Text>
               </View>
             </View>
             <TouchableOpacity onPress={() => router.push('/premium' as any)}>
@@ -148,7 +156,7 @@ export default function ProfileScreen() {
             </View>
 
             <Text style={styles.rowText}>
-              Informations personnelles
+              {t('profile_personal_info')}
             </Text>
 
             <Feather
@@ -171,7 +179,7 @@ export default function ProfileScreen() {
             </View>
 
             <Text style={styles.rowText}>
-              Profil communautaire
+              {t('profile_edit')}
             </Text>
 
             <Feather
@@ -194,7 +202,7 @@ export default function ProfileScreen() {
             </View>
 
             <Text style={styles.rowText}>
-              Déconnexion
+              {t('profile_logout')}
             </Text>
           </TouchableOpacity>
         </View>
@@ -212,7 +220,7 @@ export default function ProfileScreen() {
               </View>
 
               <Text style={styles.gardenTitle}>
-                Profil Privé
+                {t('profile_private_account')}
               </Text>
             </View>
 
@@ -234,6 +242,50 @@ export default function ProfileScreen() {
           </Text>
         </View>
 
+        {/* LANGUAGE SELECTOR */}
+        <View style={styles.blockCard}>
+          <View style={styles.gardenHeader}>
+            <View style={styles.gardenHeaderLeft}>
+              <View style={styles.iconCircle}>
+                <Ionicons
+                  name="language-outline"
+                  size={18}
+                  color="#5A7F54"
+                />
+              </View>
+
+              <Text style={styles.gardenTitle}>
+                {t('profile_language_label')}
+              </Text>
+            </View>
+          </View>
+
+          <View style={styles.languageGrid}>
+            {Object.entries(languageLabels).map(([code, label]) => {
+              const isSelected = language === code;
+              return (
+                <TouchableOpacity
+                  key={code}
+                  style={[
+                    styles.languageButton,
+                    isSelected && styles.languageButtonActive,
+                  ]}
+                  onPress={() => changeLanguage(code as any)}
+                >
+                  <Text
+                    style={[
+                      styles.languageButtonText,
+                      isSelected && styles.languageButtonTextActive,
+                    ]}
+                  >
+                    {label}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        </View>
+
         {/* GARDEN INFO */}
         <View style={styles.blockCard}>
           <View style={styles.gardenHeader}>
@@ -247,7 +299,7 @@ export default function ProfileScreen() {
               </View>
 
               <Text style={styles.gardenTitle}>
-                Informations du jardin
+                {t('plan_default_name')}
               </Text>
             </View>
 
@@ -262,7 +314,7 @@ export default function ProfileScreen() {
               />
 
               <Text style={styles.editButtonText}>
-                Modifier
+                {t('btn_add')}
               </Text>
             </TouchableOpacity>
           </View>
@@ -278,7 +330,7 @@ export default function ProfileScreen() {
           </View>
         </View>
 
-      </View>
+      </ScrollView>
 
       {/* MODAL */}
       <Modal
@@ -290,7 +342,7 @@ export default function ProfileScreen() {
         <View style={styles.modalOverlay}>
           <View style={styles.modalCard}>
             <Text style={styles.modalTitle}>
-              Voulez-vous vraiment vous déconnecter ?
+              {t('profile_logout')}?
             </Text>
 
             <TouchableOpacity
@@ -298,7 +350,7 @@ export default function ProfileScreen() {
               onPress={handleConfirmLogout}
             >
               <Text style={styles.modalLogoutButtonText}>
-                SE DÉCONNECTER
+                {t('profile_logout').toUpperCase()}
               </Text>
             </TouchableOpacity>
 
@@ -307,7 +359,7 @@ export default function ProfileScreen() {
               onPress={handleCancelLogout}
             >
               <Text style={styles.modalCancelButtonText}>
-                ANNULER
+                {t('btn_cancel').toUpperCase()}
               </Text>
             </TouchableOpacity>
           </View>
@@ -332,6 +384,10 @@ const styles = StyleSheet.create({
 
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
+  },
+
+  scrollContent: {
+    paddingBottom: 40,
   },
 
   profileCard: {
@@ -568,5 +624,32 @@ const styles = StyleSheet.create({
     color: '#0284C7',
     paddingHorizontal: 8,
     paddingVertical: 4,
+  },
+  languageGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginTop: 8,
+  },
+  languageButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 10,
+    backgroundColor: '#F3F4F6',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+  },
+  languageButtonActive: {
+    backgroundColor: '#EBF6EB',
+    borderColor: '#5A7F54',
+  },
+  languageButtonText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#4B5563',
+  },
+  languageButtonTextActive: {
+    color: '#5A7F54',
+    fontWeight: '700',
   },
 });

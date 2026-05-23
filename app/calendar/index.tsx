@@ -2,6 +2,7 @@ import { CalendarComp } from "@/components/new/calendar/calendar";
 import AppHeader from "@/components/new/ui/AppHeader";
 import { useCalendar } from "@/hooks/useCalendar";
 import { useUserContext } from "@/contexts/user.context";
+import { useTranslation } from "@/contexts/language.context";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
@@ -11,6 +12,7 @@ import { StyleSheet, View, Text, TouchableOpacity, Animated } from "react-native
 export default function Calendar() {
     const { calendar } = useCalendar();
     const { isPremium } = useUserContext();
+    const { t } = useTranslation();
     const router = useRouter();
 
     const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -53,19 +55,17 @@ export default function Calendar() {
                             <View style={styles.lockBadge}>
                                 <Ionicons name="calendar-outline" size={48} color="#D4AF37" />
                             </View>
-                            <Text style={styles.lockedTitle}>Calendrier de Plantation VIP 👑</Text>
-                            <Text style={styles.lockedSub}>
-                                Optimisez vos plantations mois après mois ! Accédez à un calendrier personnalisé dynamique pour savoir précisément quand semer, planter et récolter chaque variété.
-                            </Text>
+                            <Text style={styles.lockedTitle}>{t('cal_locked_title')}</Text>
+                            <Text style={styles.lockedSub}>{t('cal_locked_sub')}</Text>
 
                             <View style={styles.miniFeatures}>
                                 <View style={styles.featureRow}>
                                     <Ionicons name="checkmark-circle" size={16} color="#5A7F54" />
-                                    <Text style={styles.featureText}>Planification mensuelle intelligente</Text>
+                                    <Text style={styles.featureText}>{t('cal_locked_feat_1')}</Text>
                                 </View>
                                 <View style={styles.featureRow}>
                                     <Ionicons name="checkmark-circle" size={16} color="#5A7F54" />
-                                    <Text style={styles.featureText}>Indicateurs saisonniers détaillés</Text>
+                                    <Text style={styles.featureText}>{t('cal_locked_feat_2')}</Text>
                                 </View>
                             </View>
 
@@ -74,7 +74,7 @@ export default function Calendar() {
                                 onPress={() => router.push('/premium' as any)}
                                 activeOpacity={0.8}
                             >
-                                <Text style={styles.unlockBtnText}>Débloquer le Calendrier - 6,99€</Text>
+                                <Text style={styles.unlockBtnText}>{t('cal_locked_btn')}</Text>
                             </TouchableOpacity>
                             </Animated.View>
                     </Animated.View>

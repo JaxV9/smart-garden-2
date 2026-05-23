@@ -4,6 +4,7 @@ import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNotificationContext } from '@/contexts/notification.context';
 import { useUserContext } from '@/contexts/user.context';
+import { useTranslation } from '@/contexts/language.context';
 
 interface AppHeaderProps {
     title: string;
@@ -21,6 +22,7 @@ export default function AppHeader({
     fallbackRoute = '/home',
 }: AppHeaderProps) {
     const router = useRouter();
+    const { t } = useTranslation();
     
     let unreadCount = 0;
     let isPremium = false;
@@ -65,12 +67,12 @@ export default function AppHeader({
                         {isPremium ? (
                             <View style={styles.vipActiveBadge}>
                                 <Ionicons name="sparkles" size={10} color="#059669" />
-                                <Text style={styles.vipHeaderActiveText}>VIP ACTIF</Text>
+                                <Text style={styles.vipHeaderActiveText}>{t('vip_header_active')}</Text>
                             </View>
                         ) : (
                             <View style={styles.vipHeaderBadge}>
                                 <Ionicons name="ribbon" size={10} color="#B45309" />
-                                <Text style={styles.vipHeaderText}>CLUB VIP 👑</Text>
+                                <Text style={styles.vipHeaderText}>{t('vip_header_club')}</Text>
                             </View>
                         )}
                     </Pressable>
