@@ -1,15 +1,14 @@
 // components/new/task/formulaire.tsx
+import { GardenVegetable, TaskPriority } from "@/models/models";
 import React from "react";
 import {
+  Pressable,
   StyleSheet,
-  View,
   Text,
   TextInput,
-  Pressable,
   TouchableOpacity,
+  View,
 } from "react-native";
-import { TaskPriority } from "@/models/models";
-import { useGarden } from "@/hooks/useGarden";
 
 type FormulaireProps = {
   title: string;
@@ -18,6 +17,7 @@ type FormulaireProps = {
   dueDate: string;
   priority: TaskPriority | null;
   editingId: string | null;
+  gardenVegetables: GardenVegetable[];
 
   setTitle: (v: string) => void;
   setDescription: (v: string) => void;
@@ -40,6 +40,7 @@ export function Formulaire(props: FormulaireProps) {
     dueDate,
     priority,
     editingId,
+    gardenVegetables,
     setTitle,
     setDescription,
     setPriority,
@@ -50,7 +51,19 @@ export function Formulaire(props: FormulaireProps) {
 
   const isEditing = Boolean(editingId);
 
-  const { gardenVegetables } = useGarden();
+  const formatDateFriendly = (dateStr: string) => {
+    if (!dateStr) return "";
+    const parts = dateStr.split("-");
+    if (parts.length !== 3) return dateStr;
+    const [year, month, day] = parts;
+    const months = [
+      "janvier", "février", "mars", "avril", "mai", "juin",
+      "juillet", "août", "septembre", "octobre", "novembre", "décembre"
+    ];
+    const monthIndex = parseInt(month, 10) - 1;
+    const monthName = months[monthIndex] || month;
+    return `${parseInt(day, 10)} ${monthName} ${year}`;
+  };
 
   return (
     <View>
@@ -67,7 +80,7 @@ export function Formulaire(props: FormulaireProps) {
         <Text style={styles.label}>Description (optionnel)</Text>
         <TextInput
           style={[styles.input, styles.multiline]}
-          placeholder="Ex: Récolter les fruits rouges foncés légèrement mous au toucher"
+          placeholder="Ex: Récolter les fruits rouges..."
           placeholderTextColor={PLACEHOLDER}
           value={description}
           onChangeText={setDescription}
@@ -92,7 +105,7 @@ export function Formulaire(props: FormulaireProps) {
               !dueDate && styles.selectPlaceholder,
             ]}
           >
-            {dueDate || "Sélectionnez une date"}
+            {dueDate ? formatDateFriendly(dueDate) : "Sélectionnez une date"}
           </Text>
           <Text style={styles.chevron}>▾</Text>
         </Pressable>
@@ -101,16 +114,32 @@ export function Formulaire(props: FormulaireProps) {
         <View style={styles.chipsRow}>
           {(["LOW", "MEDIUM", "HIGH"] as TaskPriority[]).map((p) => {
             const selected = priority === p;
+            let activeStyle = {};
+            let activeText = {};
+
+            if (selected) {
+              if (p === "LOW") {
+                activeStyle = { borderColor: '#3B82F6', backgroundColor: '#EFF6FF' };
+                activeText = { color: '#1D4ED8' };
+              } else if (p === "MEDIUM") {
+                activeStyle = { borderColor: '#F59E0B', backgroundColor: '#FEF3C7' };
+                activeText = { color: '#B45309' };
+              } else {
+                activeStyle = { borderColor: '#EF4444', backgroundColor: '#FEE2E2' };
+                activeText = { color: '#B91C1C' };
+              }
+            }
+
             return (
               <Pressable
                 key={p}
                 onPress={() => setPriority(p)}
-                style={[styles.chip, selected && styles.chipSelected]}
+                style={[styles.chip, activeStyle]}
               >
                 <Text
                   style={[
                     styles.chipText,
-                    selected && styles.chipTextSel,
+                    activeText,
                   ]}
                 >
                   {p === "LOW" ? "Basse" : p === "MEDIUM" ? "Moyenne" : "Haute"}
@@ -122,7 +151,7 @@ export function Formulaire(props: FormulaireProps) {
 
         <TouchableOpacity style={styles.primaryBtn} onPress={onSave}>
           <Text style={styles.primaryBtnText}>
-            {isEditing ? "METTRE À JOUR" : "CRÉER LA TÂCHE"}
+            {isEditing ? "METTRE À JOUR LA TÂCHE" : "CRÉER LA TÂCHE"}
           </Text>
         </TouchableOpacity>
       </View>
@@ -130,7 +159,7 @@ export function Formulaire(props: FormulaireProps) {
   );
 }
 
-const PLACEHOLDER = "#111827";
+const PLACEHOLDER = "#9CA3AF";
 const BORDER = "#E4E7EA";
 const TEXT = "#1C1C1C";
 const GREEN = "#5A8E57";

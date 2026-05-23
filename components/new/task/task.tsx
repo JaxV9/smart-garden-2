@@ -1,26 +1,30 @@
 // components/new/task/task.tsx
+import { useGarden } from "@/hooks/useGarden";
+import { useTasks } from "@/hooks/useTasks";
+import { TaskPriority, Task as TaskType } from "@/models/models";
+import { Ionicons } from "@expo/vector-icons";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import { useEffect, useState } from "react";
 import {
-  StyleSheet,
-  View,
-  Text,
-  ScrollView,
   ActivityIndicator,
-  TouchableOpacity,
+  KeyboardAvoidingView,
   Modal,
   Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
   TouchableWithoutFeedback,
+  View,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import { useTasks } from "@/hooks/useTasks";
-import { useGarden } from "@/hooks/useGarden";
-import { Task as TaskType, TaskPriority } from "@/models/models";
 import { Formulaire } from "./formulaire";
-import DateTimePicker from "@react-native-community/datetimepicker";
+
+import { useVegetablesContext } from "@/contexts/vegetables.context";
 
 export function Task() {
   const { tasks, loading, createTask, updateTask, deleteTask, toggleTaskStatus } = useTasks();
   const { gardenVegetables, loadGardenVegetables } = useGarden();
+  const { vegetablesContext } = useVegetablesContext();
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -120,27 +124,25 @@ export function Task() {
   }
 
   const handleDateChange = (event: any, selectedDate?: Date) => {
-    if (Platform.OS === "android") {
-      setShowDatePicker(false);
-    }
-
-    if (event.type === "set" && selectedDate) {
+    if (selectedDate) {
       setDueDate(selectedDate.toISOString().slice(0, 10));
     }
-    
-  
-    if (Platform.OS === "ios" && event.type === "set") {
+
+    if (Platform.OS === "android") {
       setShowDatePicker(false);
     }
   };
 
   const renderTask = ({ item }: { item: TaskType }) => {
     const completed = (item as any).completed;
+    const plantName = item.plant
+      ? vegetablesContext.find(v => v.id === item.plant?.vegetableId)?.name || item.plant.vegetableId
+      : "";
 
     return (
       <View key={item.id} style={[styles.card, completed && styles.cardDone]}>
         <View style={styles.cardLeft}>
-          <TouchableOpacity 
+          <TouchableOpacity
             onPress={() => {
               console.log("🖱️ Clic coche pour tâche:", item.id, item.title);  // ← DEBUG
               toggleTaskStatus(item);
@@ -177,7 +179,7 @@ export function Task() {
             <View style={styles.chipsRow}>
               {!!item.plant && (
                 <View style={[styles.chip, styles.chipPlant]}>
-                  <Text style={styles.chipText}>{item.plant.vegetableId}</Text>
+                  <Text style={styles.chipText}>{plantName}</Text>
                 </View>
               )}
               {!!item.priority && (
@@ -187,16 +189,16 @@ export function Task() {
                     item.priority === "HIGH"
                       ? styles.chipHigh
                       : item.priority === "MEDIUM"
-                      ? styles.chipMedium
-                      : styles.chipLow,
+                        ? styles.chipMedium
+                        : styles.chipLow,
                   ]}
                 >
                   <Text style={styles.chipText}>
                     {item.priority === "HIGH"
                       ? "Haute"
                       : item.priority === "MEDIUM"
-                      ? "Moyenne"
-                      : "Basse"}
+                        ? "Moyenne"
+                        : "Basse"}
                   </Text>
                 </View>
               )}
@@ -260,9 +262,9 @@ export function Task() {
 
   return (
     <View style={styles.container}>
-      <ScrollView 
-        style={styles.scrollView} 
-        contentContainerStyle={styles.scrollContent} 
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
         {loading && <ActivityIndicator style={{ marginVertical: 8 }} />}
@@ -270,24 +272,24 @@ export function Task() {
         <Text style={styles.sectionTitle}>
           À faire ({tasksToDo.length})
         </Text>
-        
+
         {tasksToDo.map((item) => renderTask({ item }))}
-        
+
         {tasksToDo.length === 0 && !loading && (
           <Text style={styles.emptyText}>Aucune tâche à faire.</Text>
         )}
 
-        <TouchableOpacity 
-          style={styles.sectionHeader} 
+        <TouchableOpacity
+          style={styles.sectionHeader}
           onPress={() => setIsDoneExpanded(!isDoneExpanded)}
           activeOpacity={0.7}
         >
           <View style={styles.sectionHeaderLeft}>
-            <Ionicons 
-              name={isDoneExpanded ? "chevron-up" : "chevron-down"} 
-              size={18} 
-              color="#374151" 
-              style={{ marginRight: 6 }} 
+            <Ionicons
+              name={isDoneExpanded ? "chevron-up" : "chevron-down"}
+              size={18}
+              color="#374151"
+              style={{ marginRight: 6 }}
             />
             <Text style={styles.sectionTitleNoMargin}>
               Terminées ({tasksDone.length})
@@ -308,7 +310,6 @@ export function Task() {
         )}
       </ScrollView>
 
-      {/* Bouton "+ AJOUTER UNE TÂCHE" en bas */}
       <View style={styles.bottomButtonContainer}>
         <TouchableOpacity style={styles.newTaskButton} onPress={openCreate}>
           <Text style={styles.newTaskText}>+ AJOUTER UNE TÂCHE</Text>
@@ -318,89 +319,123 @@ export function Task() {
       <Modal
         visible={showForm}
         transparent
-        animationType="fade"
+        animationType="slide"
         onRequestClose={() => setShowForm(false)}
       >
-        <TouchableWithoutFeedback onPress={() => setShowForm(false)}>
-          <View style={styles.modalBackdrop}>
-            <TouchableWithoutFeedback onPress={() => {}}>
-              <View style={styles.modalCard}>
-            <Formulaire
-              title={title}
-              description={description}
-              plantId={plantId || ""}
-              dueDate={dueDate}
-              priority={priority}
-              editingId={editingId}
-              setTitle={setTitle}
-              setDescription={setDescription}
-              setPlantId={setPlantId}
-              setDueDate={setDueDate}
-              setPriority={setPriority}
-              onSave={onSave}
-              onPickDueDate={handlePickDueDate}
-              onPickPlant={handlePickPlant}
-            />
-            <TouchableOpacity
-              style={styles.closeButton}
-              onPress={() => setShowForm(false)}
-            >
-              <Text style={styles.closeButtonText}>ANNULER</Text>
-            </TouchableOpacity>
-              </View>
-            </TouchableWithoutFeedback>
-          </View>
-        </TouchableWithoutFeedback>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          style={styles.keyboardAvoid}
+        >
+          <TouchableWithoutFeedback onPress={() => setShowForm(false)}>
+            <View style={styles.modalBackdrop}>
+              <TouchableWithoutFeedback onPress={() => { }}>
+                <View style={styles.modalCard}>
+                  <View style={styles.bottomSheetHandle} />
+
+                  {showPlantPicker ? (
+                    <>
+                      <Text style={styles.formHeaderTitle}>
+                        Sélectionner une plante
+                      </Text>
+
+                      <ScrollView
+                        showsVerticalScrollIndicator={false}
+                        contentContainerStyle={{ paddingBottom: 16 }}
+                      >
+                        {gardenVegetables.map((plant) => (
+                          <TouchableOpacity
+                            key={plant.gardenVegetableId}
+                            style={styles.pickerItem}
+                            onPress={() => {
+                              setPlantId(plant.gardenVegetableId);
+                              setShowPlantPicker(false);
+                            }}
+                          >
+                            <Ionicons name="leaf-outline" size={16} color="#5A7F54" style={{ marginRight: 10 }} />
+                            <Text style={styles.pickerItemText}>{plant.name}</Text>
+                          </TouchableOpacity>
+                        ))}
+
+                        {gardenVegetables.length === 0 && (
+                          <Text style={[styles.emptyText, { textAlign: 'center', marginVertical: 12 }]}>
+                            Aucune plante dans votre jardin.
+                          </Text>
+                        )}
+
+                        <TouchableOpacity
+                          style={[styles.closeButton, { marginTop: 12, backgroundColor: '#4B5563' }]}
+                          onPress={() => setShowPlantPicker(false)}
+                        >
+                          <Text style={styles.closeButtonText}>RETOUR</Text>
+                        </TouchableOpacity>
+                      </ScrollView>
+                    </>
+                  ) : (
+                    <>
+                      <Text style={styles.formHeaderTitle}>
+                        {editingId ? "Modifier la tâche" : "Nouvelle tâche"}
+                      </Text>
+
+                      <ScrollView
+                        showsVerticalScrollIndicator={false}
+                        contentContainerStyle={{ paddingBottom: 16 }}
+                      >
+                        <Formulaire
+                          title={title}
+                          description={description}
+                          plantId={plantId || ""}
+                          dueDate={dueDate}
+                          priority={priority}
+                          editingId={editingId}
+                          gardenVegetables={gardenVegetables}
+                          setTitle={setTitle}
+                          setDescription={setDescription}
+                          setPlantId={setPlantId}
+                          setDueDate={setDueDate}
+                          setPriority={setPriority}
+                          onSave={onSave}
+                          onPickDueDate={handlePickDueDate}
+                          onPickPlant={handlePickPlant}
+                        />
+
+                        <TouchableOpacity
+                          style={styles.closeButton}
+                          onPress={() => setShowForm(false)}
+                        >
+                          <Text style={styles.closeButtonText}>ANNULER</Text>
+                        </TouchableOpacity>
+                      </ScrollView>
+                    </>
+                  )}
+
+                  {showDatePicker && (
+                    <View style={styles.datePickerContainer}>
+                      {Platform.OS === "ios" && (
+                        <View style={styles.datePickerHeader}>
+                          <TouchableOpacity onPress={() => setShowDatePicker(false)}>
+                            <Text style={styles.datePickerHeaderCancel}>Annuler</Text>
+                          </TouchableOpacity>
+                          <Text style={styles.datePickerHeaderTitle}>Date d'échéance</Text>
+                          <TouchableOpacity onPress={() => setShowDatePicker(false)}>
+                            <Text style={styles.datePickerHeaderConfirm}>Valider</Text>
+                          </TouchableOpacity>
+                        </View>
+                      )}
+                      <DateTimePicker
+                        value={dueDate ? new Date(dueDate) : new Date()}
+                        mode="date"
+                        display={Platform.OS === "ios" ? "spinner" : "default"}
+                        minimumDate={new Date()}
+                        onChange={handleDateChange}
+                      />
+                    </View>
+                  )}
+                </View>
+              </TouchableWithoutFeedback>
+            </View>
+          </TouchableWithoutFeedback>
+        </KeyboardAvoidingView>
       </Modal>
-
-      <Modal
-        visible={showPlantPicker}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setShowPlantPicker(false)}
-      >
-        <TouchableWithoutFeedback onPress={() => setShowPlantPicker(false)}>
-          <View style={styles.modalBackdrop}>
-            <TouchableWithoutFeedback onPress={() => {}}>
-              <View style={styles.modalCard}>
-            <Text style={{ fontWeight: "700", marginBottom: 8 }}>
-              Sélectionner une plante
-            </Text>
-
-            {gardenVegetables.map((plant) => (
-              <TouchableOpacity
-                key={plant.gardenVegetableId}
-                style={{ paddingVertical: 8 }}
-                onPress={() => {
-                  setPlantId(plant.gardenVegetableId);
-                  setShowPlantPicker(false);
-                }}
-              >
-                <Text>{plant.name}</Text>
-              </TouchableOpacity>
-            ))}
-
-            <TouchableOpacity
-              style={[styles.closeButton, { marginTop: 8 }]}
-              onPress={() => setShowPlantPicker(false)}
-            >
-              <Text style={styles.closeButtonText}>FERMER</Text>
-            </TouchableOpacity>
-              </View>
-            </TouchableWithoutFeedback>
-          </View>
-        </TouchableWithoutFeedback>
-      </Modal>
-
-      {showDatePicker && (
-        <DateTimePicker
-          value={dueDate ? new Date(dueDate) : new Date()}
-          mode="date"
-          display={Platform.OS === "ios" ? "inline" : "default"}
-          minimumDate={new Date()}
-          onChange={handleDateChange}
-        />
-      )}
     </View>
   );
 }
@@ -597,31 +632,103 @@ const styles = StyleSheet.create({
   },
   modalBackdrop: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.4)",
-    justifyContent: "center",
-    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "flex-end",
   },
   modalCard: {
-    width: "90%",
-    padding: 16,
-    borderRadius: 16,
+    width: "100%",
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    paddingHorizontal: 20,
+    paddingTop: 12,
+    paddingBottom: Platform.OS === "ios" ? 40 : 30,
     backgroundColor: "#FFFFFF",
     shadowColor: "#000",
-    shadowOpacity: 0.2,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 6,
-    elevation: 6,
+    shadowOpacity: 0.15,
+    shadowOffset: { width: 0, height: -4 },
+    shadowRadius: 10,
+    elevation: 24,
+    maxHeight: "90%",
+  },
+  keyboardAvoid: {
+    flex: 1,
+  },
+  bottomSheetHandle: {
+    width: 40,
+    height: 5,
+    borderRadius: 2.5,
+    backgroundColor: "#E5E7EB",
+    alignSelf: "center",
+    marginBottom: 16,
+  },
+  formHeaderTitle: {
+    fontSize: 20,
+    fontWeight: "800",
+    color: "#1F2937",
+    marginBottom: 18,
+    textAlign: "center",
+  },
+  pickerItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 14,
+    paddingHorizontal: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#F3F4F6",
+    backgroundColor: "#F9FAFB",
+    marginBottom: 8,
+  },
+  pickerItemText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#374151",
   },
   closeButton: {
     marginTop: 12,
-    height: 44,
-    borderRadius: 8,
+    height: 48,
+    borderRadius: 12,
     backgroundColor: "#6B7280",
     alignItems: "center",
     justifyContent: "center",
   },
   closeButtonText: {
     color: "#FFFFFF",
+    fontWeight: "700",
+    fontSize: 14,
+    letterSpacing: 0.5,
+  },
+  datePickerContainer: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 16,
+    overflow: "hidden",
+    marginTop: 12,
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+  },
+  datePickerHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: "#E5E7EB",
+    backgroundColor: "#F9FAFB",
+  },
+  datePickerHeaderCancel: {
+    color: "#6B7280",
     fontWeight: "600",
+    fontSize: 15,
+  },
+  datePickerHeaderTitle: {
+    color: "#1F2937",
+    fontWeight: "700",
+    fontSize: 16,
+  },
+  datePickerHeaderConfirm: {
+    color: "#5A7F54",
+    fontWeight: "700",
+    fontSize: 15,
   },
 });
