@@ -4,13 +4,14 @@ import {
   StyleSheet,
   View,
   Text,
-  FlatList,
+  ScrollView,
   ActivityIndicator,
   TouchableOpacity,
   Modal,
   Platform,
   TouchableWithoutFeedback,
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { useTasks } from "@/hooks/useTasks";
 import { useGarden } from "@/hooks/useGarden";
 import { Task as TaskType, TaskPriority } from "@/models/models";
@@ -35,6 +36,7 @@ export function Task() {
   const [plantId, setPlantId] = useState<string | null>(null);
 
   const [showPlantPicker, setShowPlantPicker] = useState(false);
+  const [isDoneExpanded, setIsDoneExpanded] = useState(true);
 
   useEffect(() => {
     loadGardenVegetables();
@@ -136,7 +138,7 @@ export function Task() {
     const completed = (item as any).completed;
 
     return (
-      <View style={[styles.card, completed && styles.cardDone]}>
+      <View key={item.id} style={[styles.card, completed && styles.cardDone]}>
         <View style={styles.cardLeft}>
           <TouchableOpacity 
             onPress={() => {
@@ -258,41 +260,60 @@ export function Task() {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.newTaskButton} onPress={openCreate}>
-        <Text style={styles.newTaskText}>+ Nouvelle tâche</Text>
-      </TouchableOpacity>
+      <ScrollView 
+        style={styles.scrollView} 
+        contentContainerStyle={styles.scrollContent} 
+        showsVerticalScrollIndicator={false}
+      >
+        {loading && <ActivityIndicator style={{ marginVertical: 8 }} />}
 
-      {loading && <ActivityIndicator style={{ marginTop: 8 }} />}
+        <Text style={styles.sectionTitle}>
+          À faire ({tasksToDo.length})
+        </Text>
+        
+        {tasksToDo.map((item) => renderTask({ item }))}
+        
+        {tasksToDo.length === 0 && !loading && (
+          <Text style={styles.emptyText}>Aucune tâche à faire.</Text>
+        )}
 
-      <Text style={styles.sectionTitle}>
-        À faire ({tasksToDo.length})
-      </Text>
-      <FlatList
-        data={tasksToDo}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.listContent}
-        renderItem={renderTask}
-        ListEmptyComponent={
-          !loading ? (
-            <Text style={styles.emptyText}>Aucune tâche à faire.</Text>
-          ) : null
-        }
-      />
+        <TouchableOpacity 
+          style={styles.sectionHeader} 
+          onPress={() => setIsDoneExpanded(!isDoneExpanded)}
+          activeOpacity={0.7}
+        >
+          <View style={styles.sectionHeaderLeft}>
+            <Ionicons 
+              name={isDoneExpanded ? "chevron-up" : "chevron-down"} 
+              size={18} 
+              color="#374151" 
+              style={{ marginRight: 6 }} 
+            />
+            <Text style={styles.sectionTitleNoMargin}>
+              Terminées ({tasksDone.length})
+            </Text>
+          </View>
+          <View style={styles.headerMoreBtn}>
+            <Text style={styles.moreIcon}>⋮</Text>
+          </View>
+        </TouchableOpacity>
 
-      <Text style={styles.sectionTitle}>
-        Terminées ({tasksDone.length})
-      </Text>
-      <FlatList
-        data={tasksDone}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.listContent}
-        renderItem={renderTask}
-        ListEmptyComponent={
-          !loading ? (
-            <Text style={styles.emptyText}>Aucune tâche terminée.</Text>
-          ) : null
-        }
-      />
+        {isDoneExpanded && (
+          <>
+            {tasksDone.map((item) => renderTask({ item }))}
+            {tasksDone.length === 0 && !loading && (
+              <Text style={styles.emptyText}>Aucune tâche terminée.</Text>
+            )}
+          </>
+        )}
+      </ScrollView>
+
+      {/* Bouton "+ AJOUTER UNE TÂCHE" en bas */}
+      <View style={styles.bottomButtonContainer}>
+        <TouchableOpacity style={styles.newTaskButton} onPress={openCreate}>
+          <Text style={styles.newTaskText}>+ AJOUTER UNE TÂCHE</Text>
+        </TouchableOpacity>
+      </View>
 
       <Modal
         visible={showForm}
@@ -387,28 +408,61 @@ export function Task() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 12,
+    backgroundColor: "#F9FAFB",
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    paddingBottom: 24,
+  },
+  bottomButtonContainer: {
+    paddingHorizontal: 20,
+    paddingBottom: Platform.OS === 'ios' ? 34 : 20,
     paddingTop: 12,
-    backgroundColor: "#F3F4F6",
+    backgroundColor: '#F9FAFB',
+    borderTopWidth: 1,
+    borderTopColor: '#F3F4F6',
   },
   newTaskButton: {
     height: 48,
-    borderRadius: 10,
-    backgroundColor: "#16A34A",
+    borderRadius: 8,
+    backgroundColor: "#5A7F54",
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 16,
   },
   newTaskText: {
     color: "#FFFFFF",
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: "700",
+    letterSpacing: 0.5,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 20,
+    marginBottom: 12,
+  },
+  sectionHeaderLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  headerMoreBtn: {
+    paddingHorizontal: 4,
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: "700",
-    marginTop: 8,
-    marginBottom: 4,
+    marginTop: 16,
+    marginBottom: 12,
+    color: "#111827",
+  },
+  sectionTitleNoMargin: {
+    fontSize: 18,
+    fontWeight: "700",
     color: "#111827",
   },
   listContent: {
