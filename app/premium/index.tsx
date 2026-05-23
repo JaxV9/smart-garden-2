@@ -69,9 +69,17 @@ export default function PremiumScreen() {
                 </View>
 
                 <View style={[styles.planCard, styles.premiumPlanCard]}>
-                    <View style={styles.popularBadge}>
-                        <Ionicons name="star" size={10} color="#D97706" />
-                        <Text style={styles.popularText}>RECOMMANDÉ</Text>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                        <View style={[styles.popularBadge, { marginBottom: 0 }]}>
+                            <Ionicons name="star" size={10} color="#D97706" />
+                            <Text style={styles.popularText}>RECOMMANDÉ</Text>
+                        </View>
+                        {isPremium && (
+                            <View style={[styles.activePlanBadge, { backgroundColor: '#FFFDF0', borderColor: '#FEF3C7', borderWidth: 1 }]}>
+                                <Ionicons name="ribbon" size={12} color="#D4AF37" />
+                                <Text style={[styles.activePlanText, { color: '#B8860B' }]}>Votre offre actuelle 👑</Text>
+                            </View>
+                        )}
                     </View>
 
                     <View style={styles.planHeader}>
@@ -105,7 +113,7 @@ export default function PremiumScreen() {
                         onPress={handleSubscribe}
                         activeOpacity={0.8}
                     >
-                        <Text style={styles.subscribeBtnText}>
+                        <Text style={[styles.subscribeBtnText, isPremium && { color: '#B8860B' }]}>
                             {isPremium ? "Suspendre mon abonnement VIP" : "Devenir membre Ultra VIP"}
                         </Text>
                         <Ionicons name="arrow-forward" size={16} color={isPremium ? "#B8860B" : "white"} />
