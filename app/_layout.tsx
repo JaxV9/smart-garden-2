@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/contexts/themeContext";
 import { TutorialsProvider } from "@/contexts/tutorials.context";
 import { UserProvider } from "@/contexts/user.context";
 import { VegetablesProvider } from "@/contexts/vegetables.context";
+import { NotificationProvider } from "@/contexts/notification.context";
 import { Stack } from "expo-router";
 
 export default function RootLayout() {
@@ -18,19 +19,21 @@ export default function RootLayout() {
               <ForumProvider>
                 <SocialProvider>
                   <TutorialsProvider>
-                    <Stack
-                      screenOptions={{
-                        headerShown: false,
-                        animation: "none",
-                      }}
-                    >
-                      <Stack.Screen
-                        name="vegetable/[vegetableId]/index"
-                        options={{
-                          animation: "slide_from_right",
+                    <NotificationProvider>
+                      <Stack
+                        screenOptions={{
+                          headerShown: false,
+                          animation: "none",
                         }}
-                      />
-                    </Stack>
+                      >
+                        <Stack.Screen
+                          name="vegetable/[vegetableId]/index"
+                          options={{
+                            animation: "slide_from_right",
+                          }}
+                        />
+                      </Stack>
+                    </NotificationProvider>
                   </TutorialsProvider>
                 </SocialProvider>
               </ForumProvider>

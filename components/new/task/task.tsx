@@ -23,6 +23,7 @@ import { Formulaire } from "./formulaire";
 import { useVegetablesContext } from "@/contexts/vegetables.context";
 import { useGardenContext } from "@/contexts/garden.context";
 import { useRouter } from "expo-router";
+import { useNotificationContext } from "@/contexts/notification.context";
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -119,6 +120,7 @@ const getDayLetter = (date: Date) => {
 
 export function Task() {
   const router = useRouter();
+  const { addNotification } = useNotificationContext();
   const { tasks, loading, fetchTasks, createTask, updateTask, deleteTask, toggleTaskStatus } = useTasks();
   const { gardenVegetables, loadGardenVegetables } = useGarden();
   const { vegetablesContext } = useVegetablesContext();
@@ -210,9 +212,18 @@ export function Task() {
     const dateStr = getLocalDateString(date);
 
     if (occ.frequency === "ONCE") {
+      const willBeCompleted = !task.completed;
       await toggleTaskStatus(task);
+      if (willBeCompleted) {
+        addNotification(
+          "🏆 Tâche accomplie avec brio !",
+          `Félicitations, tu as terminé la tâche "${task.title}" ! Tes plantes trinquent à ta santé !`,
+          "TASK"
+        );
+      }
     } else {
       let newCompletedDates = [...occ.completedDates];
+      const willBeCompleted = !newCompletedDates.includes(dateStr);
       if (newCompletedDates.includes(dateStr)) {
         newCompletedDates = newCompletedDates.filter(d => d !== dateStr);
       } else {
@@ -225,6 +236,14 @@ export function Task() {
       await updateTask(task.id, {
         category: serialized
       });
+
+      if (willBeCompleted) {
+        addNotification(
+          "🏆 Tâche récurrente validée !",
+          `Super boulot ! Tu as validé "${task.title}" pour aujourd'hui. Continue comme ça !`,
+          "TASK"
+        );
+      }
     }
   }
 
@@ -266,6 +285,12 @@ export function Task() {
         if (priority) payload.priority = priority;
 
         await createTask(payload);
+
+        addNotification(
+          "📅 Tâche programmée !",
+          `La tâche "${title}" est bien enregistrée dans ton jardin. Tes plantes trépignent d'impatience !`,
+          "TASK"
+        );
       }
     } catch (e) {
       console.log("onSave ERROR", e);

@@ -2,6 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Href, useRouter } from 'expo-router';
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { useNotificationContext } from '@/contexts/notification.context';
 
 interface AppHeaderProps {
     title: string;
@@ -19,6 +20,13 @@ export default function AppHeader({
     fallbackRoute = '/home',
 }: AppHeaderProps) {
     const router = useRouter();
+    
+    let unreadCount = 0;
+    try {
+        const context = useNotificationContext();
+        unreadCount = context.unreadCount;
+    } catch (e) {
+    }
 
     const handleBack = () => {
         if (onBackPress) return onBackPress();
@@ -45,7 +53,14 @@ export default function AppHeader({
             </View>
 
             {showNotifications && (
-                <Ionicons name="notifications-outline" size={20} color="#FFFFFF" />
+                <Pressable onPress={() => router.push('/notifications' as any)} style={styles.notificationBtn}>
+                    <Ionicons name="notifications-outline" size={22} color="#FFFFFF" />
+                    {unreadCount > 0 && (
+                        <View style={styles.badgeContainer}>
+                            <Text style={styles.badgeText}>{unreadCount}</Text>
+                        </View>
+                    )}
+                </Pressable>
             )}
         </View>
     );
@@ -73,5 +88,28 @@ const styles = StyleSheet.create({
     },
     backBtn: {
         paddingRight: 4,
+    },
+    notificationBtn: {
+        position: 'relative',
+        padding: 4,
+    },
+    badgeContainer: {
+        position: 'absolute',
+        top: -1,
+        right: -1,
+        backgroundColor: '#EF4444',
+        borderRadius: 9,
+        minWidth: 16,
+        height: 16,
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingHorizontal: 3,
+        borderWidth: 1.5,
+        borderColor: '#5A7F54',
+    },
+    badgeText: {
+        color: '#FFFFFF',
+        fontSize: 8,
+        fontWeight: '900',
     },
 });

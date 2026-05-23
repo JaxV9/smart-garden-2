@@ -2,6 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useFetch } from '@/hooks/useFetch';
+import { useNotificationContext } from '@/contexts/notification.context';
 
 type SensorReading = {
   id: string;
@@ -51,10 +52,12 @@ function MetricCard({
 
 export function SensorsSection() {
   const { httpClient } = useFetch(undefined);
+  const { addNotification } = useNotificationContext();
   const [reading, setReading] = useState<SensorReading | null>(null);
   const [hasData, setHasData] = useState(true);
   const [loading, setLoading] = useState(true);
   const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
+  const [hasAlertedLowHumidity, setHasAlertedLowHumidity] = useState(false);
 
   useEffect(() => {
     let isActive = true;
@@ -80,7 +83,24 @@ export function SensorsSection() {
       }
 
       setHasData(true);
-      setReading(response.payload as SensorReading);
+      const payload = response.payload as SensorReading;
+      setReading(payload);
+      
+      if (payload) {
+        if (payload.value_numeric < 30) {
+          if (!hasAlertedLowHumidity) {
+            addNotification(
+              "🚨 Alerte Soif Extrême !",
+              `L'humidité du ${payload.sensor_name || 'Capteur Basilic'} est à ${payload.value_numeric}%. Il crie "De l'eau par pitié !"`,
+              "SENSOR"
+            );
+            setHasAlertedLowHumidity(true);
+          }
+        } else if (payload.value_numeric > 35) {
+          setHasAlertedLowHumidity(false);
+        }
+      }
+
       if (!hasLoadedOnce) {
         setLoading(false);
         setHasLoadedOnce(true);
