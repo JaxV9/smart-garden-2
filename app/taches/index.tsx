@@ -10,7 +10,6 @@ export default function Index() {
                 showBack={true}
                 fallbackRoute="/home"
             />
-
             <Task />
         </View>
     );
