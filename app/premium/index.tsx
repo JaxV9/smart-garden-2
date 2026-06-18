@@ -1,11 +1,14 @@
 import AppHeader from '@/components/new/ui/AppHeader';
+import { useTranslation } from '@/contexts/language.context';
 import { useUserContext } from '@/contexts/user.context';
 import { useUser } from '@/hooks/useUser';
 import { Ionicons } from '@expo/vector-icons';
+import Constants from 'expo-constants';
 import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
-import { useTranslation } from '@/contexts/language.context';
+import React, { useEffect, useState } from 'react';
 import {
+    ActivityIndicator,
+    Alert,
     Dimensions,
     Modal,
     ScrollView,
@@ -16,6 +19,19 @@ import {
 } from 'react-native';
 
 const { width } = Dimensions.get('window');
+
+// Détecter si on tourne dans l'application Expo Go
+const isExpoGo = Constants.appOwnership === 'expo';
+
+// Chargement dynamique de react-native-iap pour éviter le crash dans Expo Go
+let IAP: any = null;
+if (!isExpoGo) {
+    try {
+        IAP = require('react-native-iap');
+    } catch (e) {
+        console.warn("Impossible de charger react-native-iap", e);
+    }
+}
 
 const FEATURES = [
     { key: 'vip_perk_community', free: 'word_yes', ultra: 'word_unlimited', icon: 'people-outline' },
@@ -29,6 +45,8 @@ const FEATURES = [
     { key: 'vip_perk_collaboration', free: 'word_no', ultra: 'word_yes', icon: 'share-social-outline' },
 ];
 
+const SUB_SKU = 'com.jaxv9.smartgardenpie.ultra_vip'; // Identifiant de l'abonnement dans Google Play Console
+
 export default function PremiumScreen() {
     const router = useRouter();
     const { isPremium, setIsPremium } = useUserContext();
@@ -36,17 +54,144 @@ export default function PremiumScreen() {
     const [successModalVisible, setSuccessModalVisible] = useState(false);
     const { t } = useTranslation();
 
-    const handleSubscribe = async () => {
-        if (isPremium) {
-            const success = await updateUser({ isPremium: false });
-            if (success !== 'Failure') {
-                setIsPremium(false);
+    const [loading, setLoading] = useState(false);
+    const [iapConnected, setIapConnected] = useState(false);
+    const [subscriptionProduct, setSubscriptionProduct] = useState<any>(null);
+
+    useEffect(() => {
+        if (isExpoGo || !IAP) {
+            console.log('Running in Expo Go: real Google Play billing is disabled, using local simulation.');
+            return;
+        }
+
+        let purchaseUpdateSubscription: any;
+        let purchaseErrorSubscription: any;
+
+        const initBilling = async () => {
+            try {
+                const connected = await IAP.initConnection();
+                setIapConnected(connected);
+                console.log('Google Play Billing connection:', connected);
+
+                if (connected) {
+                    const subs = await IAP.getSubscriptions({ skus: [SUB_SKU] });
+                    console.log('Fetched subscriptions from Google Play:', subs);
+                    if (subs && subs.length > 0) {
+                        setSubscriptionProduct(subs[0]);
+                    }
+                }
+            } catch (error) {
+                console.warn('Google Play Billing init failed:', error);
             }
+        };
+
+        purchaseUpdateSubscription = IAP.purchaseUpdatedListener(async (purchase: any) => {
+            const receipt = purchase.transactionReceipt;
+            if (receipt) {
+                try {
+                    await IAP.finishTransaction({ purchase, isConsumable: false });
+                    console.log('Google Play transaction acknowledged:', purchase.transactionId);
+
+                    const success = await updateUser({ isPremium: true });
+                    if (success !== 'Failure') {
+                        setIsPremium(true);
+                        setSuccessModalVisible(true);
+                    } else {
+                        Alert.alert("Erreur", "L'achat a réussi mais l'enregistrement de votre profil premium a échoué.");
+                    }
+                } catch (err) {
+                    console.error('Acknowledgement/Database update failed:', err);
+                } finally {
+                    setLoading(false);
+                }
+            }
+        });
+
+        purchaseErrorSubscription = IAP.purchaseErrorListener((error: any) => {
+            console.warn('Purchase process error:', error);
+            setLoading(false);
+            if (error.code !== 'E_USER_CANCELLED') {
+                Alert.alert("Achat échoué", "Le processus d'achat a été interrompu ou a échoué.");
+            }
+        });
+
+        initBilling();
+
+        return () => {
+            if (purchaseUpdateSubscription) purchaseUpdateSubscription.remove();
+            if (purchaseErrorSubscription) purchaseErrorSubscription.remove();
+            IAP.endConnection();
+        };
+    }, []);
+
+    // Helper pour récupérer le prix localisé (0,00 € par défaut pour la phase de test)
+    const getSubscriptionPrice = () => {
+        if (!subscriptionProduct) return "0,00 €";
+        const offerDetails = subscriptionProduct.subscriptionOfferDetails?.[0];
+        const pricePhase = offerDetails?.pricingPhases?.pricingPhaseList?.[0];
+        if (pricePhase?.formattedPrice) {
+            return pricePhase.formattedPrice;
+        }
+        return subscriptionProduct.localizedPrice || "0,00 €";
+    };
+
+    const handleSubscribe = async () => {
+        if (isExpoGo || !IAP) {
+            // Mode de simulation pour Expo Go
+            setLoading(true);
+            setTimeout(async () => {
+                if (isPremium) {
+                    const success = await updateUser({ isPremium: false });
+                    if (success !== 'Failure') {
+                        setIsPremium(false);
+                    }
+                } else {
+                    const success = await updateUser({ isPremium: true });
+                    if (success !== 'Failure') {
+                        setIsPremium(true);
+                        setSuccessModalVisible(true);
+                    }
+                }
+                setLoading(false);
+            }, 1000);
+            return;
+        }
+
+        if (isPremium) {
+            Alert.alert(
+                t('prem_unsubscribe') || "Gérer l'abonnement",
+                "Pour vous désabonner ou modifier vos options de facturation, veuillez vous rendre sur l'application Google Play Store dans la rubrique 'Paiements et abonnements'.",
+                [
+                    { text: "Annuler", style: "cancel" },
+                    {
+                        text: "Ouvrir Google Play",
+                        onPress: () => {
+                            const url = `https://play.google.com/store/account/subscriptions?package=com.jaxv9.smartgardenpie&sku=${SUB_SKU}`;
+                            import('react-native').then(({ Linking }) => {
+                                Linking.openURL(url).catch(err => console.error("Impossible d'ouvrir Google Play", err));
+                            });
+                        }
+                    }
+                ]
+            );
         } else {
-            const success = await updateUser({ isPremium: true });
-            if (success !== 'Failure') {
-                setIsPremium(true);
-                setSuccessModalVisible(true);
+            setLoading(true);
+            try {
+                const offerToken = subscriptionProduct?.subscriptionOfferDetails?.[0]?.offerToken;
+                if (offerToken) {
+                    await IAP.requestSubscription({
+                        sku: SUB_SKU,
+                        subscriptionOffers: [{ sku: SUB_SKU, offerToken }]
+                    });
+                } else {
+                    await IAP.requestSubscription({ sku: SUB_SKU });
+                }
+            } catch (error: any) {
+                setLoading(false);
+                console.warn('Purchase initiation failed:', error);
+                if (error.code !== 'E_USER_CANCELLED') {
+                    Alert.alert("Erreur", "Impossible de démarrer le paiement Google Play.");
+                }
             }
         }
     };
@@ -56,6 +201,15 @@ export default function PremiumScreen() {
             <AppHeader title={t('prem_title')} showBack={true} />
 
             <ScrollView style={styles.container} showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+
+                {isExpoGo && (
+                    <View style={styles.demoBanner}>
+                        <Ionicons name="information-circle-outline" size={16} color="#B45309" />
+                        <Text style={styles.demoBannerText}>
+                            Mode Expo Go : Paiements réels désactivés (simulation active pour les tests).
+                        </Text>
+                    </View>
+                )}
 
                 <View style={styles.heroCard}>
                     <View style={styles.badgeRow}>
@@ -85,14 +239,24 @@ export default function PremiumScreen() {
                     </View>
 
                     <View style={styles.planHeader}>
-                        <View>
+                        <View style={{ flex: 1 }}>
                             <Text style={styles.premiumName}>Ultra VIP 👑</Text>
                             <Text style={styles.premiumDesc}>{t('prem_best')}</Text>
                         </View>
                         <View style={styles.priceContainer}>
-                            <Text style={styles.premiumPrice}>6,99 €</Text>
+                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, justifyContent: 'flex-end' }}>
+                                <Text style={styles.strikethroughPrice}>6,99 €</Text>
+                                <Text style={styles.premiumPrice}>{getSubscriptionPrice()}</Text>
+                            </View>
                             <Text style={styles.premiumPeriod}>{t('prem_month')}</Text>
                         </View>
+                    </View>
+
+                    <View style={styles.testPhaseBadge}>
+                        <Ionicons name="gift-outline" size={14} color="#059669" style={{ marginRight: 4 }} />
+                        <Text style={styles.testPhaseText}>
+                            Offert pendant la phase de test bêta !
+                        </Text>
                     </View>
 
                     <View style={styles.perksList}>
@@ -111,14 +275,21 @@ export default function PremiumScreen() {
                     </View>
 
                     <TouchableOpacity
-                        style={[styles.subscribeBtn, isPremium && styles.unsubscribeBtn]}
+                        style={[styles.subscribeBtn, isPremium && styles.unsubscribeBtn, loading && { opacity: 0.7 }]}
                         onPress={handleSubscribe}
                         activeOpacity={0.8}
+                        disabled={loading}
                     >
-                        <Text style={[styles.subscribeBtnText, isPremium && { color: '#B8860B' }]}>
-                            {isPremium ? t('prem_unsubscribe') : t('prem_subscribe')}
-                        </Text>
-                        <Ionicons name="arrow-forward" size={16} color={isPremium ? "#B8860B" : "white"} />
+                        {loading ? (
+                            <ActivityIndicator color={isPremium ? "#B8860B" : "white"} size="small" />
+                        ) : (
+                            <>
+                                <Text style={[styles.subscribeBtnText, isPremium && { color: '#B8860B' }]}>
+                                    {isPremium ? t('prem_unsubscribe') : t('prem_subscribe')}
+                                </Text>
+                                <Ionicons name="arrow-forward" size={16} color={isPremium ? "#B8860B" : "white"} />
+                            </>
+                        )}
                     </TouchableOpacity>
                 </View>
 
@@ -589,5 +760,48 @@ const styles = StyleSheet.create({
         color: 'white',
         fontSize: 15,
         fontWeight: '700',
+    },
+    strikethroughPrice: {
+        fontSize: 16,
+        color: '#94A3B8',
+        textDecorationLine: 'line-through',
+        fontWeight: '600',
+        marginTop: 4,
+    },
+    testPhaseBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#ECFDF5',
+        borderColor: '#10B981',
+        borderWidth: 1,
+        borderRadius: 12,
+        paddingVertical: 8,
+        paddingHorizontal: 12,
+        marginTop: 12,
+        marginBottom: 4,
+        alignSelf: 'flex-start',
+    },
+    testPhaseText: {
+        fontSize: 11,
+        fontWeight: '700',
+        color: '#047857',
+    },
+    demoBanner: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#FFFBEB',
+        borderColor: '#F59E0B',
+        borderWidth: 1,
+        borderRadius: 16,
+        padding: 12,
+        marginTop: 16,
+        marginBottom: 8,
+        gap: 8,
+    },
+    demoBannerText: {
+        fontSize: 12,
+        fontWeight: '600',
+        color: '#D97706',
+        flex: 1,
     },
 });
