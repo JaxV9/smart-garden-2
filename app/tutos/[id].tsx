@@ -17,6 +17,7 @@ interface Tutorial {
     videoUrl?: string;
     type: 'ARTICLE' | 'VIDEO';
     author: {
+        id?: string;
         name?: string;
     };
     createdAt: string;
@@ -174,7 +175,18 @@ export default function TutorialDetailScreen() {
                         <Text style={styles.title}>{tutorial.title}</Text>
 
                         {/* Auteur */}
-                        <View style={styles.authorContainer}>
+                        <TouchableOpacity
+                            style={styles.authorContainer}
+                            onPress={() => {
+                                if (tutorial.author?.id) {
+                                    router.push({
+                                        pathname: '/user/[id]',
+                                        params: { id: tutorial.author.id }
+                                    });
+                                }
+                            }}
+                            activeOpacity={0.7}
+                        >
                             <View style={styles.avatarPlaceholder}>
                                 <Ionicons name="person" size={20} color="#666" />
                             </View>
@@ -182,7 +194,7 @@ export default function TutorialDetailScreen() {
                                 <Text style={styles.authorName}>{tutorial.author?.name || 'Utilisateur'}</Text>
                                 <Text style={styles.publishDate}>{getTimeAgo(tutorial.createdAt)}</Text>
                             </View>
-                        </View>
+                        </TouchableOpacity>
 
                         {/* Stats et actions */}
                         <View style={styles.statsContainer}>
@@ -355,7 +367,8 @@ const styles = StyleSheet.create({
     authorName: {
         fontSize: 15,
         fontWeight: '600',
-        color: '#333',
+        color: '#5B8E55',
+        textDecorationLine: 'underline',
     },
     publishDate: {
         fontSize: 13,
