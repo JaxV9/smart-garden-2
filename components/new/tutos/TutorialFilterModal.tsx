@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
 import { Modal, ScrollView, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
+import { useTranslation } from '@/contexts/language.context';
 
 type TutorialCategory = 'ASTUCES' | 'DIY' | 'TECHNIQUES';
 type TutorialType = 'VIDEO' | 'ARTICLE';
@@ -20,6 +21,7 @@ export default function TutorialFilterModal({
     onClose,
     onApply,
 }: TutorialFilterModalProps) {
+    const { t } = useTranslation();
     const [tempCategory, setTempCategory] = useState<TutorialCategory | null>(selectedCategory);
     const [tempType, setTempType] = useState<TutorialType | null>(selectedType);
 
@@ -27,13 +29,22 @@ export default function TutorialFilterModal({
     const types: (TutorialType | null)[] = [null, 'VIDEO', 'ARTICLE'];
 
     const getCategoryLabel = (category: TutorialCategory | null) => {
-        if (!category) return 'Toutes catégories';
-        return category;
+        if (!category) return t('tutos_filter_all_categories');
+        switch (category) {
+            case 'ASTUCES':
+                return t('tutos_cat_astuces');
+            case 'DIY':
+                return t('tutos_cat_diy');
+            case 'TECHNIQUES':
+                return t('tutos_cat_techniques');
+            default:
+                return category;
+        }
     };
 
     const getTypeLabel = (type: TutorialType | null) => {
-        if (!type) return 'Tous types';
-        return type === 'VIDEO' ? 'Vidéos' : 'Articles';
+        if (!type) return t('tutos_filter_all_types');
+        return type === 'VIDEO' ? t('tutos_filter_videos') : t('tutos_filter_articles');
     };
 
     const handleApply = () => {
@@ -58,7 +69,7 @@ export default function TutorialFilterModal({
                     <TouchableWithoutFeedback onPress={() => {}}>
                         <View style={styles.modalContent}>
                     <View style={styles.modalHeader}>
-                        <Text style={styles.modalTitle}>Filtrer les tutoriels</Text>
+                        <Text style={styles.modalTitle}>{t('tutos_filter_title')}</Text>
                         <TouchableOpacity onPress={onClose}>
                             <Ionicons name="close" size={24} color="#333" />
                         </TouchableOpacity>
@@ -66,7 +77,7 @@ export default function TutorialFilterModal({
 
                     <ScrollView style={styles.modalBody}>
                         {/* Catégories */}
-                        <Text style={styles.sectionTitle}>Catégorie</Text>
+                        <Text style={styles.sectionTitle}>{t('tutos_category')}</Text>
                         <View style={styles.optionsContainer}>
                             {categories.map((category) => (
                                 <TouchableOpacity
@@ -93,7 +104,7 @@ export default function TutorialFilterModal({
                         </View>
 
                         {/* Types */}
-                        <Text style={styles.sectionTitle}>Type</Text>
+                        <Text style={styles.sectionTitle}>{t('tutos_type')}</Text>
                         <View style={styles.optionsContainer}>
                             {types.map((type) => (
                                 <TouchableOpacity
@@ -131,11 +142,11 @@ export default function TutorialFilterModal({
 
                     <View style={styles.modalFooter}>
                         <TouchableOpacity style={styles.resetButton} onPress={handleReset}>
-                            <Text style={styles.resetButtonText}>Réinitialiser</Text>
+                            <Text style={styles.resetButtonText}>{t('tutos_filter_reset')}</Text>
                         </TouchableOpacity>
 
                         <TouchableOpacity style={styles.applyButton} onPress={handleApply}>
-                            <Text style={styles.applyButtonText}>Appliquer</Text>
+                            <Text style={styles.applyButtonText}>{t('tutos_filter_apply')}</Text>
                         </TouchableOpacity>
                     </View>
                         </View>

@@ -17,6 +17,7 @@ export function PlantGrid({
       {plants.map((p) => (
         <PlantCard
           key={`${prefix}-${p.name}`}
+          id={p.id}
           name={p.name}
           imageUri={p.image}
           onPress={
@@ -24,7 +25,7 @@ export function PlantGrid({
               ? () =>
                   router.push({
                     pathname: "/vegetable/[vegetableId]",
-                    params: { vegetableId: p.id },
+                    params: { vegetableId: p.id! },
                   })
               : undefined
           }

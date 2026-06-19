@@ -11,10 +11,12 @@ import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { Header } from '@/components/new/header/header';
+import AppHeader from '@/components/new/ui/AppHeader';
+import { useTranslation } from '@/contexts/language.context';
 
 export default function TutosScreen() {
     const router = useRouter();
+    const { t } = useTranslation();
     const { tutorials } = useTutorialsContext();
     const { loadTutorials, createTutorial, toggleLike } = useTutorials();
 
@@ -52,7 +54,7 @@ export default function TutosScreen() {
         if (result === 'Success') {
             setCreateModalVisible(false);
         } else {
-            alert('Erreur lors de la création du tutoriel');
+            alert(t('tutos_create_error'));
         }
     };
 
@@ -82,7 +84,7 @@ export default function TutosScreen() {
         <SafeAreaProvider>
             <View style={styles.container}>
                 <AppHeader
-                    title="Documentation"
+                    title={t('tab_documentation')}
                     showBack={true}
                     fallbackRoute="/home"
                 />
@@ -98,7 +100,7 @@ export default function TutosScreen() {
                         onPress={() => setCreateModalVisible(true)}
                     >
                         <Ionicons name="add" size={20} color="white" />
-                        <Text style={styles.createButtonText}>Publier un tutoriel</Text>
+                        <Text style={styles.createButtonText}>{t('tutos_publish_btn')}</Text>
                     </TouchableOpacity>
 
                     {/* Barre de recherche */}
@@ -106,7 +108,7 @@ export default function TutosScreen() {
                         <Ionicons name="search-outline" size={20} color="#666" />
                         <TextInput
                             style={styles.searchInput}
-                            placeholder="Rechercher un tutoriel..."
+                            placeholder={t('tutos_search_placeholder')}
                             value={searchQuery}
                             onChangeText={setSearchQuery}
                             placeholderTextColor="#111827"

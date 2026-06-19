@@ -166,10 +166,10 @@ export function SensorsSection() {
     if (humidityReading.value_numeric < 30) {
       if (!hasAlertedLowHumidity) {
         addNotification(
-          '🚨 Alerte Soif Extrême !',
-          `L'humidité du ${humiditySensor.name || 'Capteur Basilic'} est à ${Math.round(
-            humidityReading.value_numeric
-          )}%. Il crie "De l'eau par pitié !"`,
+          t('notif_sensor_thirsty_title'),
+          t('notif_sensor_thirsty_body')
+            .replace('{{name}}', humiditySensor.name || t('notif_sensor_fallback_name'))
+            .replace('{{value}}', String(Math.round(humidityReading.value_numeric))),
           'SENSOR'
         );
         setHasAlertedLowHumidity(true);
@@ -177,7 +177,7 @@ export function SensorsSection() {
     } else if (humidityReading.value_numeric > 35) {
       setHasAlertedLowHumidity(false);
     }
-  }, [addNotification, hasAlertedLowHumidity, humidityReading, humiditySensor]);
+  }, [addNotification, hasAlertedLowHumidity, humidityReading, humiditySensor, t]);
 
   const latestUpdatedAt = useMemo(() => {
     const dates = sensors

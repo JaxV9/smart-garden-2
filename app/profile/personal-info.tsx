@@ -1,5 +1,6 @@
 import { useUserContext } from '@/contexts/user.context';
 import { useUser } from '@/hooks/useUser';
+import { useTranslation } from '@/contexts/language.context';
 import { Feather } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
@@ -21,13 +22,6 @@ import { GardenerLevel } from '@/models/models';
 
 const DEFAULT_AVATAR = require('@/assets/images/avatar.png');
 
-const LEVEL_LABELS: Record<string, string> = {
-  beginner: 'Débutant.e',
-  amateur: 'Amateur.trice',
-  advanced: 'Avancé.e',
-  enthusiast: 'Passionné.e',
-};
-
 import { useTour } from '@/contexts/tour.context';
 import { useRef, useEffect } from 'react';
 
@@ -35,6 +29,7 @@ export default function PersonalInfoScreen() {
   const { user } = useUserContext();
   const { updateAvatar, updateUser } = useUser();
   const { registerElement, step } = useTour();
+  const { t } = useTranslation();
 
   const scrollRef = useRef<ScrollView>(null);
   const pseudoEmailRef = useRef<View>(null);
@@ -85,8 +80,8 @@ export default function PersonalInfoScreen() {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
       Alert.alert(
-        'Permission refusée',
-        "Nous avons besoin de l’accès aux photos pour changer votre avatar."
+        t('personal_permission_denied'),
+        t('personal_photo_permission_desc')
       );
       return;
     }
@@ -137,29 +132,29 @@ export default function PersonalInfoScreen() {
 
   const handleSubmitPasswordChange = async () => {
     if (!newPassword || !confirmPassword) {
-      Alert.alert('Erreur', 'Veuillez remplir les deux champs.');
+      Alert.alert(t('error_title' as any) || 'Erreur', t('personal_error_fill_fields'));
       return;
     }
 
     if (newPassword.length < 8) {
-      Alert.alert('Erreur', 'Le mot de passe doit contenir au moins 8 caractères.');
+      Alert.alert(t('error_title' as any) || 'Erreur', t('personal_error_pwd_length'));
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      Alert.alert('Erreur', 'Les mots de passe ne correspondent pas.');
+      Alert.alert(t('error_title' as any) || 'Erreur', t('personal_error_pwd_match'));
       return;
     }
 
     const status = await updateUser({ password: newPassword });
 
     if (status === 'Failure') {
-      Alert.alert('Erreur', 'Impossible de modifier le mot de passe.');
+      Alert.alert(t('error_title' as any) || 'Erreur', t('personal_error_pwd_failed'));
       return;
     }
 
     handleClosePasswordModal();
-    Alert.alert('Succès', 'Le mot de passe a bien été mis à jour.');
+    Alert.alert(t('success_title' as any) || 'Succès', t('personal_success_pwd_updated'));
   };
 
   const handleSave = async () => {
@@ -171,11 +166,11 @@ export default function PersonalInfoScreen() {
     });
 
     if (status === "Failure") {
-      Alert.alert("Erreur", "Impossible d'enregistrer vos informations.");
+      Alert.alert(t('error_title' as any) || 'Erreur', t('personal_error_save_failed'));
       return;
     }
 
-    Alert.alert("Succès", "Vos informations ont été mises à jour.");
+    Alert.alert(t('success_title' as any) || 'Succès', t('personal_success_save'));
   };
 
 
@@ -199,7 +194,7 @@ export default function PersonalInfoScreen() {
           >
             <Feather name="arrow-left" size={22} color="#111827" />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Informations personnelles</Text>
+          <Text style={styles.headerTitle}>{t('profile_personal_info')}</Text>
           <View style={{ width: 22 }} />
         </View>
 
@@ -223,7 +218,7 @@ export default function PersonalInfoScreen() {
         >
           {/* Pseudo */}
           <View style={styles.field}>
-            <Text style={styles.label}>Pseudo</Text>
+            <Text style={styles.label}>{t('personal_pseudo_label')}</Text>
             <View style={styles.inputWrapper}>
               <Feather
                 name="user"
@@ -235,7 +230,7 @@ export default function PersonalInfoScreen() {
                 style={styles.input}
                 value={pseudo}
                 onChangeText={setPseudo}
-                placeholder="Votre pseudo"
+                placeholder={t('personal_pseudo_placeholder')}
                 placeholderTextColor={COLORS.placeholder}
               />
               {pseudo.length > 0 && (
@@ -251,7 +246,7 @@ export default function PersonalInfoScreen() {
 
           {/* Nom public */}
           <View style={styles.field}>
-            <Text style={styles.label}>Nom public</Text>
+            <Text style={styles.label}>{t('personal_public_name_label')}</Text>
             <View style={styles.inputWrapper}>
               <Feather
                 name="user"
@@ -263,7 +258,7 @@ export default function PersonalInfoScreen() {
                 style={styles.input}
                 value={publicName}
                 onChangeText={setPublicName}
-                placeholder="Votre nom public"
+                placeholder={t('personal_public_name_placeholder')}
                 placeholderTextColor={COLORS.placeholder}
               />
               {publicName.length > 0 && (
@@ -279,7 +274,7 @@ export default function PersonalInfoScreen() {
 
           {/* Email */}
           <View style={styles.field}>
-            <Text style={styles.label}>Email</Text>
+            <Text style={styles.label}>{t('personal_email_label')}</Text>
             <View style={styles.inputWrapper}>
               <Feather
                 name="mail"
@@ -293,7 +288,7 @@ export default function PersonalInfoScreen() {
                 onChangeText={setEmail}
                 keyboardType="email-address"
                 autoCapitalize="none"
-                placeholder="Votre email"
+                placeholder={t('personal_email_placeholder')}
                 placeholderTextColor={COLORS.placeholder}
               />
               {email.length > 0 && (
@@ -313,7 +308,7 @@ export default function PersonalInfoScreen() {
             onLayout={measureAll}
             style={styles.field}
           >
-            <Text style={styles.label}>Niveau d&apos;expérience</Text>
+            <Text style={styles.label}>{t('personal_exp_label')}</Text>
 
             <TouchableOpacity
               style={styles.inputWrapper}
@@ -321,7 +316,7 @@ export default function PersonalInfoScreen() {
               onPress={toggleExperienceDropdown}
             >
               <Text style={[styles.input, styles.textOnlyInput]}>
-                {LEVEL_LABELS[experience] ?? experience}
+                {t(`profile_level_${experience}` as any)}
               </Text>
               <Feather
                 name={isExperienceOpen ? 'chevron-up' : 'chevron-down'}
@@ -349,7 +344,7 @@ export default function PersonalInfoScreen() {
                           experience === level && styles.dropdownItemTextActive,
                         ]}
                       >
-                        {LEVEL_LABELS[level] ?? level}
+                        {t(`profile_level_${level}` as any)}
                       </Text>
                     </TouchableOpacity>
                   )
@@ -366,7 +361,7 @@ export default function PersonalInfoScreen() {
             >
               <Feather name="lock" size={16} color={COLORS.primary} />
               <Text style={styles.changePasswordText}>
-                Changer de mot de passe
+                {t('personal_change_pwd_btn')}
               </Text>
             </TouchableOpacity>
           </View>
@@ -378,7 +373,7 @@ export default function PersonalInfoScreen() {
           activeOpacity={0.8}
           onPress={handleSave}
         >
-          <Text style={styles.saveButtonText}>ENREGISTRER</Text>
+          <Text style={styles.saveButtonText}>{t('personal_save_btn')}</Text>
         </TouchableOpacity>
       </ScrollView>
 
@@ -391,7 +386,7 @@ export default function PersonalInfoScreen() {
         <View style={styles.modalOverlay}>
           <View style={styles.modalCard}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Changer le mot de passe</Text>
+              <Text style={styles.modalTitle}>{t('personal_pwd_modal_title')}</Text>
               <TouchableOpacity
                 onPress={handleClosePasswordModal}
                 hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
@@ -401,7 +396,7 @@ export default function PersonalInfoScreen() {
             </View>
 
             <View style={styles.modalField}>
-              <Text style={styles.label}>Nouveau mot de passe</Text>
+              <Text style={styles.label}>{t('personal_pwd_new_label')}</Text>
               <View style={styles.inputWrapper}>
                 <Feather
                   name="lock"
@@ -413,7 +408,7 @@ export default function PersonalInfoScreen() {
                   style={styles.input}
                   value={newPassword}
                   onChangeText={setNewPassword}
-                  placeholder="Nouveau mot de passe"
+                  placeholder={t('personal_pwd_new_label')}
                   placeholderTextColor={COLORS.placeholder}
                   secureTextEntry={!isNewPasswordVisible}
                   autoCapitalize="none"
@@ -432,7 +427,7 @@ export default function PersonalInfoScreen() {
             </View>
 
             <View style={styles.modalField}>
-              <Text style={styles.label}>Confirmer le mot de passe</Text>
+              <Text style={styles.label}>{t('personal_pwd_confirm_label')}</Text>
               <View style={styles.inputWrapper}>
                 <Feather
                   name="lock"
@@ -444,7 +439,7 @@ export default function PersonalInfoScreen() {
                   style={styles.input}
                   value={confirmPassword}
                   onChangeText={setConfirmPassword}
-                  placeholder="Confirmer le mot de passe"
+                  placeholder={t('personal_pwd_confirm_label')}
                   placeholderTextColor={COLORS.placeholder}
                   secureTextEntry={!isConfirmPasswordVisible}
                   autoCapitalize="none"
@@ -467,7 +462,7 @@ export default function PersonalInfoScreen() {
               activeOpacity={0.8}
               onPress={handleSubmitPasswordChange}
             >
-              <Text style={styles.modalPrimaryButtonText}>VALIDER</Text>
+              <Text style={styles.modalPrimaryButtonText}>{t('personal_pwd_submit_btn')}</Text>
             </TouchableOpacity>
           </View>
         </View>

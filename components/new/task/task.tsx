@@ -24,6 +24,7 @@ import { useVegetablesContext } from "@/contexts/vegetables.context";
 import { useGardenContext } from "@/contexts/garden.context";
 import { useRouter } from "expo-router";
 import { useNotificationContext } from "@/contexts/notification.context";
+import { useTranslation } from "@/contexts/language.context";
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -121,6 +122,7 @@ const getDayLetter = (date: Date) => {
 export function Task() {
   const router = useRouter();
   const { addNotification } = useNotificationContext();
+  const { t } = useTranslation();
   const { tasks, loading, fetchTasks, createTask, updateTask, deleteTask, toggleTaskStatus } = useTasks();
   const { gardenVegetables, loadGardenVegetables } = useGarden();
   const { vegetablesContext } = useVegetablesContext();
@@ -216,8 +218,8 @@ export function Task() {
       await toggleTaskStatus(task);
       if (willBeCompleted) {
         addNotification(
-          "🏆 Tâche accomplie avec brio !",
-          `Félicitations, tu as terminé la tâche "${task.title}" ! Tes plantes trinquent à ta santé !`,
+          t("notif_task_done_title"),
+          t("notif_task_done_body").replace("{{title}}", task.title),
           "TASK"
         );
       }
@@ -239,8 +241,8 @@ export function Task() {
 
       if (willBeCompleted) {
         addNotification(
-          "🏆 Tâche récurrente validée !",
-          `Super boulot ! Tu as validé "${task.title}" pour aujourd'hui. Continue comme ça !`,
+          t("notif_task_recurrent_title"),
+          t("notif_task_recurrent_body").replace("{{title}}", task.title),
           "TASK"
         );
       }
@@ -287,8 +289,8 @@ export function Task() {
         await createTask(payload);
 
         addNotification(
-          "📅 Tâche programmée !",
-          `La tâche "${title}" est bien enregistrée dans ton jardin. Tes plantes trépignent d'impatience !`,
+          t("notif_task_created_title"),
+          t("notif_task_created_body").replace("{{title}}", title),
           "TASK"
         );
       }

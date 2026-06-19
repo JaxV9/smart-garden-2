@@ -19,15 +19,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-
 const DEFAULT_AVATAR = require('@/assets/images/avatar.png');
-
-const LEVEL_LABELS: Record<string, string> = {
-  beginner: 'Débutant.e',
-  amateur: 'Amateur.trice',
-  advanced: 'Avancé.e',
-  enthusiast: 'Passionné.e',
-};
 
 import { useTour } from '@/contexts/tour.context';
 import { useRef } from 'react';
@@ -147,7 +139,7 @@ export default function ProfileScreen() {
 
             <Text style={styles.level}>
               {user?.level
-                ? (LEVEL_LABELS[user.level] ?? user.level)
+                ? t(`profile_level_${user.level}` as any)
                 : '—'}
             </Text>
           </View>
@@ -232,7 +224,7 @@ export default function ProfileScreen() {
             </View>
 
             <Text style={styles.rowText}>
-              {t('profile_edit')}
+              {t('profile_community_info')}
             </Text>
 
             <Feather
@@ -349,7 +341,7 @@ export default function ProfileScreen() {
               </View>
 
               <Text style={styles.gardenTitle}>
-                {t('plan_default_name')}
+                {t('profile_garden_info')}
               </Text>
             </View>
 
@@ -371,7 +363,7 @@ export default function ProfileScreen() {
 
           <View style={styles.infoLine}>
             <Text style={styles.infoLabel}>
-              Nom du jardin
+              {t('garden_info_name_label')}
             </Text>
 
             <Text style={styles.infoValue}>

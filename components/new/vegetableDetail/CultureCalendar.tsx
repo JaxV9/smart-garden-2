@@ -1,7 +1,23 @@
 import React from "react";
 import { Alert, Text, TouchableOpacity, View } from "react-native";
 import { styles } from "../../../css/vegetableDetailsStyle";
-import { MONTHS_SHORT } from "../../../utils/month";
+import { useTranslation } from "@/contexts/language.context";
+
+const MONTHS_KEYS = [
+  'month_janvier',
+  'month_février',
+  'month_mars',
+  'month_avril',
+  'month_mai',
+  'month_juin',
+  'month_juillet',
+  'month_août',
+  'month_septembre',
+  'month_octobre',
+  'month_novembre',
+  'month_décembre'
+];
+
 import type { MonthRange } from "../../../types/types";
 
 function TimelineBar({
@@ -42,32 +58,42 @@ export function CultureCalendar({
   plantationRange: MonthRange;
   harvestRange: MonthRange;
 }) {
+  const { t } = useTranslation();
+
+  const getShortMonthName = (monthKey: string) => {
+    const full = t(monthKey);
+    if (full.endsWith('月')) {
+      return full.replace('月', '');
+    }
+    return full.charAt(0).toUpperCase();
+  };
+
   return (
     <View style={styles.calendar}>
       <View style={styles.monthsRow}>
-        {MONTHS_SHORT.map((m, idx) => (
-          <Text key={`${m}-${idx}`} style={styles.monthText}>
-            {m}
+        {MONTHS_KEYS.map((mKey, idx) => (
+          <Text key={`${mKey}-${idx}`} style={styles.monthText}>
+            {getShortMonthName(mKey)}
           </Text>
         ))}
       </View>
 
       <View style={styles.timelineTrack}>
         <TimelineBar
-          label="S"
-          fullLabel="Semis"
+          label={t('doc_calendar_sowing_short', 'S')}
+          fullLabel={t('doc_filter_sowing_period')}
           range={sowingRange}
           style={styles.timelineSowing}
         />
         <TimelineBar
-          label="P"
-          fullLabel="Plantation"
+          label={t('doc_calendar_planting_short', 'P')}
+          fullLabel={t('doc_filter_planting_period')}
           range={plantationRange}
           style={styles.timelinePlantation}
         />
         <TimelineBar
-          label="R"
-          fullLabel="Récolte"
+          label={t('doc_calendar_harvest_short', 'R')}
+          fullLabel={t('doc_filter_harvest_period')}
           range={harvestRange}
           style={styles.timelineHarvest}
         />

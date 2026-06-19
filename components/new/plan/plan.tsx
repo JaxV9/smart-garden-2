@@ -147,7 +147,7 @@ export const Plan = () => {
                                 ) : (
                                     plan !== defaultPlanName && (
                                         <Ionicons
-                                            name="crown"
+                                            name="star"
                                             size={12}
                                             color={isActive ? "#FFFFFF" : "#D4AF37"}
                                             style={{ marginLeft: 4 }}

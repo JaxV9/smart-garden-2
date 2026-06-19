@@ -3,9 +3,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useTranslation } from '@/contexts/language.context';
+import { getTimeAgo } from '@/utils/dateFormatter';
 
 export default function MyTopics() {
     const router = useRouter();
+    const { t, language } = useTranslation();
     const { getUserTopics } = useForum();
     const [loading, setLoading] = useState(false);
     const [userTopics, setUserTopics] = useState<Topic[]>([]);
@@ -21,21 +24,6 @@ export default function MyTopics() {
             loadData();
         }, [])
     );
-
-    const getTimeAgo = (date: string) => {
-        const now = new Date();
-        const createdAt = new Date(date);
-        const diffInMs = now.getTime() - createdAt.getTime();
-        
-        const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
-        const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
-        const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
-        
-        if (diffInMinutes < 1) return "À l'instant";
-        if (diffInMinutes < 60) return `Il y a ${diffInMinutes} min`;
-        if (diffInHours < 24) return `Il y a ${diffInHours}h`;
-        return `Il y a ${diffInDays}j`;
-    };
 
     const renderTopic = ({ item }: { item: Topic }) => (
         <TouchableOpacity 
@@ -53,17 +41,17 @@ export default function MyTopics() {
             <Text style={styles.topicTitle}>{item.title}</Text>
 
             <View style={styles.topicMeta}>
-                <Text style={styles.topicTime}>{getTimeAgo(item.createdAt)}</Text>
+                <Text style={styles.topicTime}>{getTimeAgo(item.createdAt, language)}</Text>
             </View>
 
             <View style={styles.topicStats}>
                 <View style={styles.statItem}>
                     <Ionicons name="chatbubble-outline" size={16} color="#666" />
-                    <Text style={styles.statText}>{item._count.comments} réponses</Text>
+                    <Text style={styles.statText}>{item._count.comments} {t('forum_topic_replies')}</Text>
                 </View>
                 <View style={styles.statItem}>
                     <Ionicons name="eye-outline" size={16} color="#666" />
-                    <Text style={styles.statText}>{item.viewCount} vues</Text>
+                    <Text style={styles.statText}>{item.viewCount} {t('forum_topic_views')}</Text>
                 </View>
             </View>
         </TouchableOpacity>
@@ -76,7 +64,7 @@ export default function MyTopics() {
                 <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
                     <Ionicons name="arrow-back" size={24} color="white" />
                 </TouchableOpacity>
-                <Text style={styles.headerTitle}>Mes topics</Text>
+                <Text style={styles.headerTitle}>{t('profile_my_topics')}</Text>
                 <View style={styles.headerRight} />
             </View>
 
@@ -87,15 +75,15 @@ export default function MyTopics() {
             ) : userTopics.length === 0 ? (
                 <View style={styles.emptyContainer}>
                     <Ionicons name="document-text-outline" size={80} color="#ccc" />
-                    <Text style={styles.emptyTitle}>Aucun topic</Text>
+                    <Text style={styles.emptyTitle}>{t('profile_no_topics')}</Text>
                     <Text style={styles.emptyText}>
-                        Vous n'avez pas encore créé de topic
+                        {t('profile_no_topics_desc')}
                     </Text>
                     <TouchableOpacity 
                         style={styles.createButton}
                         onPress={() => router.push('/(tabs)/social')}
                     >
-                        <Text style={styles.createButtonText}>Créer un topic</Text>
+                        <Text style={styles.createButtonText}>{t('profile_create_topic')}</Text>
                     </TouchableOpacity>
                 </View>
             ) : (

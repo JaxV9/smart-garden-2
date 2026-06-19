@@ -1,6 +1,7 @@
 import { getTimeAgo } from '@/utils/dateFormatter';
 import { Ionicons } from '@expo/vector-icons';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useTranslation } from '@/contexts/language.context';
 
 interface Tutorial {
     title: string;
@@ -24,6 +25,8 @@ interface TutorialDetailArticleProps {
 }
 
 export default function TutorialDetailArticle({ tutorial, onLike }: TutorialDetailArticleProps) {
+    const { t, language } = useTranslation();
+
     const getCategoryColor = (category: string) => {
         switch (category) {
             case 'ASTUCES':
@@ -37,12 +40,25 @@ export default function TutorialDetailArticle({ tutorial, onLike }: TutorialDeta
         }
     };
 
+    const getCategoryLabel = (category: string) => {
+        switch (category) {
+            case 'ASTUCES':
+                return t('tutos_cat_astuces');
+            case 'DIY':
+                return t('tutos_cat_diy');
+            case 'TECHNIQUES':
+                return t('tutos_cat_techniques');
+            default:
+                return category;
+        }
+    };
+
     return (
         <View style={styles.container}>
             <View style={styles.content}>
                 {/* Catégorie */}
                 <View style={[styles.categoryBadge, { backgroundColor: getCategoryColor(tutorial.category) }]}>
-                    <Text style={styles.categoryText}>{tutorial.category}</Text>
+                    <Text style={styles.categoryText}>{getCategoryLabel(tutorial.category)}</Text>
                 </View>
 
                 <Text style={styles.title}>{tutorial.title}</Text>
@@ -53,8 +69,8 @@ export default function TutorialDetailArticle({ tutorial, onLike }: TutorialDeta
                         <Ionicons name="person" size={20} color="#5A7F54" />
                     </View>
                     <View style={styles.authorInfo}>
-                        <Text style={styles.authorName}>{tutorial.author.name || 'Utilisateur'}</Text>
-                        <Text style={styles.publishDate}>{getTimeAgo(tutorial.createdAt)}</Text>
+                        <Text style={styles.authorName}>{tutorial.author.name || t('social_user_fallback')}</Text>
+                        <Text style={styles.publishDate}>{getTimeAgo(tutorial.createdAt, language)}</Text>
                     </View>
                 </View>
 
@@ -63,7 +79,7 @@ export default function TutorialDetailArticle({ tutorial, onLike }: TutorialDeta
                     <View style={styles.stats}>
                         <View style={styles.statItem}>
                             <Ionicons name="eye-outline" size={18} color="#666" />
-                            <Text style={styles.statText}>{tutorial.viewCount} vues</Text>
+                            <Text style={styles.statText}>{tutorial.viewCount} {t('tutos_views')}</Text>
                         </View>
                     </View>
 

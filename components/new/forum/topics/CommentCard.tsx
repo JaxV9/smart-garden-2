@@ -2,6 +2,7 @@ import { getTimeAgo } from '@/utils/dateFormatter';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useTranslation } from '@/contexts/language.context';
 
 interface CommentCardProps {
     author: {
@@ -13,6 +14,7 @@ interface CommentCardProps {
 }
 
 export default function CommentCard({ author, content, createdAt }: CommentCardProps) {
+    const { t, language } = useTranslation();
     const router = useRouter();
 
     return (
@@ -23,9 +25,9 @@ export default function CommentCard({ author, content, createdAt }: CommentCardP
                 </View>
                 <View style={styles.commentHeaderInfo}>
                     <TouchableOpacity onPress={() => router.push({ pathname: '/user/[id]', params: { id: author.id } })}>
-                        <Text style={[styles.commentAuthor, { color: '#5B8E55', textDecorationLine: 'underline' }]}>{author.name || 'Utilisateur'}</Text>
+                        <Text style={[styles.commentAuthor, { color: '#5B8E55', textDecorationLine: 'underline' }]}>{author.name || t('social_user_fallback')}</Text>
                     </TouchableOpacity>
-                    <Text style={styles.commentTime}>{getTimeAgo(createdAt)}</Text>
+                    <Text style={styles.commentTime}>{getTimeAgo(createdAt, language)}</Text>
                 </View>
             </View>
             <Text style={styles.commentContent}>{content}</Text>

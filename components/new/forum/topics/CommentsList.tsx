@@ -7,6 +7,7 @@ interface Comment {
     content: string;
     createdAt: string;
     author: {
+        id: string;
         name?: string;
     };
 }
