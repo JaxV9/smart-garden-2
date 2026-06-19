@@ -76,6 +76,7 @@ const styles = StyleSheet.create({
         flexWrap: 'wrap',
         gap: gap,
         padding: containerPadding,
+        justifyContent: 'center'
     },
     subInfo: {
         color: '#99A1AF'
@@ -88,7 +89,8 @@ const styles = StyleSheet.create({
         margin: 8,
         padding: 8,
         gap: 8,
-        flexDirection: 'row'
+        flexDirection: 'row',
+        justifyContent: 'space-around'
     },
     legendTag: {
         paddingTop: 4,

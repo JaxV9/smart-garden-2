@@ -59,14 +59,14 @@ export function useCalendar() {
         },
     ]);
 
-    function monthVegetables(month: string, type: VegetablePlannification): {
+    function monthVegetables(month: Month, type: VegetablePlannification): {
         vegetable: Vegetable;
         type: VegetablePlannification;
     }[] {
+        const frenchMonth = monthToFrench(month).toLowerCase();
         const vegetables = gardenVegetables.filter((vegetable) => {
-            return vegetable[type].includes(month);
+            return vegetable[type].includes(frenchMonth);
         });
-
 
         return vegetables.map(vegetable => {
             return {
