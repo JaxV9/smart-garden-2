@@ -23,6 +23,7 @@ const DEFAULT_AVATAR = require('@/assets/images/avatar.png');
 
 import { useTour } from '@/contexts/tour.context';
 import { useRef } from 'react';
+import { DeleteAccountModal } from '@/components/new/profile/DeleteAccountModal';
 
 export default function ProfileScreen() {
   const { user, isPremium } = useUserContext();
@@ -69,6 +70,7 @@ export default function ProfileScreen() {
     : DEFAULT_AVATAR;
 
   const [isLogoutModalVisible, setIsLogoutModalVisible] = useState(false);
+  const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
 
   useEffect(() => {
     loadGardenInfo();
@@ -258,6 +260,29 @@ export default function ProfileScreen() {
           </TouchableOpacity>
 
           <TouchableOpacity
+            style={styles.row}
+            onPress={() => setIsDeleteModalVisible(true)}
+          >
+            <View style={[styles.iconCircle, { backgroundColor: '#FEE2E2' }]}>
+              <Feather
+                name="trash-2"
+                size={20}
+                color="#DC2626"
+              />
+            </View>
+
+            <Text style={[styles.rowText, { color: '#DC2626' }]}>
+              {t('delete_account_title', 'Gérer mes données')}
+            </Text>
+
+            <Feather
+              name="chevron-right"
+              size={20}
+              color="#FCA5A5"
+            />
+          </TouchableOpacity>
+
+          <TouchableOpacity
             style={[styles.row, styles.rowLast]}
             onPress={() => setIsLogoutModalVisible(true)}
           >
@@ -407,6 +432,11 @@ export default function ProfileScreen() {
           </View>
         </View>
       </Modal>
+
+      <DeleteAccountModal
+        visible={isDeleteModalVisible}
+        onClose={() => setIsDeleteModalVisible(false)}
+      />
 
     </View>
   );
