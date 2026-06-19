@@ -45,7 +45,7 @@ const FEATURES = [
     { key: 'vip_perk_collaboration', free: 'word_no', ultra: 'word_yes', icon: 'share-social-outline' },
 ];
 
-const SUB_SKU = 'com.jaxv9.smartgardenpie.ultra_vip'; // Identifiant de l'abonnement dans Google Play Console
+const SUB_SKU = 'com.smartgarden_iim.ultra_vip'; // Identifiant de l'abonnement dans Google Play Console
 
 export default function PremiumScreen() {
     const router = useRouter();
