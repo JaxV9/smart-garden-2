@@ -2,6 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -19,6 +20,28 @@ import { useTour } from '@/contexts/tour.context';
 import { AddSensorModal } from './AddSensorModal';
 
 const FAKE_LIGHT = 85;
+const SENSOR_API_URL = process.env.EXPO_PUBLIC_SENSOR_API_URL;
+
+type PendingSensorAction = {
+  sensorId: string;
+  type: 'collection' | 'unpair';
+};
+
+function apiErrorMessage(payload: unknown, fallback: string): string {
+  if (payload && typeof payload === 'object') {
+    const errorPayload = payload as { error?: unknown; message?: unknown };
+
+    if (typeof errorPayload.error === 'string') {
+      return errorPayload.error;
+    }
+
+    if (typeof errorPayload.message === 'string') {
+      return errorPayload.message;
+    }
+  }
+
+  return fallback;
+}
 
 type MetricCardProps = {
   icon: keyof typeof Ionicons.glyphMap;
@@ -58,7 +81,7 @@ function displayUnit(unit: string): string {
 }
 
 export function SensorsSection() {
-  const { httpClient } = useFetch(undefined);
+  const { httpClient } = useFetch(SENSOR_API_URL);
   const { addNotification } = useNotificationContext();
   const { isPremium } = useUserContext();
   const { visible } = useTour();
@@ -70,7 +93,9 @@ export function SensorsSection() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [pairingVisible, setPairingVisible] = useState(false);
-  const [actionSensorId, setActionSensorId] = useState<string | null>(null);
+  const [pairingMode, setPairingMode] = useState<'add' | 'wifi'>('add');
+  const [pendingSensorAction, setPendingSensorAction] =
+    useState<PendingSensorAction | null>(null);
   const [hasAlertedLowHumidity, setHasAlertedLowHumidity] = useState(false);
 
   const loadSensors = useCallback(
@@ -98,12 +123,12 @@ export function SensorsSection() {
         setLoading(false);
       }
     },
-    [httpClient]
+    [httpClient, t]
   );
 
   const toggleSensorCollection = useCallback(
     async (sensor: GardenSensor) => {
-      setActionSensorId(sensor.id);
+      setPendingSensorAction({ sensorId: sensor.id, type: 'collection' });
       setError(null);
 
       try {
@@ -120,10 +145,65 @@ export function SensorsSection() {
       } catch {
         setError(t('sensor_error_toggle', "Impossible de modifier l'état de collecte."));
       } finally {
-        setActionSensorId(null);
+        setPendingSensorAction(null);
       }
     },
-    [httpClient, loadSensors]
+    [httpClient, loadSensors, t]
+  );
+
+  const openAddSensor = useCallback(() => {
+    setPairingMode('add');
+    setPairingVisible(true);
+  }, []);
+
+  const openWifiConfiguration = useCallback(() => {
+    setPairingMode('wifi');
+    setPairingVisible(true);
+  }, []);
+
+  const unpairSensor = useCallback(
+    (sensor: GardenSensor) => {
+      Alert.alert(
+        t('sensor_unpair_title', 'Désappairer le capteur'),
+        t(
+          'sensor_unpair_message',
+          'Le capteur "{{name}}" sera retiré de ton compte. Il faudra le réappairer pour envoyer de nouvelles mesures.'
+        ).replace('{{name}}', sensor.name),
+        [
+          { text: t('cancel', 'Annuler'), style: 'cancel' },
+          {
+            text: t('sensor_unpair_confirm', 'Désappairer'),
+            style: 'destructive',
+            onPress: async () => {
+              setPendingSensorAction({ sensorId: sensor.id, type: 'unpair' });
+              setError(null);
+
+              try {
+                const http = await httpClient;
+                const response = await http.delete(`/api/sensors/${sensor.id}`);
+
+                if (response.status === 'Failure') {
+                  setError(
+                    `${apiErrorMessage(
+                      response.payload,
+                      t('sensor_error_unpair', 'Impossible de désappairer le capteur.')
+                    )} (${response.code})`
+                  );
+                  return;
+                }
+
+                await loadSensors(true);
+              } catch {
+                setError(t('sensor_error_unpair', 'Impossible de désappairer le capteur.'));
+              } finally {
+                setPendingSensorAction(null);
+              }
+            },
+          },
+        ]
+      );
+    },
+    [httpClient, loadSensors, t]
   );
 
   useEffect(() => {
@@ -166,9 +246,12 @@ export function SensorsSection() {
     if (humidityReading.value_numeric < 30) {
       if (!hasAlertedLowHumidity) {
         addNotification(
-          t('notif_sensor_thirsty_title'),
-          t('notif_sensor_thirsty_body')
-            .replace('{{name}}', humiditySensor.name || t('notif_sensor_fallback_name'))
+          t('notif_sensor_thirsty_title', '🚨 Alerte Soif Extrême !'),
+          t(
+            'notif_sensor_thirsty_body',
+            'L’humidité du {{name}} est à {{value}}%. Il crie "De l’eau par pitié !"'
+          )
+            .replace('{{name}}', humiditySensor.name || t('notif_sensor_fallback_name', 'Capteur Basilic'))
             .replace('{{value}}', String(Math.round(humidityReading.value_numeric))),
           'SENSOR'
         );
@@ -211,7 +294,13 @@ export function SensorsSection() {
       ? '-'
       : `${temperatureSensor.latest_reading.value_numeric.toFixed(1)}${displayUnit(temperatureSensor.unit)}`;
 
-  const sensorTitle = sensors.length === 1 ? sensors[0].name : t('sensor_detected_count').replace('{{count}}', String(sensors.length));
+  const sensorTitle =
+    sensors.length === 1
+      ? sensors[0].name
+      : t('sensor_detected_count', '{{count}} capteur(s) détecté(s)').replace(
+          '{{count}}',
+          String(sensors.length)
+        );
   const hasSensors = sensors.length > 0;
 
   return (
@@ -219,7 +308,7 @@ export function SensorsSection() {
       <View style={styles.container}>
         <View style={styles.topRow}>
           <Text style={styles.sectionTitle}>{t('sensor_my_sensors', 'Mes capteurs')}</Text>
-          <Pressable style={styles.addButton} onPress={() => setPairingVisible(true)}>
+          <Pressable style={styles.addButton} onPress={openAddSensor}>
             <Ionicons name="add" size={18} color="#FFFFFF" />
             <Text style={styles.addButtonText}>{t('sensor_add', 'Ajouter')}</Text>
           </Pressable>
@@ -231,13 +320,17 @@ export function SensorsSection() {
         {!loading && !hasSensors && (
           <View style={styles.noDataCard}>
             <Ionicons name="wifi-outline" size={28} color="#2F7D32" />
-            <Text style={styles.noDataTitle}>{t('sensor_none', 'Aucun capteur associé.')}</Text>
+            <Text style={styles.noDataTitle}>
+              {t('sensor_none', 'Aucun capteur associé.')}
+            </Text>
             <Text style={styles.noDataText}>
               {t('sensor_no_data')}
             </Text>
-            <Pressable style={styles.emptyAction} onPress={() => setPairingVisible(true)}>
+            <Pressable style={styles.emptyAction} onPress={openAddSensor}>
               <Ionicons name="add-circle-outline" size={18} color="#2F7D32" />
-              <Text style={styles.emptyActionText}>{t('sensor_add_one', 'Ajouter un capteur')}</Text>
+              <Text style={styles.emptyActionText}>
+                {t('sensor_add_one', 'Ajouter un capteur')}
+              </Text>
             </Pressable>
           </View>
         )}
@@ -327,28 +420,52 @@ export function SensorsSection() {
                 <View style={styles.sensorRowText}>
                   <Text style={styles.sensorRowName}>{sensor.name}</Text>
                   <Text style={styles.sensorRowMeta}>
-                    {sensor.type} · {sensor.data_collection_enabled ? t('sensor_collection_active', 'collecte active') : t('sensor_collection_stopped', 'collecte arrêtée')}
+                    {sensor.type} ·{' '}
+                    {sensor.data_collection_enabled
+                      ? t('sensor_collection_active', 'collecte active')
+                      : t('sensor_collection_stopped', 'collecte arrêtée')}
                   </Text>
                 </View>
-
-                <Pressable
-                  onPress={() => toggleSensorCollection(sensor)}
-                  disabled={actionSensorId === sensor.id}
-                  style={[
-                    styles.sensorAction,
-                    sensor.data_collection_enabled ? styles.sensorActionStop : null,
-                  ]}
-                >
-                  {actionSensorId === sensor.id ? (
-                    <ActivityIndicator size="small" color="#111827" />
-                  ) : (
-                    <Ionicons
-                      name={sensor.data_collection_enabled ? 'pause' : 'play'}
-                      size={16}
-                      color={sensor.data_collection_enabled ? '#B91C1C' : '#2F7D32'}
-                    />
-                  )}
-                </Pressable>
+                <View style={styles.sensorActions}>
+                  <Pressable
+                    onPress={openWifiConfiguration}
+                    disabled={pendingSensorAction?.sensorId === sensor.id}
+                    style={[styles.sensorAction, styles.sensorWifiAction]}
+                  >
+                    <Ionicons name="wifi-outline" size={16} color="#2563EB" />
+                  </Pressable>
+                  <Pressable
+                    onPress={() => toggleSensorCollection(sensor)}
+                    disabled={pendingSensorAction?.sensorId === sensor.id}
+                    style={[
+                      styles.sensorAction,
+                      sensor.data_collection_enabled ? styles.sensorActionStop : null,
+                    ]}
+                  >
+                    {pendingSensorAction?.sensorId === sensor.id &&
+                    pendingSensorAction.type === 'collection' ? (
+                      <ActivityIndicator size="small" color="#111827" />
+                    ) : (
+                      <Ionicons
+                        name={sensor.data_collection_enabled ? 'pause' : 'play'}
+                        size={16}
+                        color={sensor.data_collection_enabled ? '#B91C1C' : '#2F7D32'}
+                      />
+                    )}
+                  </Pressable>
+                  <Pressable
+                    onPress={() => unpairSensor(sensor)}
+                    disabled={pendingSensorAction?.sensorId === sensor.id}
+                    style={[styles.sensorAction, styles.sensorDangerAction]}
+                  >
+                    {pendingSensorAction?.sensorId === sensor.id &&
+                    pendingSensorAction.type === 'unpair' ? (
+                      <ActivityIndicator size="small" color="#111827" />
+                    ) : (
+                      <Ionicons name="trash-outline" size={16} color="#B91C1C" />
+                    )}
+                  </Pressable>
+                </View>
               </View>
             ))}
           </View>
@@ -358,6 +475,16 @@ export function SensorsSection() {
           visible={pairingVisible}
           onClose={() => setPairingVisible(false)}
           onProvisioned={() => loadSensors(true)}
+          title={
+            pairingMode === 'wifi'
+              ? t('sensor_configure_wifi', 'Configurer le Wi-Fi')
+              : t('sensor_add_one', 'Ajouter un capteur')
+          }
+          successTitle={
+            pairingMode === 'wifi'
+              ? t('sensor_wifi_configured', 'Wi-Fi configuré')
+              : t('sensor_paired', 'Capteur appairé')
+          }
         />
       </View>
     </ScrollView>
@@ -522,8 +649,12 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: '#6B7280',
   },
+  sensorActions: {
+    flexDirection: 'row',
+    gap: 6,
+  },
   sensorAction: {
-    width: 38,
+    width: 34,
     height: 38,
     alignItems: 'center',
     justifyContent: 'center',
@@ -532,7 +663,15 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     backgroundColor: '#F1FAEE',
   },
+  sensorWifiAction: {
+    borderColor: '#BFDBFE',
+    backgroundColor: '#EFF6FF',
+  },
   sensorActionStop: {
+    borderColor: '#FECACA',
+    backgroundColor: '#FEF2F2',
+  },
+  sensorDangerAction: {
     borderColor: '#FECACA',
     backgroundColor: '#FEF2F2',
   },
