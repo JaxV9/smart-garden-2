@@ -596,8 +596,9 @@ export function Task() {
                       </Text>
 
                       <ScrollView
+                        style={styles.modalScrollView}
                         showsVerticalScrollIndicator={false}
-                        contentContainerStyle={{ paddingBottom: 16 }}
+                        contentContainerStyle={{ paddingBottom: 24 }}
                       >
                         {gardenVegetables.map((plant) => (
                           <TouchableOpacity
@@ -634,8 +635,9 @@ export function Task() {
                       </Text>
 
                       <ScrollView
+                        style={styles.modalScrollView}
                         showsVerticalScrollIndicator={false}
-                        contentContainerStyle={{ paddingBottom: 16 }}
+                        contentContainerStyle={{ paddingBottom: 24 }}
                       >
                         <Formulaire
                           title={title}
@@ -982,6 +984,10 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     shadowRadius: 10,
     elevation: 24,
+  },
+  modalScrollView: {
+    flexShrink: 1,
+    width: "100%",
   },
   keyboardAvoid: {
     flex: 1,
