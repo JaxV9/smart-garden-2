@@ -252,7 +252,6 @@ export function SensorsSection() {
                 value={humidityValue}
                 label={t('sensor_humidity')}
                 backgroundColor="#EAF4FF"
-                showPulse={!!humidityReading}
                 valueColor="#111827"
               />
               <MetricCard

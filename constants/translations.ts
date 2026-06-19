@@ -200,7 +200,7 @@ export const translations: Record<LanguageType, Record<string, string>> = {
         sensor_no_data: 'Aucune donnée capteur.',
         sensor_humidity: 'Humidité',
         sensor_temp: 'Temp.',
-        sensor_light: 'Lumière',
+        sensor_light: 'Luminosité',
         sensor_advice_title: 'Conseils intelligents (IA)',
         sensor_advice_low: '⚠️ Humidité critique basse ! Le terreau de votre plante est trop sec. Il est vivement conseillé d\'arroser généreusement pour restaurer l\'humidité.',
         sensor_advice_high: '🌊 Alerte Sur-arrosage ! Le niveau d\'humidité est très élevé. Laissez sécher la terre pendant au moins 3 jours pour éviter l\'asphyxie racinaire.',
