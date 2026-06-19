@@ -12,3 +12,9 @@ build-aab:
 
 build-apk:
 	cd android && gradlew assembleRelease
+
+prebuild:
+	npx expo prebuild
+
+prebuild-clean:
+	npx expo prebuild --clean
