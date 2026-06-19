@@ -2,8 +2,12 @@ import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
+  KeyboardAvoidingView,
   Modal,
+  Platform,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -16,12 +20,16 @@ type AddSensorModalProps = {
   visible: boolean;
   onClose: () => void;
   onProvisioned: () => void;
+  title?: string;
+  successTitle?: string;
 };
 
 export function AddSensorModal({
   visible,
   onClose,
   onProvisioned,
+  title = "Ajouter un capteur",
+  successTitle = "Capteur appairé",
 }: AddSensorModalProps) {
   const [sensorBaseUrl, setSensorBaseUrl] = useState(
     DEFAULT_SENSOR_PROVISIONING_URL
@@ -91,6 +99,10 @@ export function AddSensorModal({
     if (result === "Success") {
       onProvisioned();
       onClose();
+      Alert.alert(
+        successTitle,
+        "Reconnecte ton téléphone au Wi-Fi du jardin pour voir les mesures."
+      );
     }
   }
 
@@ -98,125 +110,140 @@ export function AddSensorModal({
 
   return (
     <Modal visible={visible} transparent animationType="slide">
-      <View style={styles.overlay}>
-        <View style={styles.modal}>
-          <View style={styles.header}>
-            <Text style={styles.title}>Ajouter un capteur</Text>
-            <Pressable onPress={onClose} style={styles.iconButton}>
-              <Ionicons name="close" size={22} color="#111827" />
-            </Pressable>
-          </View>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={24}
+        style={styles.keyboardAvoider}
+      >
+        <View style={styles.overlay}>
+          <View style={styles.modal}>
+            <ScrollView
+              contentContainerStyle={styles.modalContent}
+              keyboardShouldPersistTaps="handled"
+              showsVerticalScrollIndicator={false}
+            >
+              <View style={styles.header}>
+                <Text style={styles.title}>{title}</Text>
+                <Pressable onPress={onClose} style={styles.iconButton}>
+                  <Ionicons name="close" size={22} color="#111827" />
+                </Pressable>
+              </View>
 
-          <View style={styles.notice}>
-            <Ionicons name="wifi-outline" size={20} color="#2F7D32" />
-            <Text style={styles.noticeText}>
-              Connecte ton téléphone ou simulateur au Wi-Fi du capteur,
-              puis vérifie sa connexion locale.
-            </Text>
-          </View>
+              <View style={styles.notice}>
+                <Ionicons name="wifi-outline" size={20} color="#2F7D32" />
+                <Text style={styles.noticeText}>
+                  Connecte ton téléphone ou simulateur au Wi-Fi du capteur,
+                  puis vérifie sa connexion locale.
+                </Text>
+              </View>
 
-          <View style={styles.form}>
-            <Text style={styles.sectionTitle}>Adresse locale du capteur</Text>
-            <View style={styles.inlineRow}>
-              <TextInput
-                value={sensorBaseUrl}
-                onChangeText={(value) => {
-                  setSensorBaseUrl(value);
-                  clearDeviceInfo();
-                }}
-                placeholder="http://192.168.4.1"
-                autoCapitalize="none"
-                autoCorrect={false}
-                style={[styles.input, styles.inlineInput]}
-              />
-              <Pressable
-                onPress={handleCheckSensor}
-                disabled={checking || provisioning}
-                style={styles.checkButton}
+              <View style={styles.form}>
+                <Text style={styles.sectionTitle}>Adresse locale du capteur</Text>
+                <View style={styles.inlineRow}>
+                  <TextInput
+                    value={sensorBaseUrl}
+                    onChangeText={(value) => {
+                      setSensorBaseUrl(value);
+                      clearDeviceInfo();
+                    }}
+                    placeholder="http://192.168.4.1"
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    style={[styles.input, styles.inlineInput]}
+                  />
+                  <Pressable
+                    onPress={handleCheckSensor}
+                    disabled={checking || provisioning}
+                    style={styles.checkButton}
+                  >
+                    {checking ? (
+                      <ActivityIndicator size="small" color="#111827" />
+                    ) : (
+                      <Ionicons name="search" size={18} color="#111827" />
+                    )}
+                  </Pressable>
+                </View>
+              </View>
+
+              <View
+                style={[
+                  styles.deviceCard,
+                  deviceInfo ? styles.deviceCardReady : null,
+                ]}
               >
-                {checking ? (
-                  <ActivityIndicator size="small" color="#111827" />
+                <Ionicons
+                  name={deviceInfo ? "checkmark-circle" : "hardware-chip-outline"}
+                  size={22}
+                  color={deviceInfo ? "#2F7D32" : "#6B7280"}
+                />
+                <View style={styles.deviceInfo}>
+                  <Text style={styles.deviceName}>
+                    {deviceInfo
+                      ? `${detectedSensors.length} capteur(s) détecté(s)`
+                      : "Capteur non vérifié"}
+                  </Text>
+                  <Text style={styles.deviceMeta}>
+                    {deviceInfo
+                      ? detectedSensorNames
+                      : "Utilise le bouton de recherche pour lire /device-info."}
+                  </Text>
+                </View>
+              </View>
+
+              <View style={styles.form}>
+                <Text style={styles.sectionTitle}>Wi-Fi du jardin</Text>
+                <TextInput
+                  value={wifiSsid}
+                  onChangeText={setWifiSsid}
+                  placeholder="Nom du Wi-Fi"
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  style={styles.input}
+                />
+                <TextInput
+                  value={wifiPassword}
+                  onChangeText={setWifiPassword}
+                  placeholder="Mot de passe"
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  secureTextEntry
+                  style={styles.input}
+                />
+              </View>
+
+              {(formError || error) && (
+                <Text style={styles.errorText}>{formError || error}</Text>
+              )}
+              {provisioningStatus && (
+                <Text style={styles.statusText}>{provisioningStatus}</Text>
+              )}
+
+              <Pressable
+                onPress={handleProvision}
+                disabled={disabled}
+                style={[styles.submitButton, disabled ? styles.submitDisabled : null]}
+              >
+                {provisioning ? (
+                  <ActivityIndicator color="#FFFFFF" />
                 ) : (
-                  <Ionicons name="search" size={18} color="#111827" />
+                  <>
+                    <Ionicons name="wifi" size={18} color="#FFFFFF" />
+                    <Text style={styles.submitText}>Configurer</Text>
+                  </>
                 )}
               </Pressable>
-            </View>
+            </ScrollView>
           </View>
-
-          <View
-            style={[
-              styles.deviceCard,
-              deviceInfo ? styles.deviceCardReady : null,
-            ]}
-          >
-            <Ionicons
-              name={deviceInfo ? "checkmark-circle" : "hardware-chip-outline"}
-              size={22}
-              color={deviceInfo ? "#2F7D32" : "#6B7280"}
-            />
-            <View style={styles.deviceInfo}>
-              <Text style={styles.deviceName}>
-                {deviceInfo
-                  ? `${detectedSensors.length} capteur(s) détecté(s)`
-                  : "Capteur non vérifié"}
-              </Text>
-              <Text style={styles.deviceMeta}>
-                {deviceInfo
-                  ? detectedSensorNames
-                  : "Utilise le bouton de recherche pour lire /device-info."}
-              </Text>
-            </View>
-          </View>
-
-          <View style={styles.form}>
-            <Text style={styles.sectionTitle}>Wi-Fi du jardin</Text>
-            <TextInput
-              value={wifiSsid}
-              onChangeText={setWifiSsid}
-              placeholder="Nom du Wi-Fi"
-              autoCapitalize="none"
-              autoCorrect={false}
-              style={styles.input}
-            />
-            <TextInput
-              value={wifiPassword}
-              onChangeText={setWifiPassword}
-              placeholder="Mot de passe"
-              autoCapitalize="none"
-              autoCorrect={false}
-              secureTextEntry
-              style={styles.input}
-            />
-          </View>
-
-          {(formError || error) && (
-            <Text style={styles.errorText}>{formError || error}</Text>
-          )}
-          {provisioningStatus && (
-            <Text style={styles.statusText}>{provisioningStatus}</Text>
-          )}
-
-          <Pressable
-            onPress={handleProvision}
-            disabled={disabled}
-            style={[styles.submitButton, disabled ? styles.submitDisabled : null]}
-          >
-            {provisioning ? (
-              <ActivityIndicator color="#FFFFFF" />
-            ) : (
-              <>
-                <Ionicons name="wifi" size={18} color="#FFFFFF" />
-                <Text style={styles.submitText}>Configurer</Text>
-              </>
-            )}
-          </Pressable>
         </View>
-      </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }
 
 const styles = StyleSheet.create({
+  keyboardAvoider: {
+    flex: 1,
+  },
   overlay: {
     flex: 1,
     justifyContent: "flex-end",
@@ -224,11 +251,14 @@ const styles = StyleSheet.create({
   },
   modal: {
     maxHeight: "88%",
-    padding: 18,
-    gap: 16,
     backgroundColor: "#FFFFFF",
     borderTopLeftRadius: 12,
     borderTopRightRadius: 12,
+  },
+  modalContent: {
+    gap: 16,
+    padding: 18,
+    paddingBottom: 30,
   },
   header: {
     flexDirection: "row",

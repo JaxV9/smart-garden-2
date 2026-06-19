@@ -4,9 +4,8 @@ import {
   SmartGardenProvisioningDeviceInfo,
   SmartGardenProvisioningSensor,
 } from "@/constants/smartGardenProvisioning";
-import { ProvisionedSensorConfig, SensorClaimResponse } from "@/models/models";
 import { useCallback, useState } from "react";
-import { useFetch } from "./useFetch";
+import { useStorage } from "./useStorage";
 
 type ProvisionPayload = {
   sensorBaseUrl: string;
@@ -62,13 +61,28 @@ async function fetchJson<T>(
   }
 }
 
+function isLikelyLostProvisionResponse(error: unknown): boolean {
+  if (!(error instanceof Error)) {
+    return false;
+  }
+
+  const message = error.message.toLowerCase();
+  return (
+    error.name === "AbortError" ||
+    message.includes("aborted") ||
+    message.includes("network request failed") ||
+    message.includes("networkerror") ||
+    message.includes("timed out")
+  );
+}
+
 function normalizeDeviceInfo(
   deviceInfo: Record<string, unknown>
 ): SmartGardenProvisioningDeviceInfo {
   const topLevelHardwareId = stringValue(deviceInfo.hardware_id, "");
   const name = stringValue(deviceInfo.name, "Capteur Smart Garden");
-  const type = stringValue(deviceInfo.type, "humidity");
-  const unit = stringValue(deviceInfo.unit, "%");
+  const topLevelType = stringValue(deviceInfo.type, "");
+  const topLevelUnit = stringValue(deviceInfo.unit, "");
   const rawSensors = Array.isArray(deviceInfo.sensors)
     ? deviceInfo.sensors
     : [];
@@ -79,8 +93,8 @@ function normalizeDeviceInfo(
     })
     .map((sensor, index): SmartGardenProvisioningSensor => {
       const localId = sensorLocalId(sensor, index);
-      const sensorType = stringValue(sensor.type, type);
-      const sensorUnit = stringValue(sensor.unit, unit);
+      const sensorType = stringValue(sensor.type, topLevelType);
+      const sensorUnit = stringValue(sensor.unit, topLevelUnit);
       const fallbackHardwareId =
         topLevelHardwareId.length === 0
           ? ""
@@ -97,8 +111,8 @@ function normalizeDeviceInfo(
         local_id: localId,
         hardware_id: sensorHardwareId,
         name: stringValue(sensor.name, name),
-        type: sensorType,
-        unit: sensorUnit,
+        type: sensorType || "temperature",
+        unit: sensorUnit || (sensorType === "humidity" ? "%" : "C"),
         bus: typeof sensor.bus === "string" ? sensor.bus : undefined,
         address:
           typeof sensor.address === "string" ? sensor.address : undefined,
@@ -115,8 +129,8 @@ function normalizeDeviceInfo(
       local_id: "primary",
       hardware_id: topLevelHardwareId,
       name,
-      type,
-      unit,
+      type: topLevelType || "temperature",
+      unit: topLevelUnit || "C",
     });
   }
 
@@ -131,8 +145,8 @@ function normalizeDeviceInfo(
         : undefined,
     hardware_id: topLevelHardwareId || sensors[0].hardware_id,
     name,
-    type,
-    unit,
+    type: topLevelType || sensors[0].type,
+    unit: topLevelUnit || sensors[0].unit,
     fw_version:
       typeof deviceInfo.fw_version === "string"
         ? deviceInfo.fw_version
@@ -142,7 +156,7 @@ function normalizeDeviceInfo(
 }
 
 export function useSensorProvisioning() {
-  const { httpClient } = useFetch(undefined);
+  const { getToken } = useStorage();
   const [deviceInfo, setDeviceInfo] =
     useState<SmartGardenProvisioningDeviceInfo | null>(null);
   const [checking, setChecking] = useState(false);
@@ -208,71 +222,67 @@ export function useSensorProvisioning() {
           return "Failure";
         }
 
+        const authToken = await getToken("authToken");
+        const apiBaseUrl = process.env.EXPO_PUBLIC_API_URL;
+
+        if (!authToken) {
+          throw new Error("Session utilisateur introuvable.");
+        }
+
+        if (!apiBaseUrl) {
+          throw new Error("URL API introuvable dans EXPO_PUBLIC_API_URL.");
+        }
+
         setProvisioningStatus(
-          `Association de ${currentDeviceInfo.sensors.length} capteur(s) au compte...`
+          "Envoi du Wi-Fi au capteur. Il va se connecter puis s'associer au compte..."
         );
-        const http = await httpClient;
-        const provisionedSensors: ProvisionedSensorConfig[] = [];
-        let apiBaseUrl: string | null = null;
-        let ingestPath: string | null = null;
+        let response: {
+          status?: string;
+          error?: string;
+          wifi_connected?: boolean;
+          claimed_sensors?: unknown[];
+        };
 
-        for (const sensor of currentDeviceInfo.sensors) {
-          const claimResponse = await http.post("/api/sensors/claim", {
-            hardware_id: sensor.hardware_id,
-            name: sensor.name,
-            type: sensor.type,
-            unit: sensor.unit,
-          });
-
-          if (claimResponse.status === "Failure") {
-            const payload = claimResponse.payload as { error?: string };
-            throw new Error(
-              payload?.error || `Association API impossible pour ${sensor.name}.`
+        try {
+          response = await fetchJson(
+            endpoint(sensorBaseUrl, SENSOR_PROVISIONING_PATHS.provision),
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                wifi_ssid: wifiSsid,
+                wifi_password: wifiPassword,
+                api_base_url: apiBaseUrl,
+                claim_path: "/api/sensors/claim",
+                ingest_path: "/api/sensor-readings",
+                auth_token: authToken,
+                sensors: currentDeviceInfo.sensors,
+              }),
+            },
+            60000
+          );
+        } catch (provisionResponseError) {
+          if (isLikelyLostProvisionResponse(provisionResponseError)) {
+            setProvisioningStatus(
+              "Configuration envoyée. Reconnecte ton téléphone au Wi-Fi du jardin."
             );
+            return "Success";
           }
 
-          const claimPayload = claimResponse.payload as SensorClaimResponse;
-          apiBaseUrl = apiBaseUrl || claimPayload.api_base_url;
-          ingestPath = ingestPath || claimPayload.ingest_path;
-          provisionedSensors.push({
-            local_id: sensor.local_id,
-            hardware_id: sensor.hardware_id,
-            name: sensor.name,
-            type: sensor.type,
-            unit: sensor.unit,
-            sensor_id: claimPayload.sensor_id,
-            write_token: claimPayload.write_token,
-          });
+          throw provisionResponseError;
         }
 
-        if (!apiBaseUrl || !ingestPath || provisionedSensors.length === 0) {
-          throw new Error("Association API incomplète.");
+        if (response.status !== "paired") {
+          throw new Error(response.error || "Appairage capteur incomplet.");
         }
 
-        setProvisioningStatus("Envoi de la configuration au capteur...");
-        await fetchJson(
-          endpoint(sensorBaseUrl, SENSOR_PROVISIONING_PATHS.provision),
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              wifi_ssid: wifiSsid,
-              wifi_password: wifiPassword,
-              sensor_id: provisionedSensors[0].sensor_id,
-              write_token: provisionedSensors[0].write_token,
-              api_base_url: apiBaseUrl,
-              ingest_path: ingestPath,
-              sensors: provisionedSensors,
-            }),
-          },
-          15000
-        );
+        const claimedCount = Array.isArray(response.claimed_sensors)
+          ? response.claimed_sensors.length
+          : currentDeviceInfo.sensors.length;
 
-        setProvisioningStatus(
-          `Configuration envoyée pour ${provisionedSensors.length} capteur(s).`
-        );
+        setProvisioningStatus(`${claimedCount} capteur(s) appairé(s).`);
         return "Success";
       } catch (provisionError) {
         setError(
@@ -285,7 +295,7 @@ export function useSensorProvisioning() {
         setProvisioning(false);
       }
     },
-    [deviceInfo, discoverSensor, httpClient]
+    [deviceInfo, discoverSensor, getToken]
   );
 
   return {
