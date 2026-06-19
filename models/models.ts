@@ -93,6 +93,20 @@ export type SensorClaimResponse = {
   write_token: string;
   api_base_url: string;
   ingest_path: string;
+  hardware_id?: string;
+  name?: string;
+  type?: string;
+  unit?: string;
+};
+
+export type ProvisionedSensorConfig = {
+  local_id: string;
+  hardware_id: string;
+  name: string;
+  type: string;
+  unit: string;
+  sensor_id: string;
+  write_token: string;
 };
 
 export type CreateUserPayload = {

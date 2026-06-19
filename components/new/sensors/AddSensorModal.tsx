@@ -40,6 +40,10 @@ export function AddSensorModal({
     clearDeviceInfo,
     clearError,
   } = useSensorProvisioning();
+  const detectedSensors = deviceInfo?.sensors ?? [];
+  const detectedSensorNames = detectedSensors
+    .map((sensor) => `${sensor.name} · ${sensor.type} · ${sensor.unit}`)
+    .join("\n");
 
   useEffect(() => {
     if (visible) {
@@ -152,11 +156,13 @@ export function AddSensorModal({
             />
             <View style={styles.deviceInfo}>
               <Text style={styles.deviceName}>
-                {deviceInfo?.name || "Capteur non vérifié"}
+                {deviceInfo
+                  ? `${detectedSensors.length} capteur(s) détecté(s)`
+                  : "Capteur non vérifié"}
               </Text>
               <Text style={styles.deviceMeta}>
                 {deviceInfo
-                  ? `${deviceInfo.type} · ${deviceInfo.unit}`
+                  ? detectedSensorNames
                   : "Utilise le bouton de recherche pour lire /device-info."}
               </Text>
             </View>
@@ -314,6 +320,7 @@ const styles = StyleSheet.create({
   },
   deviceMeta: {
     fontSize: 13,
+    lineHeight: 18,
     color: "#6B7280",
   },
   errorText: {
