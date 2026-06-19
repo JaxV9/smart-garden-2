@@ -47,6 +47,7 @@ export const translations: Record<LanguageType, Record<string, string>> = {
         btn_cancel: 'Annuler',
         btn_confirm: 'Confirmer',
         btn_add: 'Ajouter',
+        btn_edit: 'Modifier',
         btn_delete: 'Supprimer',
         btn_close: 'Fermer',
         
@@ -309,6 +310,7 @@ export const translations: Record<LanguageType, Record<string, string>> = {
         btn_cancel: 'Cancel',
         btn_confirm: 'Confirm',
         btn_add: 'Add',
+        btn_edit: 'Edit',
         btn_delete: 'Delete',
         btn_close: 'Close',
         
@@ -567,6 +569,7 @@ export const translations: Record<LanguageType, Record<string, string>> = {
         btn_cancel: 'Cancelar',
         btn_confirm: 'Confirmar',
         btn_add: 'Añadir',
+        btn_edit: 'Modificar',
         btn_delete: 'Eliminar',
         btn_close: 'Cerrar',
         
@@ -825,6 +828,7 @@ export const translations: Record<LanguageType, Record<string, string>> = {
         btn_cancel: 'Annulla',
         btn_confirm: 'Conferma',
         btn_add: 'Aggiungi',
+        btn_edit: 'Modifica',
         btn_delete: 'Elimina',
         btn_close: 'Chiudi',
         
@@ -1083,6 +1087,7 @@ export const translations: Record<LanguageType, Record<string, string>> = {
         btn_cancel: '取消',
         btn_confirm: '确认',
         btn_add: '添加',
+        btn_edit: '修改',
         btn_delete: '删除',
         btn_close: '关闭',
         
@@ -1341,6 +1346,7 @@ export const translations: Record<LanguageType, Record<string, string>> = {
         btn_cancel: 'キャンセル',
         btn_confirm: '確認',
         btn_add: '追加',
+        btn_edit: '編集',
         btn_delete: '削除',
         btn_close: '閉じる',
         
@@ -1599,6 +1605,7 @@ export const translations: Record<LanguageType, Record<string, string>> = {
         btn_cancel: 'إلغاء',
         btn_confirm: 'تأكيد',
         btn_add: 'إضافة',
+        btn_edit: 'تعديل',
         btn_delete: 'حذف',
         btn_close: 'إغلاق',
         

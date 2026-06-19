@@ -314,7 +314,7 @@ export default function ProfileScreen() {
               />
 
               <Text style={styles.editButtonText}>
-                {t('btn_add')}
+                {t('btn_edit')}
               </Text>
             </TouchableOpacity>
           </View>
