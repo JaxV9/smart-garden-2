@@ -1,5 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useTranslation } from '@/contexts/language.context';
 
 interface TutorialFilterButtonProps {
     selectedCategory: string | null;
@@ -12,17 +13,18 @@ export default function TutorialFilterButton({
     selectedType, 
     onPress 
 }: TutorialFilterButtonProps) {
+    const { t } = useTranslation();
     const getFilterText = () => {
         if (selectedCategory && selectedType) {
-            return `${selectedCategory} • ${selectedType === 'VIDEO' ? 'Vidéos' : 'Articles'}`;
+            return `${selectedCategory} • ${selectedType === 'VIDEO' ? t('tutos_filter_videos') : t('tutos_filter_articles')}`;
         }
         if (selectedCategory) {
             return selectedCategory;
         }
         if (selectedType) {
-            return selectedType === 'VIDEO' ? 'Vidéos' : 'Articles';
+            return selectedType === 'VIDEO' ? t('tutos_filter_videos') : t('tutos_filter_articles');
         }
-        return 'Tous les tutoriels';
+        return t('tutos_all_tutos');
     };
 
     const hasFilters = selectedCategory || selectedType;

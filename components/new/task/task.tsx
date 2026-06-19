@@ -24,6 +24,7 @@ import { useVegetablesContext } from "@/contexts/vegetables.context";
 import { useGardenContext } from "@/contexts/garden.context";
 import { useRouter } from "expo-router";
 import { useNotificationContext } from "@/contexts/notification.context";
+import { useTranslation } from "@/contexts/language.context";
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -112,15 +113,26 @@ const isSameDayPlain = (d1: Date, d2: Date) => {
   );
 };
 
-const getDayLetter = (date: Date) => {
-  const day = date.getDay();
-  const letters = ["D", "L", "M", "M", "J", "V", "S"];
-  return letters[day];
-};
+// getDayLetter is defined inside Task component using useTranslation
 
 export function Task() {
   const router = useRouter();
   const { addNotification } = useNotificationContext();
+  const { t } = useTranslation();
+
+  const getDayLetter = (date: Date) => {
+    const day = date.getDay();
+    const keys = [
+      "day_sun_short",
+      "day_mon_short",
+      "day_tue_short",
+      "day_wed_short",
+      "day_thu_short",
+      "day_fri_short",
+      "day_sat_short"
+    ];
+    return t(keys[day]);
+  };
   const { tasks, loading, fetchTasks, createTask, updateTask, deleteTask, toggleTaskStatus } = useTasks();
   const { gardenVegetables, loadGardenVegetables } = useGarden();
   const { vegetablesContext } = useVegetablesContext();
@@ -216,8 +228,8 @@ export function Task() {
       await toggleTaskStatus(task);
       if (willBeCompleted) {
         addNotification(
-          "🏆 Tâche accomplie avec brio !",
-          `Félicitations, tu as terminé la tâche "${task.title}" ! Tes plantes trinquent à ta santé !`,
+          t("notif_task_done_title"),
+          t("notif_task_done_body").replace("{{title}}", task.title),
           "TASK"
         );
       }
@@ -239,8 +251,8 @@ export function Task() {
 
       if (willBeCompleted) {
         addNotification(
-          "🏆 Tâche récurrente validée !",
-          `Super boulot ! Tu as validé "${task.title}" pour aujourd'hui. Continue comme ça !`,
+          t("notif_task_recurrent_title"),
+          t("notif_task_recurrent_body").replace("{{title}}", task.title),
           "TASK"
         );
       }
@@ -287,8 +299,8 @@ export function Task() {
         await createTask(payload);
 
         addNotification(
-          "📅 Tâche programmée !",
-          `La tâche "${title}" est bien enregistrée dans ton jardin. Tes plantes trépignent d'impatience !`,
+          t("notif_task_created_title"),
+          t("notif_task_created_body").replace("{{title}}", title),
           "TASK"
         );
       }
@@ -360,12 +372,12 @@ export function Task() {
   };
 
   const formatBandeauDate = (date: Date): string => {
-    const today = new Date();
+    const todayVal = new Date();
     const formatDigit = (n: number) => n.toString().padStart(2, "0");
     const dStr = `${formatDigit(date.getDate())}/${formatDigit(date.getMonth() + 1)}/${date.getFullYear().toString().slice(-2)}`;
 
-    if (isSameDayPlain(date, today)) {
-      return `${dStr} - Aujourd'hui`;
+    if (isSameDayPlain(date, todayVal)) {
+      return `${dStr} - ${t('today', "Aujourd'hui")}`;
     }
     return dStr;
   };
@@ -453,9 +465,9 @@ export function Task() {
                       ? vegetablesContext.find((v) => v.id === task.plant?.vegetableId)?.name || task.plant.vegetableId
                       : "";
                     const occ = parseTaskRecurrence(task);
-                    let freqLabel = "1 seule fois";
-                    if (occ.frequency === "WEEKLY") freqLabel = "Toutes les semaines";
-                    if (occ.frequency === "MONTHLY") freqLabel = "Tous les mois";
+                    let freqLabel = t('task_freq_once', '1 seule fois');
+                    if (occ.frequency === "WEEKLY") freqLabel = t('task_freq_weekly', 'Toutes les semaines');
+                    if (occ.frequency === "MONTHLY") freqLabel = t('task_freq_monthly', 'Tous les mois');
 
                     return (
                       <View key={`${task.id}-${dateStr}`} style={[styles.card, isCompleted && styles.cardDone]}>
@@ -510,10 +522,10 @@ export function Task() {
                                 >
                                   <Text style={styles.chipText}>
                                     {task.priority === "HIGH"
-                                      ? "Haute"
+                                      ? t('priority_high', 'Haute')
                                       : task.priority === "MEDIUM"
-                                        ? "Moyenne"
-                                        : "Basse"}
+                                        ? t('priority_medium', 'Moyenne')
+                                        : t('priority_low', 'Basse')}
                                   </Text>
                                 </View>
                               ) : null}
@@ -540,7 +552,7 @@ export function Task() {
                                   openEdit(task);
                                 }}
                               >
-                                <Text style={styles.menuItemText}>Modifier la tâche</Text>
+                                <Text style={styles.menuItemText}>{t('task_edit', 'Modifier la tâche')}</Text>
                               </TouchableOpacity>
                               <TouchableOpacity
                                 style={styles.menuItem}
@@ -550,7 +562,7 @@ export function Task() {
                                 }}
                               >
                                 <Text style={[styles.menuItemText, styles.menuDeleteText]}>
-                                  Supprimer la tâche
+                                  {t('task_delete', 'Supprimer la tâche')}
                                 </Text>
                               </TouchableOpacity>
                             </View>
@@ -560,7 +572,7 @@ export function Task() {
                     );
                   })
                 ) : (
-                  <Text style={styles.emptyDayText}>Aucune tâche pour ce jour.</Text>
+                  <Text style={styles.emptyDayText}>{t('task_empty_day', 'Aucune tâche pour ce jour.')}</Text>
                 )}
               </View>
             );
@@ -570,7 +582,7 @@ export function Task() {
 
       <View style={styles.bottomButtonContainer}>
         <TouchableOpacity style={styles.newTaskButton} onPress={openCreate}>
-          <Text style={styles.newTaskText}>+ AJOUTER UNE TÂCHE</Text>
+          <Text style={styles.newTaskText}>{t('task_add_btn', '+ AJOUTER UNE TÂCHE')}</Text>
         </TouchableOpacity>
       </View>
 
@@ -592,7 +604,7 @@ export function Task() {
                   {showPlantPicker ? (
                     <>
                       <Text style={styles.formHeaderTitle}>
-                        Sélectionner une plante
+                        {t('task_select_plant', 'Sélectionner une plante')}
                       </Text>
 
                       <ScrollView
@@ -616,7 +628,7 @@ export function Task() {
 
                         {gardenVegetables.length === 0 ? (
                           <Text style={[styles.emptyText, { textAlign: 'center', marginVertical: 12 }]}>
-                            Aucune plante dans votre jardin.
+                            {t('task_no_plants', 'Aucune plante dans votre jardin.')}
                           </Text>
                         ) : null}
 
@@ -624,14 +636,14 @@ export function Task() {
                           style={[styles.closeButton, { marginTop: 12, backgroundColor: '#4B5563' }]}
                           onPress={() => setShowPlantPicker(false)}
                         >
-                          <Text style={styles.closeButtonText}>RETOUR</Text>
+                          <Text style={styles.closeButtonText}>{t('btn_back', 'RETOUR').toUpperCase()}</Text>
                         </TouchableOpacity>
                       </ScrollView>
                     </>
                   ) : (
                     <>
                       <Text style={styles.formHeaderTitle}>
-                        {editingId ? "Modifier la tâche" : "Nouvelle tâche"}
+                        {editingId ? t('task_edit', 'Modifier la tâche') : t('task_new', 'Nouvelle tâche')}
                       </Text>
 
                       <ScrollView
@@ -672,11 +684,11 @@ export function Task() {
                       {Platform.OS === "ios" ? (
                         <View style={styles.datePickerHeader}>
                           <TouchableOpacity onPress={() => setShowDatePicker(false)}>
-                            <Text style={styles.datePickerHeaderCancel}>Annuler</Text>
+                            <Text style={styles.datePickerHeaderCancel}>{t('btn_cancel', 'Annuler')}</Text>
                           </TouchableOpacity>
-                          <Text style={styles.datePickerHeaderTitle}>Date d'échéance</Text>
+                          <Text style={styles.datePickerHeaderTitle}>{t('task_due_date', "Date d'échéance")}</Text>
                           <TouchableOpacity onPress={() => setShowDatePicker(false)}>
-                            <Text style={styles.datePickerHeaderConfirm}>Valider</Text>
+                            <Text style={styles.datePickerHeaderConfirm}>{t('btn_confirm', 'Valider')}</Text>
                           </TouchableOpacity>
                         </View>
                       ) : null}
@@ -704,16 +716,16 @@ export function Task() {
       >
         <View style={styles.confirmOverlay}>
           <View style={styles.confirmCard}>
-            <Text style={styles.confirmTitle}>Supprimer la tâche</Text>
+            <Text style={styles.confirmTitle}>{t('task_delete_confirm_title', 'Supprimer la tâche')}</Text>
             <Text style={styles.confirmText}>
-              Êtes-vous sûr de vouloir supprimer cette tâche définitivement ?
+              {t('task_delete_confirm_desc', 'Êtes-vous sûr de vouloir supprimer cette tâche définitivement ?')}
             </Text>
             <View style={styles.confirmButtons}>
               <TouchableOpacity
                 style={styles.confirmCancelBtn}
                 onPress={() => setDeleteConfirmTaskId(null)}
               >
-                <Text style={styles.confirmCancelBtnText}>Annuler</Text>
+                <Text style={styles.confirmCancelBtnText}>{t('btn_cancel', 'Annuler')}</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.confirmSubmitBtn}
@@ -724,7 +736,7 @@ export function Task() {
                   }
                 }}
               >
-                <Text style={styles.confirmSubmitBtnText}>Supprimer</Text>
+                <Text style={styles.confirmSubmitBtnText}>{t('task_delete', 'Supprimer')}</Text>
               </TouchableOpacity>
             </View>
           </View>

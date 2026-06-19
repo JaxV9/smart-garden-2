@@ -10,6 +10,7 @@ import {
   View,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useTranslation } from "@/contexts/language.context";
 
 type FormulaireProps = {
   title: string;
@@ -41,30 +42,32 @@ type FormulaireProps = {
   onPickDueDate?: () => void;
 };
 
-const SUGGESTIONS = [
-  "Arrosage",
-  "Semis",
-  "Plantation",
-  "Récolte",
-  "Paillage",
-  "Fertilisation",
-  "Repiquage",
-  "Traitement",
-  "Déplacer plante",
-  "Retirer plante"
-];
-
-const WEEKDAYS = [
-  { id: 1, label: "L" },
-  { id: 2, label: "M" },
-  { id: 3, label: "M" },
-  { id: 4, label: "J" },
-  { id: 5, label: "V" },
-  { id: 6, label: "S" },
-  { id: 7, label: "D" },
-];
-
 export function Formulaire(props: FormulaireProps) {
+  const { t } = useTranslation();
+
+  const SUGGESTIONS = [
+    t('task_sug_watering', 'Arrosage'),
+    t('task_sug_sowing', 'Semis'),
+    t('task_sug_planting', 'Plantation'),
+    t('task_sug_harvesting', 'Récolte'),
+    t('task_sug_mulching', 'Paillage'),
+    t('task_sug_fertilizing', 'Fertilisation'),
+    t('task_sug_transplanting', 'Repiquage'),
+    t('task_sug_treatment', 'Traitement'),
+    t('task_sug_move', 'Déplacer plante'),
+    t('task_sug_remove', 'Retirer plante')
+  ];
+
+  const WEEKDAYS = [
+    { id: 1, label: t('day_mon_short', 'L') },
+    { id: 2, label: t('day_tue_short', 'M') },
+    { id: 3, label: t('day_wed_short', 'M') },
+    { id: 4, label: t('day_thu_short', 'J') },
+    { id: 5, label: t('day_fri_short', 'V') },
+    { id: 6, label: t('day_sat_short', 'S') },
+    { id: 7, label: t('day_sun_short', 'D') },
+  ];
+
   const {
     title,
     description,
@@ -95,22 +98,22 @@ export function Formulaire(props: FormulaireProps) {
     const parts = dateStr.split("-");
     if (parts.length !== 3) return dateStr;
     const [year, month, day] = parts;
-    const months = [
-      "janvier", "février", "mars", "avril", "mai", "juin",
-      "juillet", "août", "septembre", "octobre", "novembre", "décembre"
+    const monthKeys = [
+      "month_janvier", "month_février", "month_mars", "month_avril", "month_mai", "month_juin",
+      "month_juillet", "month_août", "month_septembre", "month_octobre", "month_novembre", "month_décembre"
     ];
     const monthIndex = parseInt(month, 10) - 1;
-    const monthName = months[monthIndex] || month;
+    const monthName = monthKeys[monthIndex] ? t(monthKeys[monthIndex]) : month;
     return `${parseInt(day, 10)} ${monthName} ${year}`;
   };
 
   return (
     <View style={styles.form}>
-      <Text style={styles.label}>Nom de la tâche</Text>
+      <Text style={styles.label}>{t('task_field_name', 'Nom de la tâche')}</Text>
       <View style={styles.inputWrapper}>
         <TextInput
           style={[styles.input, { flex: 1 }]}
-          placeholder="Définir la tâche ou choisir une suggestion"
+          placeholder={t('task_placeholder_name', 'Définir la tâche ou choisir une suggestion')}
           placeholderTextColor={PLACEHOLDER}
           value={title}
           onChangeText={setTitle}
@@ -124,7 +127,7 @@ export function Formulaire(props: FormulaireProps) {
 
       {title.trim().length === 0 ? (
         <View style={styles.suggestionsContainer}>
-          <Text style={styles.suggestionsLabel}>Suggestions</Text>
+          <Text style={styles.suggestionsLabel}>{t('task_suggestions', 'Suggestions')}</Text>
           <View style={styles.suggestionsGrid}>
             {SUGGESTIONS.map((sug) => (
               <TouchableOpacity
@@ -139,27 +142,27 @@ export function Formulaire(props: FormulaireProps) {
         </View>
       ) : (
         <View style={{ marginTop: 8 }}>
-          <Text style={styles.label}>Description (optionnel)</Text>
+          <Text style={styles.label}>{t('task_field_desc', 'Description (optionnel)')}</Text>
           <TextInput
             style={[styles.input, styles.multiline]}
-            placeholder="Ex: Récolter les fruits rouges..."
+            placeholder={t('task_placeholder_desc', 'Ex: Récolter les fruits rouges...')}
             placeholderTextColor={PLACEHOLDER}
             value={description}
             onChangeText={setDescription}
             multiline
           />
 
-          <Text style={styles.label}>Plante concernée (optionnel)</Text>
+          <Text style={styles.label}>{t('task_field_plant', 'Plante concernée (optionnel)')}</Text>
           <Pressable style={styles.select} onPress={onPickPlant}>
             <Text style={[styles.selectText, !plantId && styles.selectPlaceholder]}>
               {plantId
-                ? gardenVegetables.find(p => p.gardenVegetableId === plantId)?.name || "Plante inconnue"
-                : "Sélectionnez une plante"}
+                ? gardenVegetables.find(p => p.gardenVegetableId === plantId)?.name || t('task_unknown_plant', 'Plante inconnue')
+                : t('task_select_plant_placeholder', 'Sélectionnez une plante')}
             </Text>
             <Text style={styles.chevron}>▾</Text>
           </Pressable>
 
-          <Text style={styles.label}>Fréquence</Text>
+          <Text style={styles.label}>{t('task_field_frequency', 'Fréquence')}</Text>
           <View style={styles.freqRow}>
             {(["ONCE", "WEEKLY", "MONTHLY"] as const).map((freq) => {
               const selected = frequency === freq;
@@ -170,7 +173,7 @@ export function Formulaire(props: FormulaireProps) {
                   onPress={() => setFrequency(freq)}
                 >
                   <Text style={[styles.freqBtnText, selected && styles.freqBtnTextActive]}>
-                    {freq === "ONCE" ? "1 seule fois" : freq === "WEEKLY" ? "Toutes les semaines" : "Tous les mois"}
+                    {freq === "ONCE" ? t('task_freq_once', '1 seule fois') : freq === "WEEKLY" ? t('task_freq_weekly', 'Toutes les semaines') : t('task_freq_monthly', 'Tous les mois')}
                   </Text>
                 </TouchableOpacity>
               );
@@ -179,10 +182,10 @@ export function Formulaire(props: FormulaireProps) {
 
           {frequency === "ONCE" && (
             <View style={{ marginTop: 6 }}>
-              <Text style={styles.label}>Date</Text>
+              <Text style={styles.label}>{t('task_field_date', 'Date')}</Text>
               <Pressable style={styles.select} onPress={onPickDueDate}>
                 <Text style={[styles.selectText, !dueDate && styles.selectPlaceholder]}>
-                  {dueDate ? formatDateFriendly(dueDate) : "Sélectionnez une date"}
+                  {dueDate ? formatDateFriendly(dueDate) : t('task_select_date_placeholder', 'Sélectionnez une date')}
                 </Text>
                 <Ionicons name="calendar-outline" size={16} color="#6F7A80" />
               </Pressable>
@@ -191,7 +194,7 @@ export function Formulaire(props: FormulaireProps) {
 
           {frequency === "WEEKLY" && (
             <View style={{ marginTop: 6 }}>
-              <Text style={styles.label}>Jours de la semaine</Text>
+              <Text style={styles.label}>{t('task_field_weekdays', 'Jours de la semaine')}</Text>
               <View style={styles.weekdaysContainer}>
                 {WEEKDAYS.map((day) => {
                   const selected = selectedWeekdays.includes(day.id);
@@ -219,7 +222,7 @@ export function Formulaire(props: FormulaireProps) {
 
           {frequency === "MONTHLY" && (
             <View style={{ marginTop: 6 }}>
-              <Text style={styles.label}>Jours du mois</Text>
+              <Text style={styles.label}>{t('task_field_monthdays', 'Jours du mois')}</Text>
               <View style={styles.monthDaysGrid}>
                 {Array.from({ length: 31 }, (_, i) => i + 1).map((dayNum) => {
                   const selected = selectedMonthDays.includes(dayNum);
@@ -248,12 +251,12 @@ export function Formulaire(props: FormulaireProps) {
           <View style={styles.actionRow}>
             {onCancel ? (
               <TouchableOpacity style={styles.cancelBtn} onPress={onCancel}>
-                <Text style={styles.cancelBtnText}>ANNULER</Text>
+                <Text style={styles.cancelBtnText}>{t('btn_cancel', 'ANNULER').toUpperCase()}</Text>
               </TouchableOpacity>
             ) : null}
             <TouchableOpacity style={styles.primaryBtn} onPress={onSave}>
               <Text style={styles.primaryBtnText}>
-                {isEditing ? "ENREGISTRER" : "CRÉER LA TÂCHE"}
+                {isEditing ? t('btn_save', 'ENREGISTRER').toUpperCase() : t('task_create_btn', 'CRÉER LA TÂCHE')}
               </Text>
             </TouchableOpacity>
           </View>

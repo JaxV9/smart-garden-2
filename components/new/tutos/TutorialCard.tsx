@@ -3,6 +3,7 @@ import { Image, StyleSheet, Text, TouchableOpacity, View, Modal, TouchableWithou
 import { useRouter } from 'expo-router';
 import { useUserContext } from '@/contexts/user.context';
 import { useState } from 'react';
+import { useTranslation } from '@/contexts/language.context';
 
 interface TutorialCardProps {
     tutorial: {
@@ -34,6 +35,7 @@ interface TutorialCardProps {
 export default function TutorialCard({ tutorial, onLike, onPress, onDelete, onUpdate }: TutorialCardProps) {
     const router = useRouter();
     const { user } = useUserContext();
+    const { t } = useTranslation();
     
     const [menuVisible, setMenuVisible] = useState(false);
     const [editVisible, setEditVisible] = useState(false);
@@ -63,14 +65,27 @@ export default function TutorialCard({ tutorial, onLike, onPress, onDelete, onUp
         }
     };
 
+    const getCategoryLabel = (category: string) => {
+        switch (category) {
+            case 'ASTUCES':
+                return t('tutos_cat_astuces');
+            case 'DIY':
+                return t('tutos_cat_diy');
+            case 'TECHNIQUES':
+                return t('tutos_cat_techniques');
+            default:
+                return category;
+        }
+    };
+
     const handleDelete = () => {
         setMenuVisible(false);
         Alert.alert(
-            'Supprimer le tutoriel',
-            'Es-tu sûr de vouloir supprimer ce tutoriel ? Cette action est irréversible.',
+            t('tutos_delete_title'),
+            t('tutos_delete_confirm'),
             [
-                { text: 'Annuler', style: 'cancel' },
-                { text: 'Supprimer', style: 'destructive', onPress: () => onDelete?.(tutorial.id) },
+                { text: t('social_cancel'), style: 'cancel' },
+                { text: t('social_delete'), style: 'destructive', onPress: () => onDelete?.(tutorial.id) },
             ]
         );
     };
@@ -130,7 +145,7 @@ export default function TutorialCard({ tutorial, onLike, onPress, onDelete, onUp
                         color="white"
                     />
                     <Text style={styles.typeBadgeText}>
-                        {tutorial.type === 'VIDEO' ? 'Vidéo' : 'Article'}
+                        {tutorial.type === 'VIDEO' ? t('tutos_type_video') : t('tutos_type_article')}
                     </Text>
                 </View>
 
@@ -166,7 +181,7 @@ export default function TutorialCard({ tutorial, onLike, onPress, onDelete, onUp
                         </View>
                         <TouchableOpacity onPress={(e) => { e.stopPropagation(); if(tutorial.author.id) router.push({ pathname: '/user/[id]', params: { id: tutorial.author.id } }); }}>
                             <Text style={styles.authorName}>
-                                {tutorial.author.name || 'Utilisateur'}
+                                {tutorial.author.name || t('social_user_fallback')}
                             </Text>
                         </TouchableOpacity>
                     </View>
@@ -174,14 +189,14 @@ export default function TutorialCard({ tutorial, onLike, onPress, onDelete, onUp
 
                 {/* Catégorie */}
                 <View style={[styles.categoryBadge, { backgroundColor: getCategoryColor(tutorial.category) }]}>
-                    <Text style={styles.categoryText}>{tutorial.category}</Text>
+                    <Text style={styles.categoryText}>{getCategoryLabel(tutorial.category)}</Text>
                 </View>
 
                 {/* Stats */}
                 <View style={styles.stats}>
                     <View style={styles.statItem}>
                         <Ionicons name="eye-outline" size={16} color="#666" />
-                        <Text style={styles.statText}>{tutorial.viewCount} vues</Text>
+                        <Text style={styles.statText}>{tutorial.viewCount} {t('tutos_views')}</Text>
                     </View>
 
                     <TouchableOpacity
@@ -209,12 +224,12 @@ export default function TutorialCard({ tutorial, onLike, onPress, onDelete, onUp
                             <View style={styles.menuCard}>
                                 <TouchableOpacity style={styles.menuItem} onPress={handleEditOpen}>
                                     <Ionicons name="pencil-outline" size={18} color="#374151" />
-                                    <Text style={styles.menuItemText}>Modifier le tutoriel</Text>
+                                    <Text style={styles.menuItemText}>{t('tutos_edit_title')}</Text>
                                 </TouchableOpacity>
                                 <View style={styles.menuDivider} />
                                 <TouchableOpacity style={styles.menuItem} onPress={handleDelete}>
                                     <Ionicons name="trash-outline" size={18} color="#ef4444" />
-                                    <Text style={styles.menuItemTextDanger}>Supprimer le tutoriel</Text>
+                                    <Text style={styles.menuItemTextDanger}>{t('tutos_delete_title')}</Text>
                                 </TouchableOpacity>
                             </View>
                         </TouchableWithoutFeedback>
@@ -229,22 +244,22 @@ export default function TutorialCard({ tutorial, onLike, onPress, onDelete, onUp
                         <TouchableWithoutFeedback>
                             <View style={styles.editCard}>
                                 <View style={styles.editHeader}>
-                                    <Text style={styles.editTitle}>Modifier le tutoriel</Text>
+                                    <Text style={styles.editTitle}>{t('tutos_edit_title')}</Text>
                                     <TouchableOpacity onPress={() => setEditVisible(false)}>
                                         <Ionicons name="close" size={24} color="#374151" />
                                     </TouchableOpacity>
                                 </View>
                                 
-                                <Text style={styles.inputLabel}>Titre</Text>
+                                <Text style={styles.inputLabel}>{t('tutos_title')}</Text>
                                 <TextInput
                                     style={styles.editInput}
                                     value={editTitle}
                                     onChangeText={setEditTitle}
-                                    placeholder="Titre du tutoriel..."
+                                    placeholder={t('tutos_title_placeholder')}
                                     placeholderTextColor="#9ca3af"
                                 />
 
-                                <Text style={styles.inputLabel}>{tutorial.type === 'ARTICLE' ? 'Contenu' : 'Description'}</Text>
+                                <Text style={styles.inputLabel}>{tutorial.type === 'ARTICLE' ? t('tutos_content') : t('tutos_desc')}</Text>
                                 <TextInput
                                     style={[styles.editInput, styles.editTextArea]}
                                     value={editContent}
@@ -252,7 +267,7 @@ export default function TutorialCard({ tutorial, onLike, onPress, onDelete, onUp
                                     multiline
                                     numberOfLines={6}
                                     textAlignVertical="top"
-                                    placeholder={tutorial.type === 'ARTICLE' ? "Contenu de l'article..." : "Description de la vidéo..."}
+                                    placeholder={tutorial.type === 'ARTICLE' ? t('tutos_content_placeholder') : t('tutos_desc_placeholder')}
                                     placeholderTextColor="#9ca3af"
                                 />
 
@@ -261,7 +276,7 @@ export default function TutorialCard({ tutorial, onLike, onPress, onDelete, onUp
                                     onPress={handleEditSave}
                                     disabled={saving}
                                 >
-                                    {saving ? <ActivityIndicator color="white" /> : <Text style={styles.editSaveBtnText}>Enregistrer</Text>}
+                                    {saving ? <ActivityIndicator color="white" /> : <Text style={styles.editSaveBtnText}>{t('social_save')}</Text>}
                                 </TouchableOpacity>
                             </View>
                         </TouchableWithoutFeedback>

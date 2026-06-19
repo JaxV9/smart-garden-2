@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import TopicStats from './TopicStats';
+import { useTranslation } from '@/contexts/language.context';
 
 interface Tag {
     tag: {
@@ -34,6 +35,7 @@ export default function TopicContent({
     commentCount,
 }: TopicContentProps) {
     const router = useRouter();
+    const { t, language } = useTranslation();
 
     return (
         <View style={styles.topicContainer}>
@@ -60,10 +62,10 @@ export default function TopicContent({
                 <View>
                     <TouchableOpacity onPress={() => router.push({ pathname: '/user/[id]', params: { id: author.id } })}>
                         <Text style={[styles.topicAuthor, { color: '#5B8E55', textDecorationLine: 'underline' }]}>
-                            {author.name || 'Utilisateur'}
+                            {author.name || t('forum_topic_unknown_user')}
                         </Text>
                     </TouchableOpacity>
-                    <Text style={styles.topicTime}>{getTimeAgo(createdAt)}</Text>
+                    <Text style={styles.topicTime}>{getTimeAgo(createdAt, language)}</Text>
                 </View>
             </View>
 

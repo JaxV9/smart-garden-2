@@ -55,7 +55,7 @@ export default function Index() {
     return (
         <View style={styles.container}>
             <AppHeader
-                title="Tâches"
+                title={t('tasks_title', 'Tâches')}
                 showBack={true}
                 fallbackRoute="/home"
             />

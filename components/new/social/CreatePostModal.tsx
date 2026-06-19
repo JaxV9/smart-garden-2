@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
 import { ActivityIndicator, Image, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
+import { useTranslation } from '@/contexts/language.context';
 
 interface CreatePostModalProps {
     visible: boolean;
@@ -9,13 +10,14 @@ interface CreatePostModalProps {
 }
 
 export default function CreatePostModal({ visible, onClose, onSubmit }: CreatePostModalProps) {
+    const { t } = useTranslation();
     const [content, setContent] = useState('');
     const [images, setImages] = useState<string[]>([]);
     const [submitting, setSubmitting] = useState(false);
 
     const handleSubmit = async () => {
         if (!content.trim()) {
-            alert('Veuillez écrire quelque chose');
+            alert(t('social_write_something'));
             return;
         }
 
@@ -44,7 +46,7 @@ export default function CreatePostModal({ visible, onClose, onSubmit }: CreatePo
                     <TouchableWithoutFeedback onPress={() => {}}>
                         <View style={styles.modalContent}>
                     <View style={styles.modalHeader}>
-                        <Text style={styles.modalTitle}>Partager une réussite</Text>
+                        <Text style={styles.modalTitle}>{t('social_share_success')}</Text>
                         <TouchableOpacity onPress={handleClose}>
                             <Ionicons name="close" size={24} color="#333" />
                         </TouchableOpacity>
@@ -53,7 +55,7 @@ export default function CreatePostModal({ visible, onClose, onSubmit }: CreatePo
                     <ScrollView style={styles.modalBody}>
                         <TextInput
                             style={styles.textArea}
-                            placeholder="Partagez vos réussites, vos récoltes..."
+                            placeholder={t('social_placeholder')}
                             value={content}
                             onChangeText={setContent}
                             multiline
@@ -80,7 +82,7 @@ export default function CreatePostModal({ visible, onClose, onSubmit }: CreatePo
 
                         <TouchableOpacity style={styles.addImageButton}>
                             <Ionicons name="image-outline" size={24} color="#5B8E55" />
-                            <Text style={styles.addImageText}>Ajouter une photo</Text>
+                            <Text style={styles.addImageText}>{t('social_add_photo')}</Text>
                         </TouchableOpacity>
                     </ScrollView>
 
@@ -92,7 +94,7 @@ export default function CreatePostModal({ visible, onClose, onSubmit }: CreatePo
                         {submitting ? (
                             <ActivityIndicator color="white" />
                         ) : (
-                            <Text style={styles.submitButtonText}>Publier</Text>
+                            <Text style={styles.submitButtonText}>{t('tutos_publish')}</Text>
                         )}
                     </TouchableOpacity>
                         </View>

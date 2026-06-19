@@ -96,7 +96,8 @@ export const ResumeSection = () => {
     }, []);
 
     useEffect(() => {
-        if (!gardenInfo.location) {
+        const location = gardenInfo.location;
+        if (!location) {
             setWeatherData(null);
             return;
         }
@@ -105,8 +106,8 @@ export const ResumeSection = () => {
             setWeatherLoading(true);
             setWeatherError(null);
             try {
-                const match = gardenInfo.location.match(/[a-zA-ZÀ-ÿ].*/);
-                const cleanedLocation = match ? match[0].trim() : gardenInfo.location.trim();
+                const match = location.match(/[a-zA-ZÀ-ÿ].*/);
+                const cleanedLocation = match ? match[0].trim() : location.trim();
                 const geoUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(cleanedLocation)}&count=1&language=fr&format=json`;
                 const geoRes = await fetch(geoUrl);
                 const geoData = await geoRes.json();

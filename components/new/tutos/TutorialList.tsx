@@ -1,6 +1,7 @@
 import { FlatList, StyleSheet, Text } from 'react-native';
 import TutorialCard from './TutorialCard';
 import { useCallback } from 'react';
+import { useTranslation } from '@/contexts/language.context';
 
 interface Tutorial {
     id: string;
@@ -30,6 +31,7 @@ interface TutorialListProps {
 }
 
 export default function TutorialList({ tutorials, loading, onLike, onPress, onDelete, onUpdate }: TutorialListProps) {
+    const { t } = useTranslation();
     const renderItem = useCallback(({ item }: { item: Tutorial }) => (
         <TutorialCard
             tutorial={item}
@@ -43,11 +45,11 @@ export default function TutorialList({ tutorials, loading, onLike, onPress, onDe
     const keyExtractor = useCallback((item: Tutorial) => item.id, []);
 
     if (loading) {
-        return <Text style={styles.loadingText}>Chargement...</Text>;
+        return <Text style={styles.loadingText}>{t('tutos_loading')}</Text>;
     }
 
     if (tutorials.length === 0) {
-        return <Text style={styles.emptyText}>Aucun tutoriel pour le moment</Text>;
+        return <Text style={styles.emptyText}>{t('tutos_empty')}</Text>;
     }
 
     return (

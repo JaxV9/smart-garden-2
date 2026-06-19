@@ -3,6 +3,7 @@ import { useSocialContext } from "@/contexts/social.context";
 import { useUserContext } from "@/contexts/user.context";
 import { useCallback } from "react";
 import { useFetch } from "./useFetch";
+import { useTranslation } from "@/contexts/language.context";
 
 /**
  * Représente un post social.
@@ -66,6 +67,7 @@ export function useSocial() {
     const { httpClient } = useFetch(undefined);
     const { addNotification } = useNotificationContext();
     const { user } = useUserContext();
+    const { t } = useTranslation();
 
     /**
      * Charge la liste des posts.
@@ -84,8 +86,8 @@ export function useSocial() {
                         if (oldPost) {
                             if (newPost._count.likes > oldPost._count.likes) {
                                 addNotification(
-                                    "❤️ Mention J'aime !",
-                                    `Quelqu'un a aimé ta publication : "${newPost.content.substring(0, 30)}..." !`,
+                                    t("notif_like_title"),
+                                    t("notif_like_body").replace("{{content}}", newPost.content.substring(0, 30)),
                                     "COMMUNITY"
                                 );
                             }
@@ -99,8 +101,10 @@ export function useSocial() {
                                         if (foreignComments.length > 0) {
                                             const newestComment = foreignComments[foreignComments.length - 1];
                                             addNotification(
-                                                "💬 Nouveau commentaire !",
-                                                `${newestComment.author?.name || "Un membre"} a commenté ton post : "${newestComment.content}"`,
+                                                t("notif_comment_title"),
+                                                t("notif_comment_body")
+                                                    .replace("{{author}}", newestComment.author?.name || t("social_user_fallback"))
+                                                    .replace("{{content}}", newestComment.content),
                                                 "COMMUNITY"
                                             );
                                         }
@@ -117,7 +121,7 @@ export function useSocial() {
             setPosts(fetchedPosts);
         }
         return response.status;
-    }, [httpClient, posts, setPosts, user?.id, addNotification]);
+    }, [httpClient, posts, setPosts, user?.id, addNotification, t]);
 
     /**
      * Crée un nouveau post et l'ajoute à la liste locale.
@@ -136,13 +140,13 @@ export function useSocial() {
             const newPost = response.payload as Post;
             setPosts([newPost, ...posts]);
             addNotification(
-                "🌱 Réussite partagée !",
-                "Ta publication a bien été partagée à la communauté. Bientôt une star du compost !",
+                t("notif_share_title"),
+                t("notif_share_body"),
                 "COMMUNITY"
             );
         }
         return response.status;
-    }, [httpClient, posts, setPosts, addNotification]);
+    }, [httpClient, posts, setPosts, addNotification, t]);
 
     /**
      * Toggle le like sur un post (like/unlike).
@@ -156,13 +160,13 @@ export function useSocial() {
             // Recharger les posts pour mettre à jour les likes
             await loadPosts();
             addNotification(
-                "❤️ Mention J'aime !",
-                "Tu as réagi à cette publication avec succès !",
+                t("notif_liked_back_title"),
+                t("notif_liked_back_body"),
                 "COMMUNITY"
             );
         }
         return response.status;
-    }, [httpClient, loadPosts, addNotification]);
+    }, [httpClient, loadPosts, addNotification, t]);
 
     /**
      * Ajoute un commentaire à un post donné.
@@ -180,14 +184,14 @@ export function useSocial() {
         if (response.status !== "Failure") {
             const comment = response.payload as PostComment;
             addNotification(
-                "💬 Commentaire publié !",
-                `Ton commentaire "${content.substring(0, 30)}${content.length > 30 ? '...' : ''}" est en ligne !`,
+                t("notif_comment_posted_title"),
+                t("notif_comment_posted_body").replace("{{content}}", `${content.substring(0, 30)}${content.length > 30 ? '...' : ''}`),
                 "COMMUNITY"
             );
             return comment;
         }
         return null;
-    }, [httpClient, addNotification]);
+    }, [httpClient, addNotification, t]);
 
     /**
      * Récupère les commentaires d'un post spécifique.

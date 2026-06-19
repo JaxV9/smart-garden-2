@@ -7,6 +7,7 @@ import {
     ActivityIndicator, Alert, Image, Modal, StyleSheet, Text,
     TextInput, TouchableOpacity, TouchableWithoutFeedback, View
 } from 'react-native';
+import { useTranslation } from '@/contexts/language.context';
 
 interface PostCardProps {
     post: {
@@ -31,6 +32,7 @@ interface PostCardProps {
 }
 
 export default function PostCard({ post, onLike, onComment, onDelete, onUpdate }: PostCardProps) {
+    const { t, language } = useTranslation();
     const router = useRouter();
     const { user } = useUserContext();
     const [menuVisible, setMenuVisible] = useState(false);
@@ -42,11 +44,11 @@ export default function PostCard({ post, onLike, onComment, onDelete, onUpdate }
     const handleDelete = () => {
         setMenuVisible(false);
         Alert.alert(
-            'Supprimer le post',
-            'Es-tu sûr de vouloir supprimer ce post ? Cette action est irréversible.',
+            t('social_delete_title'),
+            t('social_delete_confirm'),
             [
-                { text: 'Annuler', style: 'cancel' },
-                { text: 'Supprimer', style: 'destructive', onPress: () => onDelete?.(post.id) },
+                { text: t('social_cancel'), style: 'cancel' },
+                { text: t('social_delete'), style: 'destructive', onPress: () => onDelete?.(post.id) },
             ]
         );
     };
@@ -73,9 +75,9 @@ export default function PostCard({ post, onLike, onComment, onDelete, onUpdate }
                 </View>
                 <View style={styles.postHeaderInfo}>
                     <TouchableOpacity onPress={() => router.push({ pathname: '/user/[id]', params: { id: post.author.id } })}>
-                        <Text style={styles.postAuthor}>{post.author.name || 'Utilisateur'}</Text>
+                        <Text style={styles.postAuthor}>{post.author.name || t('social_user_fallback')}</Text>
                     </TouchableOpacity>
-                    <Text style={styles.postTime}>{getTimeAgo(post.createdAt)}</Text>
+                    <Text style={styles.postTime}>{getTimeAgo(post.createdAt, language)}</Text>
                 </View>
 
                 {isOwner && (
@@ -112,12 +114,12 @@ export default function PostCard({ post, onLike, onComment, onDelete, onUpdate }
                             <View style={styles.menuCard}>
                                 <TouchableOpacity style={styles.menuItem} onPress={handleEditOpen}>
                                     <Ionicons name="pencil-outline" size={18} color="#374151" />
-                                    <Text style={styles.menuItemText}>Modifier le post</Text>
+                                    <Text style={styles.menuItemText}>{t('social_edit')}</Text>
                                 </TouchableOpacity>
                                 <View style={styles.menuDivider} />
                                 <TouchableOpacity style={styles.menuItem} onPress={handleDelete}>
                                     <Ionicons name="trash-outline" size={18} color="#ef4444" />
-                                    <Text style={styles.menuItemTextDanger}>Supprimer le post</Text>
+                                    <Text style={styles.menuItemTextDanger}>{t('social_delete_title')}</Text>
                                 </TouchableOpacity>
                             </View>
                         </TouchableWithoutFeedback>
@@ -132,7 +134,7 @@ export default function PostCard({ post, onLike, onComment, onDelete, onUpdate }
                         <TouchableWithoutFeedback>
                             <View style={styles.editCard}>
                                 <View style={styles.editHeader}>
-                                    <Text style={styles.editTitle}>Modifier le post</Text>
+                                    <Text style={styles.editTitle}>{t('social_edit')}</Text>
                                     <TouchableOpacity onPress={() => setEditVisible(false)}>
                                         <Ionicons name="close" size={24} color="#374151" />
                                     </TouchableOpacity>
@@ -144,7 +146,7 @@ export default function PostCard({ post, onLike, onComment, onDelete, onUpdate }
                                     multiline
                                     numberOfLines={6}
                                     textAlignVertical="top"
-                                    placeholder="Contenu du post..."
+                                    placeholder={t('social_edit_placeholder')}
                                     placeholderTextColor="#9ca3af"
                                 />
                                 <TouchableOpacity
@@ -152,7 +154,7 @@ export default function PostCard({ post, onLike, onComment, onDelete, onUpdate }
                                     onPress={handleEditSave}
                                     disabled={saving}
                                 >
-                                    {saving ? <ActivityIndicator color="white" /> : <Text style={styles.editSaveBtnText}>Enregistrer</Text>}
+                                    {saving ? <ActivityIndicator color="white" /> : <Text style={styles.editSaveBtnText}>{t('social_save')}</Text>}
                                 </TouchableOpacity>
                             </View>
                         </TouchableWithoutFeedback>

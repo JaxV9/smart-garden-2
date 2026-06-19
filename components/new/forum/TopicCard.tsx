@@ -39,7 +39,7 @@ interface TopicCardProps {
 export default function TopicCard({ topic, onPress, onDelete, onUpdate, allTags = [] }: TopicCardProps) {
     const router = useRouter();
     const { user } = useUserContext();
-    const { t } = useTranslation();
+    const { t, language } = useTranslation();
     const [menuVisible, setMenuVisible] = useState(false);
     const [editVisible, setEditVisible] = useState(false);
     const [editTitle, setEditTitle] = useState(topic.title);
@@ -120,7 +120,7 @@ export default function TopicCard({ topic, onPress, onDelete, onUpdate, allTags 
                 <TouchableOpacity onPress={() => router.push({ pathname: '/user/[id]', params: { id: topic.author.id } })}>
                     <Text style={styles.topicAuthor}>{t('forum_topic_by')} <Text style={styles.authorName}>{topic.author.name || t('forum_topic_unknown_user')}</Text></Text>
                 </TouchableOpacity>
-                <Text style={styles.topicTime}>• {getTimeAgo(topic.createdAt)}</Text>
+                <Text style={styles.topicTime}>• {getTimeAgo(topic.createdAt, language)}</Text>
             </View>
 
             <View style={styles.topicStats}>

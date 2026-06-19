@@ -1,3 +1,4 @@
+import { useTranslation } from '@/contexts/language.context';
 import { Vegetable } from '@/models/models';
 import { Ionicons } from '@expo/vector-icons';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -26,6 +27,7 @@ const getDifficultyStyle = (difficulty?: string) => {
 };
 
 export const VegetableCard = ({ vegetable, callBack }: VegetableProps) => {
+    const { t } = useTranslation();
     const rawUri = (vegetable?.images?.[0] as unknown as string) ?? '';
     // Supabase paths sometimes end up with double slashes like "/garden//tomate.png" which can 404.
     const imageUri = rawUri ? rawUri.replace(/([^:]\/\/+)\/+/g, '$1') : '';
@@ -51,33 +53,33 @@ export const VegetableCard = ({ vegetable, callBack }: VegetableProps) => {
 
                 {!!difficulty && (
                     <View style={[styles.badge, getDifficultyStyle(difficulty)]}>
-                        <Text style={styles.badgeText}>{difficulty}</Text>
+                        <Text style={styles.badgeText}>{t('diff_' + difficulty.toLowerCase(), difficulty)}</Text>
                     </View>
                 )}
             </View>
 
             <View style={styles.body}>
-                <Text style={styles.name}>{vegetable.name}</Text>
+                <Text style={styles.name}>{t('veg_name_' + vegetable.id, vegetable.name)}</Text>
                 {!!scientificName && (
                     <Text style={styles.scientific}>{scientificName}</Text>
                 )}
 
                 {!!difficulty && (
-                    <Text style={styles.snippet}>Difficulté : {difficulty}</Text>
+                    <Text style={styles.snippet}>{t('doc_filter_difficulty') || 'Difficulté'} : {t('diff_' + difficulty.toLowerCase(), difficulty)}</Text>
                 )}
 
                 <View style={styles.metaRow}>
                     {!!watering && (
                         <View style={[styles.metaItem, styles.waterPill]}>
                             <Ionicons name="water-outline" size={14} color="#2563EB" />
-                            <Text style={styles.metaText}>{watering}</Text>
+                            <Text style={styles.metaText}>{t('water_' + watering.toLowerCase(), watering)}</Text>
                         </View>
                     )}
 
                     {!!sunExposure && (
                         <View style={[styles.metaItem, styles.sunPill]}>
                             <Ionicons name="sunny-outline" size={14} color="#F59E0B" />
-                            <Text style={styles.metaText}>{sunExposure}</Text>
+                            <Text style={styles.metaText}>{t('sun_' + sunExposure.replace(/\s+/g, '_').toLowerCase(), sunExposure)}</Text>
                         </View>
                     )}
                 </View>

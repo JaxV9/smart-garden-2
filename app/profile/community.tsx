@@ -7,6 +7,7 @@ import { getTimeAgo } from '@/utils/dateFormatter';
 import { Feather } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from '@/contexts/language.context';
 import {
   ActivityIndicator,
   Image,
@@ -42,6 +43,7 @@ import { useRef } from 'react';
 
 export default function CommunityProfileScreen() {
   const { user } = useUserContext();
+  const { t, language } = useTranslation();
   const { updateUser } = useUser();
   const { getUserPosts } = useSocial();
   const { getUserTopics, getUserComments } = useForum();
@@ -225,7 +227,7 @@ export default function CommunityProfileScreen() {
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <Feather name="arrow-left" size={24} color={COLORS.textDark} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Profil communautaire</Text>
+        <Text style={styles.headerTitle}>{t('community_title')}</Text>
         <View style={{ width: 40 }} />
       </View>
 
@@ -245,7 +247,7 @@ export default function CommunityProfileScreen() {
           >
             <View style={styles.privacyTextGroup}>
               <Feather name={user?.isPrivate ? 'eye-off' : 'eye'} size={16} color={COLORS.textMuted} />
-              <Text style={styles.privacyLabel}>Compte privé</Text>
+              <Text style={styles.privacyLabel}>{t('community_private_account')}</Text>
             </View>
             <Switch
               value={user?.isPrivate || false}
@@ -261,7 +263,7 @@ export default function CommunityProfileScreen() {
           onLayout={measureAll}
           style={styles.sectionHeader}
         >
-          <Text style={styles.sectionTitle}>Interactions</Text>
+          <Text style={styles.sectionTitle}>{t('community_interactions')}</Text>
           <TouchableOpacity
             style={[
               styles.filterButton,
@@ -280,7 +282,7 @@ export default function CommunityProfileScreen() {
                 activeFiltersCount > 0 && styles.filterButtonTextActive,
               ]}
             >
-              Filtres{activeFiltersCount > 0 ? ` (${activeFiltersCount})` : ''}
+              {t('community_filters')} {activeFiltersCount > 0 ? `(${activeFiltersCount})` : ''}
             </Text>
           </TouchableOpacity>
         </View>
@@ -302,10 +304,10 @@ export default function CommunityProfileScreen() {
                       <View style={styles.categoryBadge}>
                         <Text style={styles.categoryText}>
                           {item.category === 'social'
-                            ? 'Social'
+                            ? t('forum_tab_social')
                             : item.category === 'forum'
-                              ? 'Forum'
-                              : 'Tutos'}
+                              ? t('forum_tab_forum')
+                              : t('forum_tab_tutos')}
                         </Text>
                       </View>
                     </View>
@@ -316,7 +318,7 @@ export default function CommunityProfileScreen() {
                     </Text>
 
                     <Text style={styles.metaText}>
-                      Par {item.authorName} • {getTimeAgo(item.createdAt)}
+                      {t('forum_topic_by')} {item.authorName} • {getTimeAgo(item.createdAt, language)}
                     </Text>
 
                     <View style={styles.cardFooter}>
@@ -324,20 +326,20 @@ export default function CommunityProfileScreen() {
                         <View style={styles.statRow}>
                           <Feather name="message-square" size={14} color={COLORS.textMuted} />
                           <Text style={styles.statText}>
-                            {item.commentsCount} réponse{item.commentsCount > 1 ? 's' : ''}
+                            {item.commentsCount} {t('forum_topic_replies')}
                           </Text>
                         </View>
                       )}
                       {item.likesCount !== undefined && (
                         <View style={styles.statRow}>
                           <Feather name="heart" size={14} color={COLORS.textMuted} />
-                          <Text style={styles.statText}>{item.likesCount} j'aime</Text>
+                          <Text style={styles.statText}>{item.likesCount} {t('social_likes')}</Text>
                         </View>
                       )}
                       {item.viewsCount !== undefined && (
                         <View style={styles.statRow}>
                           <Feather name="eye" size={14} color={COLORS.textMuted} />
-                          <Text style={styles.statText}>{item.viewsCount} vues</Text>
+                          <Text style={styles.statText}>{item.viewsCount} {t('forum_topic_views')}</Text>
                         </View>
                       )}
                     </View>
@@ -353,7 +355,7 @@ export default function CommunityProfileScreen() {
                         </View>
                       )}
                       <View style={styles.categoryBadge}>
-                        <Text style={styles.categoryText}>Réponse</Text>
+                        <Text style={styles.categoryText}>{t('profile_reply_badge')}</Text>
                       </View>
                     </View>
 
@@ -362,7 +364,7 @@ export default function CommunityProfileScreen() {
                     )}
 
                     <Text style={styles.metaTextComment}>
-                      Par {item.authorName} • {getTimeAgo(item.createdAt)}
+                      {t('forum_topic_by')} {item.authorName} • {getTimeAgo(item.createdAt, language)}
                     </Text>
 
                     <View style={styles.nestedCommentContainer}>
@@ -377,7 +379,7 @@ export default function CommunityProfileScreen() {
         ) : (
           <View style={styles.emptyContainer}>
             <Feather name="inbox" size={48} color="#D1D5DB" />
-            <Text style={styles.emptyText}>Aucune interaction trouvée.</Text>
+            <Text style={styles.emptyText}>{t('profile_no_comments')}</Text>
           </View>
         )}
       </ScrollView>
@@ -392,7 +394,7 @@ export default function CommunityProfileScreen() {
           <View style={styles.modalCard}>
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>
-                Filtres{currentFiltersSelectionCount > 0 ? ` (${currentFiltersSelectionCount})` : ''}
+                {t('community_filters')}{currentFiltersSelectionCount > 0 ? ` (${currentFiltersSelectionCount})` : ''}
               </Text>
               <TouchableOpacity onPress={() => setIsFilterModalOpen(false)}>
                 <Feather name="x" size={22} color={COLORS.textDark} />
@@ -402,7 +404,7 @@ export default function CommunityProfileScreen() {
             <ScrollView style={styles.modalScroll}>
               {availableTypes.length > 0 && (
                 <View style={styles.filterSection}>
-                  <Text style={styles.filterSectionTitle}>Type de contenu</Text>
+                  <Text style={styles.filterSectionTitle}>{t('community_filter_content_type')}</Text>
                   <View style={styles.filterChipsRow}>
                     {availableTypes.includes('publication') && (
                       <TouchableOpacity
@@ -418,7 +420,7 @@ export default function CommunityProfileScreen() {
                             selectedTypes.includes('publication') && styles.filterChipTextActive,
                           ]}
                         >
-                          Publications
+                          {t('community_filter_publications')}
                         </Text>
                       </TouchableOpacity>
                     )}
@@ -436,7 +438,7 @@ export default function CommunityProfileScreen() {
                             selectedTypes.includes('commentaire') && styles.filterChipTextActive,
                           ]}
                         >
-                          Commentaires
+                          {t('community_filter_comments')}
                         </Text>
                       </TouchableOpacity>
                     )}
@@ -446,7 +448,7 @@ export default function CommunityProfileScreen() {
 
               {availableCategories.length > 0 && (
                 <View style={styles.filterSection}>
-                  <Text style={styles.filterSectionTitle}>Catégorie</Text>
+                  <Text style={styles.filterSectionTitle}>{t('community_filter_category')}</Text>
                   <View style={styles.filterChipsRow}>
                     {availableCategories.includes('social') && (
                       <TouchableOpacity
@@ -462,7 +464,7 @@ export default function CommunityProfileScreen() {
                             selectedCategories.includes('social') && styles.filterChipTextActive,
                           ]}
                         >
-                          Social
+                          {t('forum_tab_social')}
                         </Text>
                       </TouchableOpacity>
                     )}
@@ -480,7 +482,7 @@ export default function CommunityProfileScreen() {
                             selectedCategories.includes('forum') && styles.filterChipTextActive,
                           ]}
                         >
-                          Forum
+                          {t('forum_tab_forum')}
                         </Text>
                       </TouchableOpacity>
                     )}
@@ -498,7 +500,7 @@ export default function CommunityProfileScreen() {
                             selectedCategories.includes('tuto') && styles.filterChipTextActive,
                           ]}
                         >
-                          Tutos
+                          {t('forum_tab_tutos')}
                         </Text>
                       </TouchableOpacity>
                     )}
@@ -513,14 +515,14 @@ export default function CommunityProfileScreen() {
                 activeOpacity={0.7}
                 onPress={resetFilters}
               >
-                <Text style={styles.modalResetButtonText}>Réinitialiser</Text>
+                <Text style={styles.modalResetButtonText}>{t('community_filter_reset')}</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.modalApplyButton}
                 activeOpacity={0.8}
                 onPress={applyFilters}
               >
-                <Text style={styles.modalApplyButtonText}>Appliquer</Text>
+                <Text style={styles.modalApplyButtonText}>{t('community_filter_apply')}</Text>
               </TouchableOpacity>
             </View>
           </View>

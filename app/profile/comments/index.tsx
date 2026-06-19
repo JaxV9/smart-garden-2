@@ -3,9 +3,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useTranslation } from '@/contexts/language.context';
+import { getTimeAgo } from '@/utils/dateFormatter';
 
 export default function MyComments() {
     const router = useRouter();
+    const { t, language } = useTranslation();
     const { getUserComments } = useForum();
     const [loading, setLoading] = useState(false);
     const [userComments, setUserComments] = useState<UserComment[]>([]);
@@ -21,21 +24,6 @@ export default function MyComments() {
             loadData();
         }, [])
     );
-
-    const getTimeAgo = (date: string) => {
-        const now = new Date();
-        const createdAt = new Date(date);
-        const diffInMs = now.getTime() - createdAt.getTime();
-        
-        const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
-        const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
-        const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
-        
-        if (diffInMinutes < 1) return "À l'instant";
-        if (diffInMinutes < 60) return `Il y a ${diffInMinutes} min`;
-        if (diffInHours < 24) return `Il y a ${diffInHours}h`;
-        return `Il y a ${diffInDays}j`;
-    };
 
     const renderComment = ({ item }: { item: UserComment }) => (
         <TouchableOpacity 
@@ -55,7 +43,7 @@ export default function MyComments() {
 
             <View style={styles.commentMeta}>
                 <Ionicons name="time-outline" size={14} color="#999" />
-                <Text style={styles.commentTime}>{getTimeAgo(item.createdAt)}</Text>
+                <Text style={styles.commentTime}>{getTimeAgo(item.createdAt, language)}</Text>
             </View>
         </TouchableOpacity>
     );
@@ -67,7 +55,7 @@ export default function MyComments() {
                 <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
                     <Ionicons name="arrow-back" size={24} color="white" />
                 </TouchableOpacity>
-                <Text style={styles.headerTitle}>Mes réponses</Text>
+                <Text style={styles.headerTitle}>{t('profile_my_comments')}</Text>
                 <View style={styles.headerRight} />
             </View>
 
@@ -78,15 +66,15 @@ export default function MyComments() {
             ) : userComments.length === 0 ? (
                 <View style={styles.emptyContainer}>
                     <Ionicons name="chatbubbles-outline" size={80} color="#ccc" />
-                    <Text style={styles.emptyTitle}>Aucune réponse</Text>
+                    <Text style={styles.emptyTitle}>{t('profile_no_comments')}</Text>
                     <Text style={styles.emptyText}>
-                        Vous n'avez pas encore posté de réponse
+                        {t('profile_no_comments_desc')}
                     </Text>
                     <TouchableOpacity 
                         style={styles.browseButton}
                         onPress={() => router.push('/(tabs)/social')}
                     >
-                        <Text style={styles.browseButtonText}>Parcourir le forum</Text>
+                        <Text style={styles.browseButtonText}>{t('profile_browse_forum')}</Text>
                     </TouchableOpacity>
                 </View>
             ) : (

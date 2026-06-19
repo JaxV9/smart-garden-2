@@ -3,6 +3,7 @@ import { useNotificationContext } from "@/contexts/notification.context";
 import { useUserContext } from "@/contexts/user.context";
 import { useCallback } from "react";
 import { useFetch } from "./useFetch";
+import { useTranslation } from "@/contexts/language.context";
 
 /**
  * Représente un tag (catégorie) de forum.
@@ -124,6 +125,7 @@ export function useForum() {
     const { httpClient } = useFetch(undefined);
     const { addNotification } = useNotificationContext();
     const { user } = useUserContext();
+    const { t } = useTranslation();
 
     /**
      * Charge les tags s’ils ne sont pas déjà présents dans le contexte.
@@ -166,8 +168,11 @@ export function useForum() {
                                         if (foreignComments.length > 0) {
                                             const newestReply = foreignComments[foreignComments.length - 1];
                                             addNotification(
-                                                "💬 Nouvelle réponse !",
-                                                `${newestReply.author?.name || "Un membre"} a répondu à ton sujet "${newTopic.title}" : "${newestReply.content}"`,
+                                                t("notif_reply_title"),
+                                                t("notif_reply_body")
+                                                    .replace("{{author}}", newestReply.author?.name || t("social_user_fallback"))
+                                                    .replace("{{title}}", newTopic.title)
+                                                    .replace("{{content}}", newestReply.content),
                                                 "COMMUNITY"
                                             );
                                         }
@@ -184,7 +189,7 @@ export function useForum() {
             setTopics(fetchedTopics);
         }
         return response.status;
-    }, [httpClient, topics, setTopics, user?.id, addNotification]);
+    }, [httpClient, topics, setTopics, user?.id, addNotification, t]);
 
     /**
      * Récupère les détails d’un sujet (topic) spécifique par son ID.
@@ -219,13 +224,13 @@ export function useForum() {
             const newTopic = response.payload as Topic;
             setTopics([newTopic, ...topics]);
             addNotification(
-                "💬 Sujet publié !",
-                `Votre sujet "${title}" est maintenant en ligne sur le forum !`,
+                t("notif_topic_title"),
+                t("notif_topic_body").replace("{{title}}", title),
                 "COMMUNITY"
             );
         }
         return response.status;
-    }, [httpClient, topics, setTopics, addNotification]);
+    }, [httpClient, topics, setTopics, addNotification, t]);
 
     /**
      * Ajoute un commentaire à un sujet donné.
@@ -243,14 +248,14 @@ export function useForum() {
         if (response.status !== "Failure") {
             const comment = response.payload as Comment;
             addNotification(
-                "💬 Réponse envoyée !",
-                `Votre commentaire a bien été publié sur le forum.`,
+                t("notif_reply_posted_title"),
+                t("notif_reply_posted_body"),
                 "COMMUNITY"
             );
             return comment;
         }
         return null;
-    }, [httpClient, addNotification]);
+    }, [httpClient, addNotification, t]);
 
     /**
      * Crée un nouveau tag et l’ajoute à la liste locale.

@@ -17,7 +17,7 @@ import {
 
 export default function NotificationsScreen() {
     const router = useRouter();
-    const { t } = useTranslation();
+    const { t, language } = useTranslation();
     const {
         notifications,
         sensorsEnabled,
@@ -67,7 +67,7 @@ export default function NotificationsScreen() {
                         <Text style={[styles.cardTitle, !item.isRead && styles.boldText]}>
                             {item.title}
                         </Text>
-                        <Text style={styles.timeText}>{getTimeAgo(item.createdAt)}</Text>
+                        <Text style={styles.timeText}>{getTimeAgo(item.createdAt, language)}</Text>
                     </View>
                     <Text style={styles.cardDescription}>{item.description}</Text>
                 </View>
