@@ -8,6 +8,7 @@ import { useUser } from '@/hooks/useUser';
 import { Feather, Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
+import * as SecureStore from 'expo-secure-store';
 import {
   Image,
   Modal,
@@ -28,12 +29,52 @@ const LEVEL_LABELS: Record<string, string> = {
   enthusiast: 'Passionné.e',
 };
 
+import { useTour } from '@/contexts/tour.context';
+import { useRef } from 'react';
+
 export default function ProfileScreen() {
   const { user, isPremium } = useUserContext();
   const { logout } = useUser();
   const { t, language, changeLanguage } = useTranslation();
   const { gardenInfo } = useGardenContext();
   const { loadGardenInfo } = useGardenInfo();
+  const { registerElement, step } = useTour();
+
+  const scrollRef = useRef<ScrollView>(null);
+  const profileCardRef = useRef<View>(null);
+  const vipBannerRef = useRef<View>(null);
+  const langSelectorRef = useRef<View>(null);
+  const gardenInfoRef = useRef<View>(null);
+
+  const measureAll = () => {
+    setTimeout(() => {
+      profileCardRef.current?.measureInWindow((x, y, w, h) => {
+        if (w && h) registerElement('profile_info', { x, y, width: w, height: h });
+      });
+      vipBannerRef.current?.measureInWindow((x, y, w, h) => {
+        if (w && h) registerElement('profile_vip', { x, y, width: w, height: h });
+      });
+      langSelectorRef.current?.measureInWindow((x, y, w, h) => {
+        if (w && h) registerElement('profile_lang_selector', { x, y, width: w, height: h });
+      });
+      gardenInfoRef.current?.measureInWindow((x, y, w, h) => {
+        if (w && h) registerElement('profile_garden_details', { x, y, width: w, height: h });
+      });
+    }, 320);
+  };
+
+  useEffect(() => {
+    if (step === 22) {
+      scrollRef.current?.scrollTo({ y: 0, animated: true });
+    } else if (step === 23) {
+      scrollRef.current?.scrollTo({ y: 100, animated: true });
+    } else if (step === 24) {
+      scrollRef.current?.scrollTo({ y: 220, animated: true });
+    } else if (step === 25) {
+      scrollRef.current?.scrollTo({ y: 340, animated: true });
+    }
+    measureAll();
+  }, [step]);
 
   const avatarSource = user?.avatarUri
     ? { uri: user.avatarUri }
@@ -59,6 +100,11 @@ export default function ProfileScreen() {
     router.push('/profile/garden-info');
   };
 
+  const handleStartTutorial = async () => {
+    await SecureStore.setItemAsync('app_tour_completed', 'false');
+    router.replace('/(tabs)/home');
+  };
+
   const handleConfirmLogout = async () => {
     setIsLogoutModalVisible(false);
     await logout();
@@ -80,13 +126,18 @@ export default function ProfileScreen() {
 
       {/* CONTENT */}
       <ScrollView 
+        ref={scrollRef}
         style={styles.container} 
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
 
         {/* PROFILE CARD */}
-        <View style={styles.profileCard}>
+        <View 
+          ref={profileCardRef}
+          onLayout={measureAll}
+          style={styles.profileCard}
+        >
           <Image source={avatarSource} style={styles.avatar} />
 
           <View style={styles.profileTexts}>
@@ -109,6 +160,8 @@ export default function ProfileScreen() {
         {/* PREMIUM PROMOTION BANNER */}
         {!isPremium ? (
           <TouchableOpacity 
+            ref={vipBannerRef}
+            onLayout={measureAll}
             style={styles.premiumBanner} 
             onPress={() => router.push('/premium' as any)}
             activeOpacity={0.9}
@@ -125,7 +178,11 @@ export default function ProfileScreen() {
             <Ionicons name="chevron-forward" size={18} color="#D4AF37" />
           </TouchableOpacity>
         ) : (
-          <View style={[styles.premiumBanner, styles.premiumActiveBanner]}>
+          <View 
+            ref={vipBannerRef}
+            onLayout={measureAll}
+            style={[styles.premiumBanner, styles.premiumActiveBanner]}
+          >
             <View style={styles.premiumBannerLeft}>
               <View style={[styles.crownCircle, { backgroundColor: '#FFFDF0' }]}>
                 <Ionicons name="star" size={20} color="#D4AF37" />
@@ -190,6 +247,29 @@ export default function ProfileScreen() {
           </TouchableOpacity>
 
           <TouchableOpacity
+            style={styles.row}
+            onPress={handleStartTutorial}
+          >
+            <View style={styles.iconCircle}>
+              <Feather
+                name="help-circle"
+                size={20}
+                color="#5A7F54"
+              />
+            </View>
+
+            <Text style={styles.rowText}>
+              {t('profile_start_tutorial')}
+            </Text>
+
+            <Feather
+              name="chevron-right"
+              size={20}
+              color="#9CA3AF"
+            />
+          </TouchableOpacity>
+
+          <TouchableOpacity
             style={[styles.row, styles.rowLast]}
             onPress={() => setIsLogoutModalVisible(true)}
           >
@@ -209,7 +289,11 @@ export default function ProfileScreen() {
 
 
         {/* LANGUAGE SELECTOR */}
-        <View style={styles.blockCard}>
+        <View 
+          ref={langSelectorRef}
+          onLayout={measureAll}
+          style={styles.blockCard}
+        >
           <View style={styles.gardenHeader}>
             <View style={styles.gardenHeaderLeft}>
               <View style={styles.iconCircle}>
@@ -253,7 +337,11 @@ export default function ProfileScreen() {
         </View>
 
         {/* GARDEN INFO */}
-        <View style={styles.blockCard}>
+        <View 
+          ref={gardenInfoRef}
+          onLayout={measureAll}
+          style={styles.blockCard}
+        >
           <View style={styles.gardenHeader}>
             <View style={styles.gardenHeaderLeft}>
               <View style={styles.iconCircle}>

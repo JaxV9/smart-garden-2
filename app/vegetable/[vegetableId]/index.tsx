@@ -1,8 +1,9 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useRef } from "react";
-import { Text, View, TouchableOpacity, StyleSheet, Animated } from "react-native";
+import { Text, View, TouchableOpacity, StyleSheet, Animated, ScrollView } from "react-native";
 import { useUserContext } from "@/contexts/user.context";
 import { useTranslation } from "@/contexts/language.context";
+import { useTour } from "@/contexts/tour.context";
 import { Ionicons } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
 
@@ -27,8 +28,34 @@ export default function Index() {
   const { vegetableId } = useLocalSearchParams<{ vegetableId: string }>();
   const vm = useVegetableDetails(vegetableId);
 
+  const { registerElement, step } = useTour();
+
+  const scrollRef = useRef<ScrollView>(null);
+  const metaRef = useRef<View>(null);
+  const lockRef = useRef<View>(null);
+
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.92)).current;
+
+  const measureAll = () => {
+    setTimeout(() => {
+      metaRef.current?.measureInWindow((x, y, w, h) => {
+        if (w && h) registerElement('vegetable_meta', { x, y, width: w, height: h });
+      });
+      lockRef.current?.measureInWindow((x, y, w, h) => {
+        if (w && h) registerElement('vegetable_lock_overlay', { x, y, width: w, height: h });
+      });
+    }, 320);
+  };
+
+  useEffect(() => {
+    if (step === 17) {
+      scrollRef.current?.scrollTo({ y: 0, animated: true });
+    } else if (step === 18) {
+      scrollRef.current?.scrollTo({ y: 260, animated: true });
+    }
+    measureAll();
+  }, [step]);
 
   useEffect(() => {
     if (!isPremium) {
@@ -92,6 +119,7 @@ export default function Index() {
   return (
     <vm.SafeArea style={styles.safeArea}>
       <vm.Scroll
+        ref={scrollRef}
         style={styles.container}
         contentContainerStyle={vm.contentContainerStyle}
         showsVerticalScrollIndicator={false}
@@ -103,11 +131,16 @@ export default function Index() {
         />
 
         <View style={styles.sheet}>
-          <VegetableMeta
-            name={vm.vegetable.name}
-            family={vm.family}
-            scientific={vm.scientific}
-          />
+          <View 
+            ref={metaRef}
+            onLayout={measureAll}
+          >
+            <VegetableMeta
+              name={vm.vegetable.name}
+              family={vm.family}
+              scientific={vm.scientific}
+            />
+          </View>
 
           <Text style={styles.h2}>{t('plant_desc')}</Text>
           <Text style={styles.description}>{vm.vegetable.description}</Text>
@@ -166,7 +199,11 @@ export default function Index() {
             )}
 
             {!isPremium && (
-              <Animated.View style={[StyleSheet.absoluteFillObject, { opacity: fadeAnim }]}>
+              <Animated.View 
+                ref={lockRef}
+                onLayout={measureAll}
+                style={[StyleSheet.absoluteFillObject, { opacity: fadeAnim }]}
+              >
                 <BlurView intensity={75} tint="light" style={StyleSheet.absoluteFill} />
                 <Animated.View style={[styles.lockedContainer, { marginTop: 40, backgroundColor: 'transparent', borderWidth: 0, transform: [{ scale: scaleAnim }] }]}>
                   <Ionicons name="lock-closed" size={36} color="#D4AF37" style={styles.lockIcon} />

@@ -28,9 +28,37 @@ const LEVEL_LABELS: Record<string, string> = {
   enthusiast: 'Passionné.e',
 };
 
+import { useTour } from '@/contexts/tour.context';
+import { useRef, useEffect } from 'react';
+
 export default function PersonalInfoScreen() {
   const { user } = useUserContext();
   const { updateAvatar, updateUser } = useUser();
+  const { registerElement, step } = useTour();
+
+  const scrollRef = useRef<ScrollView>(null);
+  const pseudoEmailRef = useRef<View>(null);
+  const levelRef = useRef<View>(null);
+
+  const measureAll = () => {
+    setTimeout(() => {
+      pseudoEmailRef.current?.measureInWindow((x, y, w, h) => {
+        if (w && h) registerElement('personal_pseudo_email', { x, y, width: w, height: h });
+      });
+      levelRef.current?.measureInWindow((x, y, w, h) => {
+        if (w && h) registerElement('personal_level', { x, y, width: w, height: h });
+      });
+    }, 320);
+  };
+
+  useEffect(() => {
+    if (step === 26) {
+      scrollRef.current?.scrollTo({ y: 0, animated: true });
+    } else if (step === 27) {
+      scrollRef.current?.scrollTo({ y: 150, animated: true });
+    }
+    measureAll();
+  }, [step]);
 
   const [pseudo, setPseudo] = useState<string>(user?.name ?? '');
   const [publicName, setPublicName] = useState<string>(user?.publicName ?? user?.name ?? '');
@@ -160,6 +188,7 @@ export default function PersonalInfoScreen() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView
+        ref={scrollRef}
         style={styles.container}
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
@@ -189,7 +218,11 @@ export default function PersonalInfoScreen() {
         </TouchableOpacity>
 
         {/* Champs */}
-        <View style={styles.form}>
+        <View 
+          ref={pseudoEmailRef}
+          onLayout={measureAll}
+          style={styles.form}
+        >
           {/* Pseudo */}
           <View style={styles.field}>
             <Text style={styles.label}>Pseudo</Text>
@@ -277,7 +310,11 @@ export default function PersonalInfoScreen() {
           </View>
 
           {/* Experience level */}
-          <View style={styles.field}>
+          <View 
+            ref={levelRef}
+            onLayout={measureAll}
+            style={styles.field}
+          >
             <Text style={styles.label}>Niveau d&apos;expérience</Text>
 
             <TouchableOpacity

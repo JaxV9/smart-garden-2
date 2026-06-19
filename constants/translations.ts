@@ -107,6 +107,7 @@ export const translations: Record<LanguageType, Record<string, string>> = {
         profile_personal_info: 'Informations personnelles',
         profile_change_pwd: 'Changer le mot de passe',
         profile_private_account: 'Compte privé',
+        profile_start_tutorial: 'Lancer le tutoriel',
 
         // Doc list / filter keys
         doc_search_placeholder: 'Rechercher...',
@@ -383,6 +384,7 @@ export const translations: Record<LanguageType, Record<string, string>> = {
         profile_personal_info: 'Personal Information',
         profile_change_pwd: 'Change Password',
         profile_private_account: 'Private Account',
+        profile_start_tutorial: 'Start the tutorial',
 
         // Doc list / filter keys
         doc_search_placeholder: 'Search...',
@@ -655,6 +657,7 @@ export const translations: Record<LanguageType, Record<string, string>> = {
         profile_personal_info: 'Información Personal',
         profile_change_pwd: 'Cambiar Contraseña',
         profile_private_account: 'Cuenta Privada',
+        profile_start_tutorial: 'Iniciar el tutorial',
 
         // Doc list / filter keys
         doc_search_placeholder: 'Buscar...',
@@ -927,6 +930,7 @@ export const translations: Record<LanguageType, Record<string, string>> = {
         profile_personal_info: 'Informazioni Personali',
         profile_change_pwd: 'Cambia Password',
         profile_private_account: 'Account Privato',
+        profile_start_tutorial: 'Avvia il tutorial',
 
         // Doc list / filter keys
         doc_search_placeholder: 'Cerca...',
@@ -1195,10 +1199,11 @@ export const translations: Record<LanguageType, Record<string, string>> = {
         profile_premium_status_active: '尊贵的 Ultra 会员 👑',
         profile_premium_status_free: '标准账户 (免费)',
         profile_logout: '退出登录',
-        profile_vip_banner: '升级到 Ultra，彻底释放您的花园潜力！',
+        profile_vip_banner: '升级 to Ultra，彻底释放您的花园潜力！',
         profile_personal_info: '个人信息',
         profile_change_pwd: '修改密码',
         profile_private_account: '私密账户',
+        profile_start_tutorial: '启动教程',
 
         // Doc list / filter keys
         doc_search_placeholder: '搜索...',
@@ -1467,10 +1472,11 @@ export const translations: Record<LanguageType, Record<string, string>> = {
         profile_premium_status_active: 'アクティブなUltra会員 👑',
         profile_premium_status_free: '標準アカウント (無料)',
         profile_logout: 'ログアウト',
-        profile_vip_banner: 'Ultraにアップグレードして、菜園の可能性を最大限に引き出しましょう！',
+        profile_vip_banner: 'Ultraにアップグレードして、菜園 of 可能性を最大限に引き出しましょう！',
         profile_personal_info: '個人情報',
         profile_change_pwd: 'パスワード変更',
         profile_private_account: '非公開アカウント',
+        profile_start_tutorial: 'チュートリアルを開始',
 
         // Doc list / filter keys
         doc_search_placeholder: '検索...',
@@ -1743,6 +1749,7 @@ export const translations: Record<LanguageType, Record<string, string>> = {
         profile_personal_info: 'المعلومات الشخصية',
         profile_change_pwd: 'تغيير كلمة المرور',
         profile_private_account: 'حساب خاص',
+        profile_start_tutorial: 'بدء التعليمات',
 
         // Doc list / filter keys
         doc_search_placeholder: 'بحث...',

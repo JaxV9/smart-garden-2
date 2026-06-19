@@ -6,8 +6,9 @@ import { useVegetable } from '@/hooks/useVegetable';
 import { Vegetable } from '@/models/models';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useRef } from 'react';
 import { useTranslation } from '@/contexts/language.context';
+import { useTour } from '@/contexts/tour.context';
 import {
   Modal,
   Pressable,
@@ -70,6 +71,29 @@ export default function Index() {
   const { t } = useTranslation();
   const { vegetablesContext } = useVegetablesContext();
   const { loadVegetables } = useVegetable();
+  const { registerElement, step } = useTour();
+
+  const scrollRef = useRef<ScrollView>(null);
+  const searchRowRef = useRef<View>(null);
+  const listRef = useRef<View>(null);
+
+  const measureAll = () => {
+    setTimeout(() => {
+      searchRowRef.current?.measureInWindow((x, y, w, h) => {
+        if (w && h) registerElement('plante_filters', { x, y, width: w, height: h });
+      });
+      listRef.current?.measureInWindow((x, y, w, h) => {
+        if (w && h) registerElement('plante_list', { x, y, width: w, height: h });
+      });
+    }, 320);
+  };
+
+  useEffect(() => {
+    if (step === 11 || step === 12) {
+      scrollRef.current?.scrollTo({ y: 0, animated: true });
+    }
+    measureAll();
+  }, [step]);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [isFilterModalVisible, setIsFilterModalVisible] = useState(false);
@@ -288,11 +312,16 @@ export default function Index() {
       <AppHeader title={t('tab_documentation')} showNotifications={true} />
 
       <ScrollView
+        ref={scrollRef}
         style={styles.container}
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.searchRow}>
+        <View 
+          ref={searchRowRef}
+          onLayout={measureAll}
+          style={styles.searchRow}
+        >
           <View style={styles.searchBox}>
             <Ionicons name="search-outline" size={18} color="#9CA3AF" />
             <TextInput
@@ -331,15 +360,20 @@ export default function Index() {
           </View>
         )}
 
-        <VegetablesList>
-          {filteredVegetables.map((vegetable) => (
-            <VegetableCard
-              key={vegetable.id}
-              vegetable={vegetable}
-              callBack={() => router.push(`/vegetable/${vegetable.id}`)}
-            />
-          ))}
-        </VegetablesList>
+        <View 
+          ref={listRef}
+          onLayout={measureAll}
+        >
+          <VegetablesList>
+            {filteredVegetables.map((vegetable) => (
+              <VegetableCard
+                key={vegetable.id}
+                vegetable={vegetable}
+                callBack={() => router.push(`/vegetable/${vegetable.id}`)}
+              />
+            ))}
+          </VegetablesList>
+        </View>
 
         {filteredVegetables.length === 0 && (
           <Text style={styles.empty}>{t('doc_empty')}</Text>

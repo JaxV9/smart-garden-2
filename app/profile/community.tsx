@@ -37,12 +37,40 @@ interface UnifiedInteraction {
   parentTopicTitle?: string;
 }
 
+import { useTour } from '@/contexts/tour.context';
+import { useRef } from 'react';
+
 export default function CommunityProfileScreen() {
   const { user } = useUserContext();
   const { updateUser } = useUser();
   const { getUserPosts } = useSocial();
   const { getUserTopics, getUserComments } = useForum();
   const { getUserTutorials } = useTutorials();
+  const { registerElement, step } = useTour();
+
+  const scrollRef = useRef<ScrollView>(null);
+  const privateSwitchRef = useRef<View>(null);
+  const interactionsRef = useRef<View>(null);
+
+  const measureAll = () => {
+    setTimeout(() => {
+      privateSwitchRef.current?.measureInWindow((x, y, w, h) => {
+        if (w && h) registerElement('community_private_switch', { x, y, width: w, height: h });
+      });
+      interactionsRef.current?.measureInWindow((x, y, w, h) => {
+        if (w && h) registerElement('community_interactions', { x, y, width: w, height: h });
+      });
+    }, 320);
+  };
+
+  useEffect(() => {
+    if (step === 28) {
+      scrollRef.current?.scrollTo({ y: 0, animated: true });
+    } else if (step === 29) {
+      scrollRef.current?.scrollTo({ y: 120, animated: true });
+    }
+    measureAll();
+  }, [step]);
 
   const displayName = user?.publicName || user?.name || '';
   const avatarSource = user?.avatarUri ? { uri: user.avatarUri } : DEFAULT_AVATAR;
@@ -204,6 +232,7 @@ export default function CommunityProfileScreen() {
       </View>
 
       <ScrollView
+        ref={scrollRef}
         style={styles.container}
         contentContainerStyle={styles.scrollContent}
       >
@@ -211,21 +240,29 @@ export default function CommunityProfileScreen() {
           <Image source={avatarSource} style={styles.avatar} />
           <Text style={styles.userName}>{displayName}</Text>
 
-          <View style={styles.privacyRow}>
+          <View 
+            ref={privateSwitchRef}
+            onLayout={measureAll}
+            style={styles.privacyRow}
+          >
             <View style={styles.privacyTextGroup}>
               <Feather name={user?.isPrivate ? 'eye-off' : 'eye'} size={16} color={COLORS.textMuted} />
               <Text style={styles.privacyLabel}>Compte privé</Text>
             </View>
             <Switch
               value={user?.isPrivate || false}
-              onValueChange={(val) => updateUser({ isPrivate: val })}
+              onValueChange={(val) => { updateUser({ isPrivate: val }); }}
               trackColor={{ false: '#e5e5e5', true: COLORS.greenDark }}
               thumbColor={'#ffffff'}
             />
           </View>
         </View>
 
-        <View style={styles.sectionHeader}>
+        <View 
+          ref={interactionsRef}
+          onLayout={measureAll}
+          style={styles.sectionHeader}
+        >
           <Text style={styles.sectionTitle}>Interactions</Text>
           <TouchableOpacity
             style={[

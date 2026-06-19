@@ -3,10 +3,11 @@ import { useUserContext } from '@/contexts/user.context';
 import { useTasks } from '@/hooks/useTasks';
 import { useGardenInfo } from '@/hooks/useGardenInfo';
 import { router } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Pressable, StyleSheet, Text, View, ScrollView, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from '@/contexts/language.context';
+import { useTour } from '@/contexts/tour.context';
 
 export const ResumeSection = () => {
     const { gardenVegetables, gardenInfo } = useGardenContext();
@@ -14,6 +15,66 @@ export const ResumeSection = () => {
     const { tasks } = useTasks();
     const { t } = useTranslation();
     const { loadGardenInfo } = useGardenInfo();
+    const { registerElement, step } = useTour();
+
+    const scrollRef = useRef<ScrollView>(null);
+    const weatherRef = useRef<View>(null);
+    const statPlantsRef = useRef<View>(null);
+    const statTasksRef = useRef<View>(null);
+    const statStreakRef = useRef<View>(null);
+    const statSensorsRef = useRef<View>(null);
+    const toolTasksRef = useRef<View>(null);
+    const toolCalendarRef = useRef<View>(null);
+    const toolSensorsRef = useRef<View>(null);
+    const toolPlanRef = useRef<View>(null);
+
+    const measureAll = () => {
+        setTimeout(() => {
+            weatherRef.current?.measureInWindow((x, y, w, h) => {
+                if (w && h) registerElement('home_weather', { x, y, width: w, height: h });
+            });
+            statPlantsRef.current?.measureInWindow((x, y, w, h) => {
+                if (w && h) registerElement('home_stat_plants', { x, y, width: w, height: h });
+            });
+            statTasksRef.current?.measureInWindow((x, y, w, h) => {
+                if (w && h) registerElement('home_stat_tasks', { x, y, width: w, height: h });
+            });
+            statStreakRef.current?.measureInWindow((x, y, w, h) => {
+                if (w && h) registerElement('home_stat_streak', { x, y, width: w, height: h });
+            });
+            statSensorsRef.current?.measureInWindow((x, y, w, h) => {
+                if (w && h) registerElement('home_stat_sensors', { x, y, width: w, height: h });
+            });
+            toolTasksRef.current?.measureInWindow((x, y, w, h) => {
+                if (w && h) registerElement('home_tool_tasks', { x, y, width: w, height: h });
+            });
+            toolCalendarRef.current?.measureInWindow((x, y, w, h) => {
+                if (w && h) registerElement('home_tool_calendar', { x, y, width: w, height: h });
+            });
+            toolSensorsRef.current?.measureInWindow((x, y, w, h) => {
+                if (w && h) registerElement('home_tool_sensors', { x, y, width: w, height: h });
+            });
+            toolPlanRef.current?.measureInWindow((x, y, w, h) => {
+                if (w && h) registerElement('home_tool_plan', { x, y, width: w, height: h });
+            });
+        }, 320);
+    };
+
+    // Auto-scroll depending on active step
+    useEffect(() => {
+        if (step >= 0 && step <= 4) {
+            scrollRef.current?.scrollTo({ y: 0, animated: true });
+        } else if (step === 5) {
+            scrollRef.current?.scrollTo({ y: 140, animated: true });
+        } else if (step === 8) {
+            scrollRef.current?.scrollTo({ y: 220, animated: true });
+        } else if (step === 10) {
+            scrollRef.current?.scrollTo({ y: 300, animated: true });
+        } else if (step === 12) {
+            scrollRef.current?.scrollToEnd({ animated: true });
+        }
+        measureAll();
+    }, [step]);
 
     const [weatherData, setWeatherData] = useState<{
         temp: number;
@@ -40,7 +101,9 @@ export const ResumeSection = () => {
             setWeatherLoading(true);
             setWeatherError(null);
             try {
-                const geoUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(gardenInfo.location)}&count=1&language=fr&format=json`;
+                const match = gardenInfo.location.match(/[a-zA-ZÀ-ÿ].*/);
+                const cleanedLocation = match ? match[0].trim() : gardenInfo.location.trim();
+                const geoUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(cleanedLocation)}&count=1&language=fr&format=json`;
                 const geoRes = await fetch(geoUrl);
                 const geoData = await geoRes.json();
 
@@ -93,17 +156,21 @@ export const ResumeSection = () => {
 
     return (
         <ScrollView
+            ref={scrollRef}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.scrollContent}
             style={styles.scrollView}
         >
-            <View style={styles.welcomeCard}>
+            <View 
+                ref={weatherRef}
+                onLayout={measureAll}
+                style={styles.welcomeCard}
+            >
                 <View style={styles.welcomeLeft}>
                     <Text style={styles.welcomeTitle}>{t('home_welcome_title')}</Text>
                     <Text style={styles.welcomeSubtitle}>{t('home_welcome_subtitle')}</Text>
                 </View>
 
-                {/* Right side weather or placeholder */}
                 {gardenInfo.location ? (
                     <View style={styles.weatherBlock}>
                         {weatherLoading ? (
@@ -144,7 +211,11 @@ export const ResumeSection = () => {
             <Text style={styles.sectionHeaderTitle}>{t('home_dashboard')}</Text>
             
             <View style={styles.statsGrid}>
-                <View style={[styles.statCard, { backgroundColor: '#EBF6EB' }]}>
+                <View 
+                    ref={statPlantsRef}
+                    onLayout={measureAll}
+                    style={[styles.statCard, { backgroundColor: '#EBF6EB' }]}
+                >
                     <View style={styles.statHeader}>
                         <Text style={[styles.statNumber, { color: '#2E7D32' }]}>{gardenVegetables.length}</Text>
                         <View style={[styles.statIconBadge, { backgroundColor: 'rgba(46, 125, 50, 0.12)' }]}>
@@ -154,7 +225,11 @@ export const ResumeSection = () => {
                     <Text style={styles.statLabel}>{t('home_stat_plants')}</Text>
                 </View>
 
-                <View style={[styles.statCard, { backgroundColor: '#E6F8F3' }]}>
+                <View 
+                    ref={statTasksRef}
+                    onLayout={measureAll}
+                    style={[styles.statCard, { backgroundColor: '#E6F8F3' }]}
+                >
                     <View style={styles.statHeader}>
                         <Text style={[styles.statNumber, { color: '#00796B' }]}>{completedTasksCount}</Text>
                         <View style={[styles.statIconBadge, { backgroundColor: 'rgba(0, 121, 107, 0.12)' }]}>
@@ -164,7 +239,11 @@ export const ResumeSection = () => {
                     <Text style={styles.statLabel}>{t('home_stat_tasks')}</Text>
                 </View>
 
-                <View style={[styles.statCard, { backgroundColor: '#FFF3F2' }]}>
+                <View 
+                    ref={statStreakRef}
+                    onLayout={measureAll}
+                    style={[styles.statCard, { backgroundColor: '#FFF3F2' }]}
+                >
                     <View style={styles.statHeader}>
                         <Text style={[styles.statNumber, { color: '#C62828' }]}>{activityStreak}</Text>
                         <View style={[styles.statIconBadge, { backgroundColor: 'rgba(198, 40, 40, 0.12)' }]}>
@@ -174,7 +253,11 @@ export const ResumeSection = () => {
                     <Text style={styles.statLabel}>{t('home_stat_streak')}</Text>
                 </View>
 
-                <View style={[styles.statCard, { backgroundColor: '#F0F4FF' }]}>
+                <View 
+                    ref={statSensorsRef}
+                    onLayout={measureAll}
+                    style={[styles.statCard, { backgroundColor: '#F0F4FF' }]}
+                >
                     <View style={styles.statHeader}>
                         <Text style={[styles.statNumber, { color: '#1565C0' }]}>1</Text>
                         <View style={[styles.statIconBadge, { backgroundColor: 'rgba(21, 101, 192, 0.12)' }]}>
@@ -188,7 +271,12 @@ export const ResumeSection = () => {
             <Text style={styles.sectionHeaderTitle}>{t('home_tools')}</Text>
 
             <View style={styles.toolsList}>
-                <Pressable onPress={() => router.replace('/taches')} style={styles.toolCard}>
+                <Pressable 
+                    ref={toolTasksRef}
+                    onLayout={measureAll}
+                    onPress={() => router.replace('/taches')} 
+                    style={styles.toolCard}
+                >
                     <View style={[styles.toolIconWrapper, { backgroundColor: '#EBF6EB' }]}>
                         <Ionicons name="checkbox" size={22} color="#2E7D32" />
                     </View>
@@ -199,7 +287,12 @@ export const ResumeSection = () => {
                     <Ionicons name="chevron-forward" size={18} color="#9CA3AF" />
                 </Pressable>
 
-                <Pressable onPress={() => router.replace('/calendar')} style={styles.toolCard}>
+                <Pressable 
+                    ref={toolCalendarRef}
+                    onLayout={measureAll}
+                    onPress={() => router.replace('/calendar')} 
+                    style={styles.toolCard}
+                >
                     <View style={[styles.toolIconWrapper, { backgroundColor: '#E6F8F3' }]}>
                         <Ionicons name="calendar" size={22} color="#00796B" />
                     </View>
@@ -210,7 +303,12 @@ export const ResumeSection = () => {
                     <Ionicons name="chevron-forward" size={18} color="#9CA3AF" />
                 </Pressable>
 
-                <Pressable onPress={() => router.replace('/capteurs')} style={styles.toolCard}>
+                <Pressable 
+                    ref={toolSensorsRef}
+                    onLayout={measureAll}
+                    onPress={() => router.replace('/capteurs')} 
+                    style={styles.toolCard}
+                >
                     <View style={[styles.toolIconWrapper, { backgroundColor: '#F0F4FF' }]}>
                         <Ionicons name="hardware-chip" size={22} color="#1565C0" />
                     </View>
@@ -221,7 +319,12 @@ export const ResumeSection = () => {
                     <Ionicons name="chevron-forward" size={18} color="#9CA3AF" />
                 </Pressable>
 
-                <Pressable onPress={() => router.replace('/plan')} style={styles.toolCard}>
+                <Pressable 
+                    ref={toolPlanRef}
+                    onLayout={measureAll}
+                    onPress={() => router.replace('/plan')} 
+                    style={styles.toolCard}
+                >
                     <View style={[styles.toolIconWrapper, { backgroundColor: '#FFFDF0' }]}>
                         <Ionicons name="map" size={22} color="#D97706" />
                     </View>
@@ -357,7 +460,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 10,
+        marginBottom: 8,
     },
     statNumber: {
         fontSize: 24,
@@ -366,12 +469,12 @@ const styles = StyleSheet.create({
     statIconBadge: {
         width: 32,
         height: 32,
-        borderRadius: 16,
-        alignItems: 'center',
+        borderRadius: 10,
         justifyContent: 'center',
+        alignItems: 'center',
     },
     statLabel: {
-        fontSize: 12,
+        fontSize: 13,
         fontWeight: '600',
         color: '#4B5563',
     },
@@ -383,34 +486,31 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         backgroundColor: '#FFFFFF',
         borderRadius: 16,
-        padding: 16,
+        padding: 14,
         borderWidth: 1,
         borderColor: '#E5E7EB',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.03,
-        shadowRadius: 6,
-        elevation: 1,
     },
     toolIconWrapper: {
         width: 44,
         height: 44,
         borderRadius: 12,
-        alignItems: 'center',
         justifyContent: 'center',
-        marginRight: 16,
+        alignItems: 'center',
+        marginRight: 14,
     },
     toolTextWrapper: {
         flex: 1,
+        justifyContent: 'center',
     },
     toolTitle: {
-        fontSize: 15,
-        fontWeight: '700',
+        fontSize: 14,
+        fontWeight: '800',
         color: '#1F2937',
-        marginBottom: 3,
+        marginBottom: 2,
     },
     toolSubtitle: {
         fontSize: 12,
         color: '#6B7280',
+        fontWeight: '500',
     },
 });

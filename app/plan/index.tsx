@@ -1,11 +1,32 @@
 import { Plan } from "@/components/new/plan/plan";
 import AppHeader from "@/components/new/ui/AppHeader";
 import { StyleSheet, View } from "react-native";
+import { useTour } from "@/contexts/tour.context";
+import React, { useRef } from "react";
 
 export default function Index() {
+    const { registerElement } = useTour();
+    const planRef = useRef<View>(null);
+
+    const handleOnLayout = () => {
+        setTimeout(() => {
+            planRef.current?.measureInWindow((x, y, w, h) => {
+                if (w && h) {
+                    registerElement('plan_grid', { x, y, width: w, height: h });
+                }
+            });
+        }, 200);
+    };
+
     return (
         <View style={styles.container}>
-            <Plan />
+            <View 
+                ref={planRef}
+                onLayout={handleOnLayout}
+                style={{ flex: 1 }}
+            >
+                <Plan />
+            </View>
             <View style={styles.headerContainer}>
                 <AppHeader
                     title="Plan"

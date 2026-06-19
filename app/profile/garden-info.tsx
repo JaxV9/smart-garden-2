@@ -1,6 +1,6 @@
 import { Feather } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   Alert,
   ScrollView,
@@ -13,10 +13,26 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useGardenContext } from '@/contexts/garden.context';
 import { useGardenInfo } from '@/hooks/useGardenInfo';
+import { useTour } from '@/contexts/tour.context';
 
 export default function GardenInfoScreen() {
   const { gardenInfo, updateGardenInfo } = useGardenContext();
   const { saveGardenInfo } = useGardenInfo();
+  const { registerElement, step } = useTour();
+
+  const formRef = useRef<View>(null);
+
+  const measureAll = () => {
+    setTimeout(() => {
+      formRef.current?.measureInWindow((x, y, w, h) => {
+        if (w && h) registerElement('profile_garden_details', { x, y, width: w, height: h });
+      });
+    }, 320);
+  };
+
+  useEffect(() => {
+    measureAll();
+  }, [step]);
 
   const [gardenName, setGardenName] = useState(gardenInfo.name ?? 'Mon Jardin');
   const [location, setLocation] = useState(gardenInfo.location ?? '');
@@ -86,7 +102,11 @@ export default function GardenInfoScreen() {
         <Text style={styles.gardenTitle}>{gardenName || 'Mon Jardin'}</Text>
 
         {/* Form */}
-        <View style={styles.form}>
+        <View 
+          ref={formRef}
+          onLayout={measureAll}
+          style={styles.form}
+        >
           {/* garden name */}
           <View style={styles.field}>
             <Text style={styles.label}>Nom du jardin</Text>

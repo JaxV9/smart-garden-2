@@ -2,6 +2,7 @@ import { Task } from '@/components/new/task/task';
 import AppHeader from '@/components/new/ui/AppHeader';
 import { useUserContext } from '@/contexts/user.context';
 import { useTranslation } from '@/contexts/language.context';
+import { useTour } from '@/contexts/tour.context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { BlurView } from 'expo-blur';
@@ -11,13 +12,27 @@ import { StyleSheet, View, Text, TouchableOpacity, Animated } from 'react-native
 export default function Index() {
     const { isPremium } = useUserContext();
     const { t } = useTranslation();
+    const { step, visible, registerElement } = useTour();
     const router = useRouter();
 
+    const containerRef = useRef<View>(null);
     const fadeAnim = useRef(new Animated.Value(0)).current;
     const scaleAnim = useRef(new Animated.Value(0.92)).current;
 
+    const handleOnLayout = () => {
+        setTimeout(() => {
+            containerRef.current?.measureInWindow((x, y, w, h) => {
+                if (w && h) {
+                    registerElement('taches_main', { x, y, width: w, height: h });
+                }
+            });
+        }, 200);
+    };
+
+    const isLocked = !isPremium && !(visible && (step === 6 || step === 7));
+
     useEffect(() => {
-        if (!isPremium) {
+        if (isLocked) {
             Animated.parallel([
                 Animated.timing(fadeAnim, {
                     toValue: 1,
@@ -31,8 +46,11 @@ export default function Index() {
                     useNativeDriver: true,
                 }),
             ]).start();
+        } else {
+            fadeAnim.setValue(0);
+            scaleAnim.setValue(0.92);
         }
-    }, [isPremium]);
+    }, [isLocked]);
 
     return (
         <View style={styles.container}>
@@ -42,10 +60,14 @@ export default function Index() {
                 fallbackRoute="/home"
             />
             
-            <View style={{ flex: 1 }}>
+            <View 
+                ref={containerRef}
+                onLayout={handleOnLayout}
+                style={{ flex: 1 }}
+            >
                 <Task />
 
-                {!isPremium && (
+                {isLocked && (
                     <Animated.View style={[StyleSheet.absoluteFillObject, { opacity: fadeAnim }]}>
                         <BlurView intensity={65} tint="light" style={StyleSheet.absoluteFill} />
                         <Animated.View style={[styles.lockedContainer, { transform: [{ scale: scaleAnim }] }]}>

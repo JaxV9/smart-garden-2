@@ -3,6 +3,7 @@ import AppHeader from "@/components/new/ui/AppHeader";
 import { useCalendar } from "@/hooks/useCalendar";
 import { useUserContext } from "@/contexts/user.context";
 import { useTranslation } from "@/contexts/language.context";
+import { useTour } from "@/contexts/tour.context";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
@@ -13,13 +14,27 @@ export default function Calendar() {
     const { calendar } = useCalendar();
     const { isPremium } = useUserContext();
     const { t } = useTranslation();
+    const { step, visible, registerElement } = useTour();
     const router = useRouter();
 
+    const calendarRef = useRef<View>(null);
     const fadeAnim = useRef(new Animated.Value(0)).current;
     const scaleAnim = useRef(new Animated.Value(0.92)).current;
 
+    const handleOnLayout = () => {
+        setTimeout(() => {
+            calendarRef.current?.measureInWindow((x, y, w, h) => {
+                if (w && h) {
+                    registerElement('calendar_main', { x, y, width: w, height: h });
+                }
+            });
+        }, 200);
+    };
+
+    const isLocked = !isPremium && !(visible && step === 9);
+
     useEffect(() => {
-        if (!isPremium) {
+        if (isLocked) {
             Animated.parallel([
                 Animated.timing(fadeAnim, {
                     toValue: 1,
@@ -33,8 +48,11 @@ export default function Calendar() {
                     useNativeDriver: true,
                 }),
             ]).start();
+        } else {
+            fadeAnim.setValue(0);
+            scaleAnim.setValue(0.92);
         }
-    }, [isPremium]);
+    }, [isLocked]);
 
     return (
         <View style={styles.container}>
@@ -45,10 +63,14 @@ export default function Calendar() {
                 fallbackRoute="/home"
             />
 
-            <View style={{ flex: 1 }}>
+            <View 
+                ref={calendarRef}
+                onLayout={handleOnLayout}
+                style={{ flex: 1 }}
+            >
                 <CalendarComp calendarProp={calendar} />
 
-                {!isPremium && (
+                {isLocked && (
                     <Animated.View style={[StyleSheet.absoluteFillObject, { opacity: fadeAnim }]}>
                         <BlurView intensity={65} tint="light" style={StyleSheet.absoluteFill} />
                         <Animated.View style={[styles.lockedContainer, { transform: [{ scale: scaleAnim }] }]}>
