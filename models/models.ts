@@ -57,6 +57,44 @@ export type SensorMeasure = {
   valeur_brute_sol: number | null;
 };
 
+export type SensorReading = {
+  id: string;
+  sensor_id: string;
+  value_numeric: number;
+  raw_value: number | null;
+  voltage: number | null;
+  created_at: string;
+  updated_at: string;
+  recorded_at: string | null;
+};
+
+export type GardenSensor = {
+  id: string;
+  hardware_id: string | null;
+  name: string;
+  type: string;
+  unit: string;
+  is_active: boolean;
+  data_collection_enabled: boolean;
+  created_at: string;
+  updated_at: string;
+  latest_reading: SensorReading | null;
+};
+
+export type SensorClaimPayload = {
+  hardware_id: string;
+  name: string;
+  type: string;
+  unit: string;
+};
+
+export type SensorClaimResponse = {
+  sensor_id: string;
+  write_token: string;
+  api_base_url: string;
+  ingest_path: string;
+};
+
 export type CreateUserPayload = {
   name: string;
   email: string;
