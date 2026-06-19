@@ -109,7 +109,7 @@ export function SensorsSection() {
         const response = await http.get('/api/sensors');
 
         if (response.status === 'Failure') {
-          setError('Impossible de charger les capteurs.');
+          setError(t('sensor_error_load', 'Impossible de charger les capteurs.'));
           setSensors([]);
           return;
         }
@@ -117,13 +117,13 @@ export function SensorsSection() {
         setError(null);
         setSensors(response.payload as GardenSensor[]);
       } catch {
-        setError('Impossible de charger les capteurs.');
+        setError(t('sensor_error_load', 'Impossible de charger les capteurs.'));
         setSensors([]);
       } finally {
         setLoading(false);
       }
     },
-    [httpClient]
+    [httpClient, t]
   );
 
   const toggleSensorCollection = useCallback(
@@ -137,18 +137,18 @@ export function SensorsSection() {
         const response = await http.post(`/api/sensors/${sensor.id}/${action}`, {});
 
         if (response.status === 'Failure') {
-          setError("Impossible de modifier l'état de collecte.");
+          setError(t('sensor_error_toggle', "Impossible de modifier l'état de collecte."));
           return;
         }
 
         await loadSensors();
       } catch {
-        setError("Impossible de modifier l'état de collecte.");
+        setError(t('sensor_error_toggle', "Impossible de modifier l'état de collecte."));
       } finally {
         setPendingSensorAction(null);
       }
     },
-    [httpClient, loadSensors]
+    [httpClient, loadSensors, t]
   );
 
   const openAddSensor = useCallback(() => {
@@ -164,12 +164,15 @@ export function SensorsSection() {
   const unpairSensor = useCallback(
     (sensor: GardenSensor) => {
       Alert.alert(
-        'Désappairer le capteur',
-        `Le capteur "${sensor.name}" sera retiré de ton compte. Il faudra le réappairer pour envoyer de nouvelles mesures.`,
+        t('sensor_unpair_title', 'Désappairer le capteur'),
+        t(
+          'sensor_unpair_message',
+          'Le capteur "{{name}}" sera retiré de ton compte. Il faudra le réappairer pour envoyer de nouvelles mesures.'
+        ).replace('{{name}}', sensor.name),
         [
-          { text: 'Annuler', style: 'cancel' },
+          { text: t('cancel', 'Annuler'), style: 'cancel' },
           {
-            text: 'Désappairer',
+            text: t('sensor_unpair_confirm', 'Désappairer'),
             style: 'destructive',
             onPress: async () => {
               setPendingSensorAction({ sensorId: sensor.id, type: 'unpair' });
@@ -183,7 +186,7 @@ export function SensorsSection() {
                   setError(
                     `${apiErrorMessage(
                       response.payload,
-                      'Impossible de désappairer le capteur.'
+                      t('sensor_error_unpair', 'Impossible de désappairer le capteur.')
                     )} (${response.code})`
                   );
                   return;
@@ -191,7 +194,7 @@ export function SensorsSection() {
 
                 await loadSensors(true);
               } catch {
-                setError('Impossible de désappairer le capteur.');
+                setError(t('sensor_error_unpair', 'Impossible de désappairer le capteur.'));
               } finally {
                 setPendingSensorAction(null);
               }
@@ -200,7 +203,7 @@ export function SensorsSection() {
         ]
       );
     },
-    [httpClient, loadSensors]
+    [httpClient, loadSensors, t]
   );
 
   useEffect(() => {
@@ -243,10 +246,13 @@ export function SensorsSection() {
     if (humidityReading.value_numeric < 30) {
       if (!hasAlertedLowHumidity) {
         addNotification(
-          '🚨 Alerte Soif Extrême !',
-          `L'humidité du ${humiditySensor.name || 'Capteur Basilic'} est à ${Math.round(
-            humidityReading.value_numeric
-          )}%. Il crie "De l'eau par pitié !"`,
+          t('notif_sensor_thirsty_title', '🚨 Alerte Soif Extrême !'),
+          t(
+            'notif_sensor_thirsty_body',
+            'L’humidité du {{name}} est à {{value}}%. Il crie "De l’eau par pitié !"'
+          )
+            .replace('{{name}}', humiditySensor.name || t('notif_sensor_fallback_name', 'Capteur Basilic'))
+            .replace('{{value}}', String(Math.round(humidityReading.value_numeric))),
           'SENSOR'
         );
         setHasAlertedLowHumidity(true);
@@ -254,7 +260,7 @@ export function SensorsSection() {
     } else if (humidityReading.value_numeric > 35) {
       setHasAlertedLowHumidity(false);
     }
-  }, [addNotification, hasAlertedLowHumidity, humidityReading, humiditySensor]);
+  }, [addNotification, hasAlertedLowHumidity, humidityReading, humiditySensor, t]);
 
   const latestUpdatedAt = useMemo(() => {
     const dates = sensors
@@ -288,17 +294,23 @@ export function SensorsSection() {
       ? '-'
       : `${temperatureSensor.latest_reading.value_numeric.toFixed(1)}${displayUnit(temperatureSensor.unit)}`;
 
-  const sensorTitle = sensors.length === 1 ? sensors[0].name : `${sensors.length} capteurs`;
+  const sensorTitle =
+    sensors.length === 1
+      ? sensors[0].name
+      : t('sensor_detected_count', '{{count}} capteur(s) détecté(s)').replace(
+          '{{count}}',
+          String(sensors.length)
+        );
   const hasSensors = sensors.length > 0;
 
   return (
     <ScrollView style={styles.scrollContainer}>
       <View style={styles.container}>
         <View style={styles.topRow}>
-          <Text style={styles.sectionTitle}>Mes capteurs</Text>
+          <Text style={styles.sectionTitle}>{t('sensor_my_sensors', 'Mes capteurs')}</Text>
           <Pressable style={styles.addButton} onPress={openAddSensor}>
             <Ionicons name="add" size={18} color="#FFFFFF" />
-            <Text style={styles.addButtonText}>Ajouter</Text>
+            <Text style={styles.addButtonText}>{t('sensor_add', 'Ajouter')}</Text>
           </Pressable>
         </View>
 
@@ -308,13 +320,17 @@ export function SensorsSection() {
         {!loading && !hasSensors && (
           <View style={styles.noDataCard}>
             <Ionicons name="wifi-outline" size={28} color="#2F7D32" />
-            <Text style={styles.noDataTitle}>Aucun capteur associé.</Text>
+            <Text style={styles.noDataTitle}>
+              {t('sensor_none', 'Aucun capteur associé.')}
+            </Text>
             <Text style={styles.noDataText}>
               {t('sensor_no_data')}
             </Text>
             <Pressable style={styles.emptyAction} onPress={openAddSensor}>
               <Ionicons name="add-circle-outline" size={18} color="#2F7D32" />
-              <Text style={styles.emptyActionText}>Ajouter un capteur</Text>
+              <Text style={styles.emptyActionText}>
+                {t('sensor_add_one', 'Ajouter un capteur')}
+              </Text>
             </Pressable>
           </View>
         )}
@@ -404,7 +420,10 @@ export function SensorsSection() {
                 <View style={styles.sensorRowText}>
                   <Text style={styles.sensorRowName}>{sensor.name}</Text>
                   <Text style={styles.sensorRowMeta}>
-                    {sensor.type} · {sensor.data_collection_enabled ? 'collecte active' : 'collecte arrêtée'}
+                    {sensor.type} ·{' '}
+                    {sensor.data_collection_enabled
+                      ? t('sensor_collection_active', 'collecte active')
+                      : t('sensor_collection_stopped', 'collecte arrêtée')}
                   </Text>
                 </View>
                 <View style={styles.sensorActions}>
@@ -456,8 +475,16 @@ export function SensorsSection() {
           visible={pairingVisible}
           onClose={() => setPairingVisible(false)}
           onProvisioned={() => loadSensors(true)}
-          title={pairingMode === 'wifi' ? 'Configurer le Wi-Fi' : 'Ajouter un capteur'}
-          successTitle={pairingMode === 'wifi' ? 'Wi-Fi configuré' : 'Capteur appairé'}
+          title={
+            pairingMode === 'wifi'
+              ? t('sensor_configure_wifi', 'Configurer le Wi-Fi')
+              : t('sensor_add_one', 'Ajouter un capteur')
+          }
+          successTitle={
+            pairingMode === 'wifi'
+              ? t('sensor_wifi_configured', 'Wi-Fi configuré')
+              : t('sensor_paired', 'Capteur appairé')
+          }
         />
       </View>
     </ScrollView>

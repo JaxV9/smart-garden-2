@@ -4,6 +4,7 @@ import {
   SmartGardenProvisioningDeviceInfo,
   SmartGardenProvisioningSensor,
 } from "@/constants/smartGardenProvisioning";
+import { useTranslation } from "@/contexts/language.context";
 import { useCallback, useState } from "react";
 import { useStorage } from "./useStorage";
 
@@ -39,6 +40,7 @@ function sensorLocalId(sensor: Record<string, unknown>, index: number): string {
 
 async function fetchJson<T>(
   url: string,
+  t: (key: string, fallback?: string) => string,
   options?: RequestInit,
   timeoutMs = 10000
 ): Promise<T> {
@@ -52,7 +54,12 @@ async function fetchJson<T>(
     });
 
     if (!response.ok) {
-      throw new Error(`Réponse capteur invalide (${response.status}).`);
+      throw new Error(
+        t(
+          "sensor_prov_err_invalid_response",
+          "Réponse capteur invalide ({{status}})."
+        ).replace("{{status}}", String(response.status))
+      );
     }
 
     return (await response.json()) as T;
@@ -77,10 +84,14 @@ function isLikelyLostProvisionResponse(error: unknown): boolean {
 }
 
 function normalizeDeviceInfo(
-  deviceInfo: Record<string, unknown>
+  deviceInfo: Record<string, unknown>,
+  t: (key: string, fallback?: string) => string
 ): SmartGardenProvisioningDeviceInfo {
   const topLevelHardwareId = stringValue(deviceInfo.hardware_id, "");
-  const name = stringValue(deviceInfo.name, "Capteur Smart Garden");
+  const name = stringValue(
+    deviceInfo.name,
+    t("sensor_prov_fallback_name", "Capteur Smart Garden")
+  );
   const topLevelType = stringValue(deviceInfo.type, "");
   const topLevelUnit = stringValue(deviceInfo.unit, "");
   const rawSensors = Array.isArray(deviceInfo.sensors)
@@ -135,7 +146,9 @@ function normalizeDeviceInfo(
   }
 
   if (sensors.length === 0) {
-    throw new Error("Le capteur ne retourne pas de hardware_id.");
+    throw new Error(
+      t("sensor_prov_err_no_hwid", "Le capteur ne retourne pas de hardware_id.")
+    );
   }
 
   return {
@@ -156,6 +169,7 @@ function normalizeDeviceInfo(
 }
 
 export function useSensorProvisioning() {
+  const { t } = useTranslation();
   const { getToken } = useStorage();
   const [deviceInfo, setDeviceInfo] =
     useState<SmartGardenProvisioningDeviceInfo | null>(null);
@@ -180,29 +194,38 @@ export function useSensorProvisioning() {
     ): Promise<SmartGardenProvisioningDeviceInfo | null> => {
       setError(null);
       setChecking(true);
-      setProvisioningStatus("Connexion au point d'accès du capteur...");
+      setProvisioningStatus(
+        t(
+          "sensor_prov_status_connecting",
+          "Connexion au point d'accès du capteur..."
+        )
+      );
 
       try {
         const response = await fetchJson<Record<string, unknown>>(
-          endpoint(sensorBaseUrl, SENSOR_PROVISIONING_PATHS.deviceInfo)
+          endpoint(sensorBaseUrl, SENSOR_PROVISIONING_PATHS.deviceInfo),
+          t
         );
-        const normalizedDeviceInfo = normalizeDeviceInfo(response);
+        const normalizedDeviceInfo = normalizeDeviceInfo(response, t);
         setDeviceInfo(normalizedDeviceInfo);
-        setProvisioningStatus("Capteur détecté.");
+        setProvisioningStatus(t("sensor_prov_status_detected", "Capteur détecté."));
         return normalizedDeviceInfo;
       } catch (discoverError) {
         setDeviceInfo(null);
         setError(
           discoverError instanceof Error
             ? discoverError.message
-            : "Capteur introuvable sur le réseau Wi-Fi actuel."
+            : t(
+                "sensor_prov_err_not_found",
+                "Capteur introuvable sur le réseau Wi-Fi actuel."
+              )
         );
         return null;
       } finally {
         setChecking(false);
       }
     },
-    []
+    [t]
   );
 
   const provisionSensor = useCallback(
@@ -226,15 +249,25 @@ export function useSensorProvisioning() {
         const apiBaseUrl = process.env.EXPO_PUBLIC_API_URL;
 
         if (!authToken) {
-          throw new Error("Session utilisateur introuvable.");
+          throw new Error(
+            t("sensor_prov_err_no_session", "Session utilisateur introuvable.")
+          );
         }
 
         if (!apiBaseUrl) {
-          throw new Error("URL API introuvable dans EXPO_PUBLIC_API_URL.");
+          throw new Error(
+            t(
+              "sensor_prov_err_no_api_url",
+              "URL API introuvable dans EXPO_PUBLIC_API_URL."
+            )
+          );
         }
 
         setProvisioningStatus(
-          "Envoi du Wi-Fi au capteur. Il va se connecter puis s'associer au compte..."
+          t(
+            "sensor_prov_status_sending_wifi",
+            "Envoi du Wi-Fi au capteur. Il va se connecter puis s'associer au compte..."
+          )
         );
         let response: {
           status?: string;
@@ -246,6 +279,7 @@ export function useSensorProvisioning() {
         try {
           response = await fetchJson(
             endpoint(sensorBaseUrl, SENSOR_PROVISIONING_PATHS.provision),
+            t,
             {
               method: "POST",
               headers: {
@@ -266,7 +300,10 @@ export function useSensorProvisioning() {
         } catch (provisionResponseError) {
           if (isLikelyLostProvisionResponse(provisionResponseError)) {
             setProvisioningStatus(
-              "Configuration envoyée. Reconnecte ton téléphone au Wi-Fi du jardin."
+              t(
+                "sensor_prov_status_reconnect",
+                "Configuration envoyée. Reconnecte ton téléphone au Wi-Fi du jardin."
+              )
             );
             return "Success";
           }
@@ -275,27 +312,35 @@ export function useSensorProvisioning() {
         }
 
         if (response.status !== "paired") {
-          throw new Error(response.error || "Appairage capteur incomplet.");
+          throw new Error(
+            response.error ||
+              t("sensor_prov_err_incomplete", "Appairage capteur incomplet.")
+          );
         }
 
         const claimedCount = Array.isArray(response.claimed_sensors)
           ? response.claimed_sensors.length
           : currentDeviceInfo.sensors.length;
 
-        setProvisioningStatus(`${claimedCount} capteur(s) appairé(s).`);
+        setProvisioningStatus(
+          t("sensor_prov_status_paired", "{{count}} capteur(s) appairé(s).").replace(
+            "{{count}}",
+            String(claimedCount)
+          )
+        );
         return "Success";
       } catch (provisionError) {
         setError(
           provisionError instanceof Error
             ? provisionError.message
-            : "Provisioning impossible."
+            : t("sensor_prov_err_failed", "Provisioning impossible.")
         );
         return "Failure";
       } finally {
         setProvisioning(false);
       }
     },
-    [deviceInfo, discoverSensor, getToken]
+    [deviceInfo, discoverSensor, getToken, t]
   );
 
   return {
