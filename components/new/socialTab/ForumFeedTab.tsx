@@ -9,10 +9,11 @@ import { Ionicons } from "@expo/vector-icons";
 import { router, useFocusEffect } from "expo-router";
 import { useCallback, useState } from "react";
 import { ScrollView, StyleSheet, Text, TouchableOpacity } from "react-native";
+import { useTranslation } from "@/contexts/language.context";
 
 
 export const ForumFeedTab = () => {
-
+    const { t } = useTranslation();
     const [createModalVisible, setCreateModalVisible] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedTagId, setSelectedTagId] = useState<string | null>(null);
@@ -55,7 +56,7 @@ export const ForumFeedTab = () => {
 
     const handleCreateTopic = async () => {
         if (!newTopicTitle.trim() || !newTopicContent.trim()) {
-            alert('Veuillez remplir le titre et le contenu');
+            alert(t('forum_create_error_empty'));
             return;
         }
 
@@ -72,7 +73,7 @@ export const ForumFeedTab = () => {
             await loadTopics(selectedTagId || undefined);
             setLoading(false);
         } else {
-            alert('Erreur lors de la création du topic');
+            alert(t('forum_create_error'));
         }
     };
 
@@ -100,7 +101,7 @@ export const ForumFeedTab = () => {
             await loadTopics(selectedTagId || undefined);
             setLoading(false);
         } else {
-            alert('Erreur lors de la modification du sujet');
+            alert(t('forum_update_error'));
         }
     };
 
@@ -113,7 +114,7 @@ export const ForumFeedTab = () => {
                     onPress={() => setCreateModalVisible(true)}
                 >
                     <Ionicons name="add" size={20} color="white" />
-                    <Text style={styles.askButtonText}>Poser une question</Text>
+                    <Text style={styles.askButtonText}>{t('forum_ask_question_btn')}</Text>
                 </TouchableOpacity>
 
 

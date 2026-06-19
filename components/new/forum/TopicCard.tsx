@@ -7,6 +7,7 @@ import {
     ActivityIndicator, Alert, Modal, ScrollView, StyleSheet, Text,
     TextInput, TouchableOpacity, TouchableWithoutFeedback, View
 } from 'react-native';
+import { useTranslation } from '@/contexts/language.context';
 
 interface Tag {
     tag: { id?: string; name: string };
@@ -38,6 +39,7 @@ interface TopicCardProps {
 export default function TopicCard({ topic, onPress, onDelete, onUpdate, allTags = [] }: TopicCardProps) {
     const router = useRouter();
     const { user } = useUserContext();
+    const { t } = useTranslation();
     const [menuVisible, setMenuVisible] = useState(false);
     const [editVisible, setEditVisible] = useState(false);
     const [editTitle, setEditTitle] = useState(topic.title);
@@ -62,11 +64,11 @@ export default function TopicCard({ topic, onPress, onDelete, onUpdate, allTags 
     const handleDelete = () => {
         setMenuVisible(false);
         Alert.alert(
-            'Supprimer le sujet',
-            'Es-tu sûr de vouloir supprimer ce sujet ? Tous les commentaires associés seront également supprimés.',
+            t('forum_delete_confirm_title'),
+            t('forum_delete_confirm_desc'),
             [
-                { text: 'Annuler', style: 'cancel' },
-                { text: 'Supprimer', style: 'destructive', onPress: () => onDelete?.(topic.id) },
+                { text: t('forum_save_btn') ? 'Cancel' : 'Annuler', style: 'cancel' }, // Generic cancel fallback or localizable, simple custom strings
+                { text: t('forum_menu_delete'), style: 'destructive', onPress: () => onDelete?.(topic.id) },
             ]
         );
     };
@@ -116,7 +118,7 @@ export default function TopicCard({ topic, onPress, onDelete, onUpdate, allTags 
 
             <View style={styles.topicMeta}>
                 <TouchableOpacity onPress={() => router.push({ pathname: '/user/[id]', params: { id: topic.author.id } })}>
-                    <Text style={styles.topicAuthor}>Par <Text style={styles.authorName}>{topic.author.name || 'Utilisateur'}</Text></Text>
+                    <Text style={styles.topicAuthor}>{t('forum_topic_by')} <Text style={styles.authorName}>{topic.author.name || t('forum_topic_unknown_user')}</Text></Text>
                 </TouchableOpacity>
                 <Text style={styles.topicTime}>• {getTimeAgo(topic.createdAt)}</Text>
             </View>
@@ -124,11 +126,11 @@ export default function TopicCard({ topic, onPress, onDelete, onUpdate, allTags 
             <View style={styles.topicStats}>
                 <View style={styles.statItem}>
                     <Ionicons name="chatbubble-outline" size={16} color="#666" />
-                    <Text style={styles.statText}>{topic._count.comments} réponses</Text>
+                    <Text style={styles.statText}>{topic._count.comments} {t('forum_topic_replies')}</Text>
                 </View>
                 <View style={styles.statItem}>
                     <Ionicons name="eye-outline" size={16} color="#666" />
-                    <Text style={styles.statText}>{topic.viewCount} vues</Text>
+                    <Text style={styles.statText}>{topic.viewCount} {t('forum_topic_views')}</Text>
                 </View>
             </View>
 
@@ -140,12 +142,12 @@ export default function TopicCard({ topic, onPress, onDelete, onUpdate, allTags 
                             <View style={styles.menuCard}>
                                 <TouchableOpacity style={styles.menuItem} onPress={handleEditOpen}>
                                     <Ionicons name="pencil-outline" size={18} color="#374151" />
-                                    <Text style={styles.menuItemText}>Modifier le sujet</Text>
+                                    <Text style={styles.menuItemText}>{t('forum_menu_edit')}</Text>
                                 </TouchableOpacity>
                                 <View style={styles.menuDivider} />
                                 <TouchableOpacity style={styles.menuItem} onPress={handleDelete}>
                                     <Ionicons name="trash-outline" size={18} color="#ef4444" />
-                                    <Text style={styles.menuItemTextDanger}>Supprimer le sujet</Text>
+                                    <Text style={styles.menuItemTextDanger}>{t('forum_menu_delete')}</Text>
                                 </TouchableOpacity>
                             </View>
                         </TouchableWithoutFeedback>
@@ -160,22 +162,22 @@ export default function TopicCard({ topic, onPress, onDelete, onUpdate, allTags 
                         <TouchableWithoutFeedback>
                             <View style={styles.editCard}>
                                 <View style={styles.editHeader}>
-                                    <Text style={styles.editTitle}>Modifier le sujet</Text>
+                                    <Text style={styles.editTitle}>{t('forum_edit_title')}</Text>
                                     <TouchableOpacity onPress={() => setEditVisible(false)}>
                                         <Ionicons name="close" size={24} color="#374151" />
                                     </TouchableOpacity>
                                 </View>
                                 <ScrollView showsVerticalScrollIndicator={false}>
-                                    <Text style={styles.fieldLabel}>Titre</Text>
+                                    <Text style={styles.fieldLabel}>{t('forum_edit_field_title')}</Text>
                                     <TextInput
                                         style={styles.editInput}
                                         value={editTitle}
                                         onChangeText={setEditTitle}
-                                        placeholder="Titre du sujet..."
+                                        placeholder={t('forum_edit_title_placeholder')}
                                         placeholderTextColor="#9ca3af"
                                     />
-
-                                    <Text style={styles.fieldLabel}>Description (laisser vide pour ne pas modifier)</Text>
+ 
+                                    <Text style={styles.fieldLabel}>{t('forum_edit_field_desc')}</Text>
                                     <TextInput
                                         style={[styles.editInput, styles.editTextArea]}
                                         value={editContent}
@@ -183,13 +185,13 @@ export default function TopicCard({ topic, onPress, onDelete, onUpdate, allTags 
                                         multiline
                                         numberOfLines={5}
                                         textAlignVertical="top"
-                                        placeholder="Description du sujet..."
+                                        placeholder={t('forum_edit_desc_placeholder')}
                                         placeholderTextColor="#9ca3af"
                                     />
 
                                     {allTags.length > 0 && (
                                         <>
-                                            <Text style={styles.fieldLabel}>Tags</Text>
+                                            <Text style={styles.fieldLabel}>{t('forum_edit_field_tags')}</Text>
                                             <View style={styles.tagsRow}>
                                                 {allTags.map(tag => {
                                                     const selected = editTagIds.includes(tag.id);
@@ -206,13 +208,13 @@ export default function TopicCard({ topic, onPress, onDelete, onUpdate, allTags 
                                             </View>
                                         </>
                                     )}
-
+ 
                                     <TouchableOpacity
                                         style={[styles.editSaveBtn, saving && { opacity: 0.6 }]}
                                         onPress={handleEditSave}
                                         disabled={saving}
                                     >
-                                        {saving ? <ActivityIndicator color="white" /> : <Text style={styles.editSaveBtnText}>Enregistrer</Text>}
+                                        {saving ? <ActivityIndicator color="white" /> : <Text style={styles.editSaveBtnText}>{t('forum_save_btn')}</Text>}
                                     </TouchableOpacity>
                                 </ScrollView>
                             </View>
