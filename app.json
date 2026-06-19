@@ -10,7 +10,7 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.jaxv9.smartgardenpie",
+      "bundleIdentifier": "com.smartgarden_iim",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
         "NSAppTransportSecurity": {
@@ -20,7 +20,7 @@
       }
     },
     "android": {
-      "package": "com.jaxv9.smartgardenpie",
+      "package": "com.smartgarden_iim",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",

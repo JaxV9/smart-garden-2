@@ -9,10 +9,11 @@ import { Ionicons } from "@expo/vector-icons";
 import { router, useFocusEffect } from "expo-router";
 import { useCallback, useState } from "react";
 import { ScrollView, StyleSheet, Text, TouchableOpacity } from "react-native";
+import { useTranslation } from "@/contexts/language.context";
 
 
 export const ForumFeedTab = () => {
-
+    const { t } = useTranslation();
     const [createModalVisible, setCreateModalVisible] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedTagId, setSelectedTagId] = useState<string | null>(null);
@@ -55,7 +56,7 @@ export const ForumFeedTab = () => {
 
     const handleCreateTopic = async () => {
         if (!newTopicTitle.trim() || !newTopicContent.trim()) {
-            alert('Veuillez remplir le titre et le contenu');
+            alert(t('forum_create_error_empty'));
             return;
         }
 
@@ -72,7 +73,7 @@ export const ForumFeedTab = () => {
             await loadTopics(selectedTagId || undefined);
             setLoading(false);
         } else {
-            alert('Erreur lors de la création du topic');
+            alert(t('forum_create_error'));
         }
     };
 
@@ -100,7 +101,7 @@ export const ForumFeedTab = () => {
             await loadTopics(selectedTagId || undefined);
             setLoading(false);
         } else {
-            alert('Erreur lors de la modification du sujet');
+            alert(t('forum_update_error'));
         }
     };
 
@@ -113,7 +114,7 @@ export const ForumFeedTab = () => {
                     onPress={() => setCreateModalVisible(true)}
                 >
                     <Ionicons name="add" size={20} color="white" />
-                    <Text style={styles.askButtonText}>Poser une question</Text>
+                    <Text style={styles.askButtonText}>{t('forum_ask_question_btn')}</Text>
                 </TouchableOpacity>
 
 
@@ -176,19 +177,24 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
     },
     askButton: {
-        backgroundColor: '#5B8E55',
-        paddingVertical: 16,
-        borderRadius: 12,
+        backgroundColor: '#5A7F54',
+        paddingVertical: 14,
+        borderRadius: 14,
         alignItems: 'center',
-        marginTop: 20,
-        marginBottom: 20,
+        marginTop: 16,
+        marginBottom: 16,
         flexDirection: 'row',
         justifyContent: 'center',
         gap: 8,
+        shadowColor: '#5A7F54',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.12,
+        shadowRadius: 6,
+        elevation: 2,
     },
     askButtonText: {
         color: 'white',
-        fontSize: 16,
-        fontWeight: '600',
+        fontSize: 15,
+        fontWeight: '700',
     },
 });

@@ -1,5 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
+import { useTranslation } from '@/contexts/language.context';
 
 interface Tag {
     id: string;
@@ -31,6 +32,7 @@ export default function CreateTopicModal({
     onToggleTag,
     onSubmit,
 }: CreateTopicModalProps) {
+    const { t } = useTranslation();
     const getTagStyle = (tagName: string, isSelected: boolean) => {
         if (!isSelected) return {};
         
@@ -55,26 +57,26 @@ export default function CreateTopicModal({
                     <TouchableWithoutFeedback onPress={() => {}}>
                         <View style={[styles.modalContent, styles.createModalContent]}>
                     <View style={styles.modalHeader}>
-                        <Text style={styles.modalTitle}>Poser une question</Text>
+                        <Text style={styles.modalTitle}>{t('forum_create_title')}</Text>
                         <TouchableOpacity onPress={onClose}>
                             <Ionicons name="close" size={24} color="#333" />
                         </TouchableOpacity>
                     </View>
-
+ 
                     <ScrollView style={styles.createForm}>
-                        <Text style={styles.inputLabel}>Titre</Text>
+                        <Text style={styles.inputLabel}>{t('forum_create_field_title')}</Text>
                         <TextInput
                             style={styles.input}
-                            placeholder="Ex: Comment traiter le mildiou ?"
+                            placeholder={t('forum_create_title_placeholder')}
                             value={title}
                             onChangeText={onTitleChange}
                             placeholderTextColor="#111827"
                         />
-
-                        <Text style={styles.inputLabel}>Description</Text>
+ 
+                        <Text style={styles.inputLabel}>{t('forum_create_field_desc')}</Text>
                         <TextInput
                             style={[styles.input, styles.textArea]}
-                            placeholder="Décrivez votre question en détail..."
+                            placeholder={t('forum_create_desc_placeholder')}
                             value={content}
                             onChangeText={onContentChange}
                             multiline
@@ -82,8 +84,8 @@ export default function CreateTopicModal({
                             textAlignVertical="top"
                             placeholderTextColor="#111827"
                         />
-
-                        <Text style={styles.inputLabel}>Tags (optionnel)</Text>
+ 
+                        <Text style={styles.inputLabel}>{t('forum_create_field_tags')}</Text>
                         <View style={styles.tagsSelection}>
                             {tags.map((tag) => (
                                 <TouchableOpacity
@@ -108,7 +110,7 @@ export default function CreateTopicModal({
                         </View>
 
                         <TouchableOpacity style={styles.submitButton} onPress={onSubmit}>
-                            <Text style={styles.submitButtonText}>Publier la question</Text>
+                            <Text style={styles.submitButtonText}>{t('forum_create_submit')}</Text>
                         </TouchableOpacity>
                     </ScrollView>
                         </View>

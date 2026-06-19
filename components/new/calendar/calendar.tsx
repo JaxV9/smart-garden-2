@@ -18,7 +18,6 @@ export function CalendarComp({ calendarProp }: CalendarProps) {
     return (
         <View style={{ flex: 1 }}>
             <ScrollView style={styles.scrollContainer}>
-                <Text style={styles.title}>Calendrier</Text>
                 <View style={styles.legendContainer}>
                     <View style={[styles.legendTag, styles.isSowing]}>
                         <Text style={styles.isTextSowing}>Semis</Text>
@@ -77,6 +76,7 @@ const styles = StyleSheet.create({
         flexWrap: 'wrap',
         gap: gap,
         padding: containerPadding,
+        justifyContent: 'center'
     },
     subInfo: {
         color: '#99A1AF'
@@ -89,7 +89,8 @@ const styles = StyleSheet.create({
         margin: 8,
         padding: 8,
         gap: 8,
-        flexDirection: 'row'
+        flexDirection: 'row',
+        justifyContent: 'space-around'
     },
     legendTag: {
         paddingTop: 4,

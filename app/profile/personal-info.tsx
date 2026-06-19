@@ -28,11 +28,38 @@ const LEVEL_LABELS: Record<string, string> = {
   enthusiast: 'Passionné.e',
 };
 
+import { useTour } from '@/contexts/tour.context';
+import { useRef, useEffect } from 'react';
+
 export default function PersonalInfoScreen() {
   const { user } = useUserContext();
   const { updateAvatar, updateUser } = useUser();
+  const { registerElement, step } = useTour();
+
+  const scrollRef = useRef<ScrollView>(null);
+  const pseudoEmailRef = useRef<View>(null);
+  const levelRef = useRef<View>(null);
+
+  const measureAll = () => {
+    setTimeout(() => {
+      pseudoEmailRef.current?.measureInWindow((x, y, w, h) => {
+        if (w && h) registerElement('personal_pseudo_email', { x, y, width: w, height: h });
+      });
+      levelRef.current?.measureInWindow((x, y, w, h) => {
+        if (w && h) registerElement('personal_level', { x, y, width: w, height: h });
+      });
+    }, 320);
+  };
+
+  useEffect(() => {
+    if (step === 16) {
+      scrollRef.current?.scrollTo({ y: 0, animated: true });
+    }
+    measureAll();
+  }, [step]);
 
   const [pseudo, setPseudo] = useState<string>(user?.name ?? '');
+  const [publicName, setPublicName] = useState<string>(user?.publicName ?? user?.name ?? '');
   const [email, setEmail] = useState<string>(user?.email ?? '');
   const [experience, setExperience] = useState<GardenerLevel>(
     (user?.level as GardenerLevel) ?? 'beginner'
@@ -79,6 +106,7 @@ export default function PersonalInfoScreen() {
   };
 
   const handleClearPseudo = () => setPseudo('');
+  const handleClearPublicName = () => setPublicName('');
   const handleClearEmail = () => setEmail('');
 
   const toggleExperienceDropdown = () => {
@@ -137,6 +165,7 @@ export default function PersonalInfoScreen() {
   const handleSave = async () => {
     const status = await updateUser({
       name: pseudo || user?.name || '',
+      publicName: publicName || user?.publicName || pseudo || user?.name || '',
       email: email || user?.email || '',
       level: experience,
     });
@@ -157,6 +186,7 @@ export default function PersonalInfoScreen() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView
+        ref={scrollRef}
         style={styles.container}
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
@@ -186,7 +216,11 @@ export default function PersonalInfoScreen() {
         </TouchableOpacity>
 
         {/* Champs */}
-        <View style={styles.form}>
+        <View 
+          ref={pseudoEmailRef}
+          onLayout={measureAll}
+          style={styles.form}
+        >
           {/* Pseudo */}
           <View style={styles.field}>
             <Text style={styles.label}>Pseudo</Text>
@@ -208,6 +242,34 @@ export default function PersonalInfoScreen() {
                 <TouchableOpacity
                   style={styles.rightIconButton}
                   onPress={handleClearPseudo}
+                >
+                  <Feather name="x" size={16} color={COLORS.icon} />
+                </TouchableOpacity>
+              )}
+            </View>
+          </View>
+
+          {/* Nom public */}
+          <View style={styles.field}>
+            <Text style={styles.label}>Nom public</Text>
+            <View style={styles.inputWrapper}>
+              <Feather
+                name="user"
+                size={18}
+                color={COLORS.icon}
+                style={styles.leftIcon}
+              />
+              <TextInput
+                style={styles.input}
+                value={publicName}
+                onChangeText={setPublicName}
+                placeholder="Votre nom public"
+                placeholderTextColor={COLORS.placeholder}
+              />
+              {publicName.length > 0 && (
+                <TouchableOpacity
+                  style={styles.rightIconButton}
+                  onPress={handleClearPublicName}
                 >
                   <Feather name="x" size={16} color={COLORS.icon} />
                 </TouchableOpacity>
@@ -246,7 +308,11 @@ export default function PersonalInfoScreen() {
           </View>
 
           {/* Experience level */}
-          <View style={styles.field}>
+          <View 
+            ref={levelRef}
+            onLayout={measureAll}
+            style={styles.field}
+          >
             <Text style={styles.label}>Niveau d&apos;expérience</Text>
 
             <TouchableOpacity
@@ -411,14 +477,14 @@ export default function PersonalInfoScreen() {
 }
 
 const COLORS = {
-  background: '#FFFFFF',
-  textDark: '#111827',
+  background: '#F9FAFB',
+  textDark: '#1F2937',
   textMuted: '#6B7280',
-  inputBg: '#F9FAFB',
+  inputBg: '#FFFFFF',
   border: '#E5E7EB',
-  primary: '#4F8F46',
+  primary: '#5A7F54',
   icon: '#9CA3AF',
-  placeholder: '#111827',
+  placeholder: '#9CA3AF',
 };
 
 const styles = StyleSheet.create({
@@ -444,7 +510,7 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: 'center',
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: '800',
     color: COLORS.textDark,
   },
   avatarContainer: {
@@ -459,7 +525,7 @@ const styles = StyleSheet.create({
   },
   avatarName: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '700',
     color: COLORS.textDark,
   },
   form: {
@@ -471,6 +537,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 13,
+    fontWeight: '600',
     color: COLORS.textMuted,
     marginBottom: 6,
   },
@@ -478,11 +545,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: COLORS.inputBg,
-    borderRadius: 8,
+    borderRadius: 14,
     borderWidth: 1,
     borderColor: COLORS.border,
-    paddingHorizontal: 10,
-    height: 48,
+    paddingHorizontal: 12,
+    height: 50,
   },
   leftIcon: {
     marginRight: 6,
@@ -511,54 +578,64 @@ const styles = StyleSheet.create({
   changePasswordText: {
     fontSize: 14,
     color: COLORS.primary,
-    fontWeight: '600',
+    fontWeight: '700',
   },
   dropdown: {
     marginTop: 6,
-    borderRadius: 8,
+    borderRadius: 14,
     borderWidth: 1,
     borderColor: COLORS.border,
     backgroundColor: '#FFFFFF',
     overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 6,
+    elevation: 2,
   },
   dropdownItem: {
-    paddingVertical: 10,
-    paddingHorizontal: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
   },
   dropdownItemActive: {
-    backgroundColor: '#E0F2E9',
+    backgroundColor: '#EBF6EB',
   },
   dropdownItemText: {
     fontSize: 14,
     color: COLORS.textDark,
   },
   dropdownItemTextActive: {
-    fontWeight: '600',
+    fontWeight: '700',
     color: COLORS.primary,
   },
   saveButton: {
     height: 52,
-    borderRadius: 8,
+    borderRadius: 14,
     backgroundColor: COLORS.primary,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 'auto',
+    marginTop: 20,
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.12,
+    shadowRadius: 6,
+    elevation: 2,
   },
   saveButtonText: {
     color: '#FFFFFF',
-    fontWeight: '600',
+    fontWeight: '700',
     fontSize: 15,
-    letterSpacing: 1,
+    letterSpacing: 0.5,
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(17, 24, 39, 0.32)',
+    backgroundColor: 'rgba(17, 24, 39, 0.45)',
     justifyContent: 'center',
     paddingHorizontal: 24,
   },
   modalCard: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 16,
+    borderRadius: 20,
     padding: 20,
     gap: 16,
   },
@@ -569,7 +646,7 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: 18,
-    fontWeight: '700',
+    fontWeight: '800',
     color: COLORS.textDark,
   },
   modalField: {
@@ -577,7 +654,7 @@ const styles = StyleSheet.create({
   },
   modalPrimaryButton: {
     height: 48,
-    borderRadius: 10,
+    borderRadius: 12,
     backgroundColor: COLORS.primary,
     alignItems: 'center',
     justifyContent: 'center',

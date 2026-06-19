@@ -18,7 +18,7 @@ export function useOnboarding() {
     const [loading, setLoading] = useState<boolean>(false)
     const [error, setError] = useState<boolean>(false);
 
-    const [currentStep, setCurrentStep] = useState<number>(1);
+    const [currentStep, setCurrentStep] = useState<number>(0);
     const [stepNumber, setStepNumber] = useState<number[]>([...Array(3).keys()]);
     const [canGoForward, setCanGoForward] = useState<boolean>(false);
     const [allInputsFilled, setAllInputsFilled] = useState<boolean>(false);
@@ -86,7 +86,7 @@ export function useOnboarding() {
     }
 
     function nextStep() {
-        if (currentStep !== stepNumber.length) {
+        if (currentStep !== stepNumber.length - 1 && currentInputIsfilled()) {
             setCurrentStep(currentStep + 1)
         }
     }
@@ -100,9 +100,9 @@ export function useOnboarding() {
     function currentInputIsfilled(): boolean {
         switch (currentStep) {
             case 0:
-                return gardenName !== undefined;
+                return gardenName !== undefined && gardenName.trim().length > 0;
             case 1:
-                return gardenLocation !== undefined;
+                return gardenLocation !== undefined && gardenLocation.trim().length > 0;
             case 2:
                 return gardenLevel !== undefined;
             default:
@@ -127,7 +127,11 @@ export function useOnboarding() {
     }, [currentStep, gardenName, gardenLocation, gardenLevel])
 
     useEffect(() => {
-        setAllInputsFilled(gardenName !== undefined && gardenLevel !== undefined && gardenLocation !== undefined)
+        setAllInputsFilled(
+            gardenName !== undefined && gardenName.trim().length > 0 &&
+            gardenLocation !== undefined && gardenLocation.trim().length > 0 &&
+            gardenLevel !== undefined
+        )
     }, [gardenName, gardenLocation, gardenLevel])
 
     return {

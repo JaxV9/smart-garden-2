@@ -1,8 +1,22 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Alert,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import { useRouter } from 'expo-router';
 import { useFetch } from '@/hooks/useFetch';
 import { GardenSensor } from '@/models/models';
+import { useNotificationContext } from '@/contexts/notification.context';
+import { useUserContext } from '@/contexts/user.context';
+import { useTranslation } from '@/contexts/language.context';
+import { useTour } from '@/contexts/tour.context';
 import { AddSensorModal } from './AddSensorModal';
 
 const FAKE_LIGHT = 85;
@@ -68,6 +82,13 @@ function displayUnit(unit: string): string {
 
 export function SensorsSection() {
   const { httpClient } = useFetch(SENSOR_API_URL);
+  const { addNotification } = useNotificationContext();
+  const { isPremium } = useUserContext();
+  const { visible } = useTour();
+  const { t } = useTranslation();
+  const router = useRouter();
+  const isPremiumActive = isPremium || visible;
+
   const [sensors, setSensors] = useState<GardenSensor[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -75,6 +96,7 @@ export function SensorsSection() {
   const [pairingMode, setPairingMode] = useState<'add' | 'wifi'>('add');
   const [pendingSensorAction, setPendingSensorAction] =
     useState<PendingSensorAction | null>(null);
+  const [hasAlertedLowHumidity, setHasAlertedLowHumidity] = useState(false);
 
   const loadSensors = useCallback(
     async (showLoader = false) => {
@@ -186,6 +208,7 @@ export function SensorsSection() {
 
     const loadActiveSensors = async (showLoader = false) => {
       await loadSensors(showLoader);
+
       if (!isActive) {
         return;
       }
@@ -204,10 +227,35 @@ export function SensorsSection() {
     () => sensors.find((sensor) => sensor.type === 'humidity'),
     [sensors]
   );
+
   const temperatureSensor = useMemo(
     () => sensors.find((sensor) => sensor.type === 'temperature'),
     [sensors]
   );
+
+  const humidityReading = humiditySensor?.latest_reading ?? null;
+
+  useEffect(() => {
+    if (!humidityReading || !humiditySensor) {
+      return;
+    }
+
+    if (humidityReading.value_numeric < 30) {
+      if (!hasAlertedLowHumidity) {
+        addNotification(
+          '🚨 Alerte Soif Extrême !',
+          `L'humidité du ${humiditySensor.name || 'Capteur Basilic'} est à ${Math.round(
+            humidityReading.value_numeric
+          )}%. Il crie "De l'eau par pitié !"`,
+          'SENSOR'
+        );
+        setHasAlertedLowHumidity(true);
+      }
+    } else if (humidityReading.value_numeric > 35) {
+      setHasAlertedLowHumidity(false);
+    }
+  }, [addNotification, hasAlertedLowHumidity, humidityReading, humiditySensor]);
+
   const latestUpdatedAt = useMemo(() => {
     const dates = sensors
       .map((sensor) => sensor.latest_reading?.updated_at || sensor.latest_reading?.created_at)
@@ -219,23 +267,27 @@ export function SensorsSection() {
 
   const updatedLabel = (() => {
     if (!latestUpdatedAt) {
-      return 'Mis à jour: -';
+      return t('sensor_updated_never');
     }
+
     const date = new Date(latestUpdatedAt);
     if (Number.isNaN(date.getTime())) {
-      return 'Mis à jour: -';
+      return t('sensor_updated_never');
     }
-    return `Mis à jour: ${date.toLocaleString('fr-FR')}`;
+
+    return `${t('sensor_updated_at')}${date.toLocaleString()}`;
   })();
 
   const humidityValue =
-    humiditySensor?.latest_reading?.value_numeric === undefined
+    humidityReading?.value_numeric === undefined
       ? '-'
-      : `${Math.round(humiditySensor.latest_reading.value_numeric)}${displayUnit(humiditySensor.unit)}`;
+      : `${Math.round(humidityReading.value_numeric)}${displayUnit(humiditySensor?.unit || '%')}`;
+
   const temperatureValue =
     temperatureSensor?.latest_reading?.value_numeric === undefined
       ? '-'
       : `${temperatureSensor.latest_reading.value_numeric.toFixed(1)}${displayUnit(temperatureSensor.unit)}`;
+
   const sensorTitle = sensors.length === 1 ? sensors[0].name : `${sensors.length} capteurs`;
   const hasSensors = sensors.length > 0;
 
@@ -258,7 +310,7 @@ export function SensorsSection() {
             <Ionicons name="wifi-outline" size={28} color="#2F7D32" />
             <Text style={styles.noDataTitle}>Aucun capteur associé.</Text>
             <Text style={styles.noDataText}>
-              Configure un capteur allumé pour afficher ses mesures.
+              {t('sensor_no_data')}
             </Text>
             <Pressable style={styles.emptyAction} onPress={openAddSensor}>
               <Ionicons name="add-circle-outline" size={18} color="#2F7D32" />
@@ -270,35 +322,74 @@ export function SensorsSection() {
         {hasSensors && (
           <View style={styles.card}>
             <View style={styles.headerRow}>
-              <Text style={styles.title}>
-                {sensorTitle}
-              </Text>
+              <Text style={styles.title}>{sensorTitle}</Text>
               <Ionicons name="ellipsis-vertical" size={18} color="#6B7280" />
             </View>
+
             <View style={styles.metricsRow}>
               <MetricCard
                 icon="water-outline"
                 value={humidityValue}
-                label="Humidité"
+                label={t('sensor_humidity')}
                 backgroundColor="#EAF4FF"
-                showPulse={!!humiditySensor?.latest_reading}
                 valueColor="#111827"
               />
               <MetricCard
                 icon="thermometer-outline"
                 value={temperatureValue}
-                label="Temp."
+                label={t('sensor_temp')}
                 backgroundColor="#FFF2E8"
                 showPulse={!!temperatureSensor?.latest_reading}
               />
               <MetricCard
                 icon="sunny-outline"
                 value={`${FAKE_LIGHT}%`}
-                label="Lumière"
+                label={t('sensor_light')}
                 backgroundColor="#FFF9DB"
               />
             </View>
+
             <Text style={styles.updated}>{updatedLabel}</Text>
+          </View>
+        )}
+
+        {hasSensors && humidityReading && (
+          <View style={[styles.card, styles.adviceCard, !isPremiumActive && styles.lockedAdviceCard]}>
+            <View style={styles.adviceHeader}>
+              <View style={styles.adviceTitleWrapper}>
+                <Ionicons name="bulb" size={20} color="#D4AF37" />
+                <Text style={styles.adviceTitle}>{t('sensor_advice_title')}</Text>
+              </View>
+
+              {!isPremiumActive && (
+                <View style={styles.vipBadge}>
+                  <Text style={styles.vipBadgeText}>VIP</Text>
+                </View>
+              )}
+            </View>
+
+            {isPremiumActive ? (
+              <View style={styles.adviceBody}>
+                {humidityReading.value_numeric < 30 ? (
+                  <Text style={styles.adviceText}>{t('sensor_advice_low')}</Text>
+                ) : humidityReading.value_numeric > 60 ? (
+                  <Text style={styles.adviceText}>{t('sensor_advice_high')}</Text>
+                ) : (
+                  <Text style={styles.adviceText}>{t('sensor_advice_opt')}</Text>
+                )}
+              </View>
+            ) : (
+              <View style={styles.lockedAdviceBody}>
+                <Text style={styles.lockedAdviceSub}>{t('sensor_advice_locked_sub')}</Text>
+                <TouchableOpacity
+                  style={styles.unlockBtn}
+                  onPress={() => router.push('/premium' as any)}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.unlockBtnText}>{t('sensor_advice_unlock_btn')}</Text>
+                </TouchableOpacity>
+              </View>
+            )}
           </View>
         )}
 
@@ -309,6 +400,7 @@ export function SensorsSection() {
                 <View style={styles.sensorRowIcon}>
                   <Ionicons name="radio-outline" size={18} color="#111827" />
                 </View>
+
                 <View style={styles.sensorRowText}>
                   <Text style={styles.sensorRowName}>{sensor.name}</Text>
                   <Text style={styles.sensorRowMeta}>
@@ -378,7 +470,7 @@ const styles = StyleSheet.create({
   },
   container: {
     gap: 16,
-    padding: 8,
+    padding: 20,
   },
   topRow: {
     flexDirection: 'row',
@@ -406,35 +498,36 @@ const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    padding: 16,
-    borderWidth: 2,
-    borderColor: '#7DCB6B',
-    shadowColor: '#111827',
-    shadowOpacity: 0.06,
-    shadowOffset: { width: 0, height: 4 },
+    borderRadius: 20,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    shadowColor: '#000',
+    shadowOpacity: 0.02,
+    shadowOffset: { width: 0, height: 2 },
     shadowRadius: 8,
+    elevation: 2,
   },
   headerRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 12,
+    marginBottom: 16,
   },
   title: {
-    fontSize: 24,
-    fontWeight: '600',
-    color: '#111827',
+    fontSize: 20,
+    fontWeight: '800',
+    color: '#1F2937',
   },
   metricsRow: {
     flexDirection: 'row',
     gap: 12,
-    marginBottom: 12,
+    marginBottom: 16,
   },
   metricCard: {
     flex: 1,
-    borderRadius: 16,
-    paddingVertical: 12,
+    borderRadius: 14,
+    paddingVertical: 14,
     alignItems: 'center',
     justifyContent: 'center',
     gap: 6,
@@ -446,25 +539,28 @@ const styles = StyleSheet.create({
   },
   metricValue: {
     fontSize: 18,
-    fontWeight: '600',
-    color: '#111827',
+    fontWeight: '800',
+    color: '#1F2937',
   },
   metricLabel: {
-    fontSize: 16,
+    fontSize: 14,
+    fontWeight: '600',
     color: '#6B7280',
   },
   updated: {
-    fontSize: 16,
-    color: '#6B7280',
+    fontSize: 13,
+    fontWeight: '500',
+    color: '#9CA3AF',
+    textAlign: 'right',
   },
   noDataCard: {
     alignItems: 'center',
     gap: 10,
     backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    padding: 16,
+    borderRadius: 20,
+    padding: 20,
     borderWidth: 1,
-    borderColor: '#E7E7E7',
+    borderColor: '#E5E7EB',
   },
   noDataTitle: {
     fontSize: 16,
@@ -559,5 +655,75 @@ const styles = StyleSheet.create({
   loader: {
     marginTop: 8,
     alignSelf: 'center',
+  },
+  adviceCard: {
+    borderColor: '#E2E8F0',
+  },
+  lockedAdviceCard: {
+    backgroundColor: '#FCFAF0',
+    borderColor: '#FEF3C7',
+    borderWidth: 1.5,
+  },
+  adviceHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  adviceTitleWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  adviceTitle: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#1E293B',
+  },
+  vipBadge: {
+    backgroundColor: '#FEF3C7',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 8,
+  },
+  vipBadgeText: {
+    color: '#D97706',
+    fontSize: 10,
+    fontWeight: '800',
+  },
+  adviceBody: {
+    paddingVertical: 4,
+  },
+  adviceText: {
+    fontSize: 14,
+    color: '#334155',
+    lineHeight: 20,
+  },
+  lockedAdviceBody: {
+    alignItems: 'center',
+    paddingVertical: 10,
+  },
+  lockedAdviceSub: {
+    fontSize: 13,
+    color: '#64748B',
+    textAlign: 'center',
+    lineHeight: 18,
+    marginBottom: 16,
+  },
+  unlockBtn: {
+    backgroundColor: '#D4AF37',
+    borderRadius: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    shadowColor: '#D4AF37',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 1,
+  },
+  unlockBtnText: {
+    color: '#FFFFFF',
+    fontSize: 12,
+    fontWeight: '800',
   },
 });

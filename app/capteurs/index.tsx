@@ -1,13 +1,38 @@
-import { BackButton } from '@/components/new/backButton/backButton';
 import { SensorsSection } from '@/components/new/sensors/sensorsSection';
-import { router } from 'expo-router';
+import AppHeader from '@/components/new/ui/AppHeader';
 import { StyleSheet, View } from 'react-native';
+import { useTour } from '@/contexts/tour.context';
+import React, { useRef } from 'react';
 
 export default function Index() {
+  const { registerElement } = useTour();
+  const sensorsRef = useRef<View>(null);
+
+  const handleOnLayout = () => {
+    setTimeout(() => {
+      sensorsRef.current?.measureInWindow((x, y, w, h) => {
+        if (w && h) {
+          registerElement('sensors_main', { x, y, width: w, height: h });
+        }
+      });
+    }, 200);
+  };
+
   return (
     <View style={styles.container}>
-      <BackButton callback={() => router.replace('/home')} />
-      <SensorsSection />
+      <AppHeader
+        title="Capteurs"
+        showBack={true}
+        fallbackRoute="/home"
+      />
+
+      <View 
+        ref={sensorsRef}
+        onLayout={handleOnLayout}
+        style={{ flex: 1 }}
+      >
+        <SensorsSection />
+      </View>
     </View>
   );
 }
@@ -15,10 +40,6 @@ export default function Index() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 64,
-    paddingLeft: 8,
-    paddingRight: 8,
-    gap: 16,
     backgroundColor: '#F9FAFB',
   },
 });

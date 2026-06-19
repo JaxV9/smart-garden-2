@@ -5,32 +5,48 @@ import { SocialProvider } from "@/contexts/social.context";
 import { ThemeProvider } from "@/contexts/themeContext";
 import { TutorialsProvider } from "@/contexts/tutorials.context";
 import { UserProvider } from "@/contexts/user.context";
+import { LanguageProvider } from "@/contexts/language.context";
 import { VegetablesProvider } from "@/contexts/vegetables.context";
+import { NotificationProvider } from "@/contexts/notification.context";
+import { TourProvider } from "@/contexts/tour.context";
 import { Stack } from "expo-router";
+import { AppTourGuide } from "@/components/new/ui/AppTourGuide";
 
 export default function RootLayout() {
   return (
     <UserProvider>
-      <ThemeProvider>
-        <BottomSheetProvider>
+      <LanguageProvider>
+        <ThemeProvider>
+          <BottomSheetProvider>
           <VegetablesProvider>
             <GardenProvider>
               <ForumProvider>
                 <SocialProvider>
                   <TutorialsProvider>
-                    <Stack
-                      screenOptions={{
-                        headerShown: false,
-                        animation: "none",
-                      }}
-                    >
-                      <Stack.Screen
-                        name="vegetable/[vegetableId]/index"
-                        options={{
-                          animation: "slide_from_right",
-                        }}
-                      />
-                    </Stack>
+                    <NotificationProvider>
+                      <TourProvider>
+                        <Stack
+                          screenOptions={{
+                            headerShown: false,
+                            animation: "none",
+                          }}
+                        >
+                          <Stack.Screen
+                            name="vegetable/[vegetableId]/index"
+                            options={{
+                              animation: "slide_from_right",
+                            }}
+                          />
+                          <Stack.Screen
+                            name="premium/index"
+                            options={{
+                              animation: "slide_from_bottom",
+                            }}
+                          />
+                        </Stack>
+                        <AppTourGuide />
+                      </TourProvider>
+                    </NotificationProvider>
                   </TutorialsProvider>
                 </SocialProvider>
               </ForumProvider>
@@ -38,6 +54,7 @@ export default function RootLayout() {
           </VegetablesProvider>
         </BottomSheetProvider>
       </ThemeProvider>
+     </LanguageProvider>
     </UserProvider>
   );
 }

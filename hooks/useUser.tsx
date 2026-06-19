@@ -4,11 +4,12 @@ import { Success } from "@jaslay/http";
 import { router } from "expo-router";
 import { useFetch } from "./useFetch";
 import { useStorage } from "./useStorage";
+import { updateActivityStreak } from "@/utils/activity";
 
 
 
 export function useUser() {
-    const { setUser, isLogin, setIsLogin } = useUserContext()
+    const { setUser, isLogin, setIsLogin, setActivityStreak, setIsPremium } = useUserContext()
     const { httpClient } = useFetch(undefined)
     const { putToken, getToken, deleteToken } = useStorage()
 
@@ -21,12 +22,20 @@ export function useUser() {
                 const userInfos: User = {
                     id: data.id,
                     name: data.name,
+                    publicName: data.publicName,
                     email: data.email,
                     level: data.level,
-                    isPrivate: data.isPrivate
+                    isPrivate: data.isPrivate,
+                    isPremium: data.isPremium
                 };
                 setUser(userInfos)
                 setIsLogin(true)
+                if (data.isPremium !== undefined) {
+                    setIsPremium(data.isPremium);
+                }
+                if (data.id) {
+                    updateActivityStreak(data.id).then(streak => setActivityStreak(streak));
+                }
             }
             return response.status
         } catch (error) {
@@ -50,12 +59,20 @@ export function useUser() {
                 const userInfos: User = {
                     id: data.userId,
                     name: data.userName,
+                    publicName: data.publicName || data.userName,
                     email: data.email,
                     avatarUri: null,
                     level: data.level,
-                    isPrivate: data.isPrivate
+                    isPrivate: data.isPrivate,
+                    isPremium: data.isPremium
                 };
                 setUser(userInfos)
+                if (data.isPremium !== undefined) {
+                    setIsPremium(data.isPremium);
+                }
+                if (data.userId) {
+                    updateActivityStreak(data.userId).then(streak => setActivityStreak(streak));
+                }
             }
             return response.status
         } catch (error) {
@@ -75,11 +92,15 @@ export function useUser() {
                 const userInfos: User = {
                     id: data.userId,
                     name: data.userName,
+                    publicName: data.publicName || data.userName,
                     email: data.email,
                     avatarUri: null,
                     level: null
                 };
                 setUser(userInfos)
+                if (data.userId) {
+                    updateActivityStreak(data.userId).then(streak => setActivityStreak(streak));
+                }
             }
             return response.status
         } catch (error) {
@@ -92,6 +113,8 @@ export function useUser() {
     async function logout(): Promise<Success> {
         await deleteToken('authToken');
         setIsLogin(false);
+        setUser(undefined);
+        setActivityStreak(0);
         router.push('/')
         return 'Success';
     }
@@ -100,7 +123,7 @@ export function useUser() {
         setUser(prev => prev ? { ...prev, avatarUri: uri } : prev);
     }
 
-    async function updateUser(updates: { name?: string; email?: string; level?: string | null; password?: string, isPrivate?: boolean, phone?: string, bio?: string }): Promise<"Success" | "Failure"> {
+    async function updateUser(updates: { name?: string; email?: string; level?: string | null; password?: string, isPrivate?: boolean, phone?: string, bio?: string, publicName?: string | null, isPremium?: boolean }): Promise<"Success" | "Failure"> {
         setUser((prev) =>
             prev
             ? {
