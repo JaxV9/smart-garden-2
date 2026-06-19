@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Href, useRouter } from 'expo-router';
+import { Href, usePathname, useRouter } from 'expo-router';
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNotificationContext } from '@/contexts/notification.context';
@@ -22,6 +22,7 @@ export default function AppHeader({
     fallbackRoute = '/home',
 }: AppHeaderProps) {
     const router = useRouter();
+    const pathname = usePathname();
     const { t } = useTranslation();
     
     let unreadCount = 0;
@@ -63,7 +64,11 @@ export default function AppHeader({
 
             {showNotifications && (
                 <View style={styles.headerRight}>
-                    <Pressable onPress={() => router.push('/premium' as any)} style={styles.vipHeaderBtn}>
+                    <Pressable
+                        onPress={() => router.push('/premium' as any)}
+                        disabled={pathname === '/premium'}
+                        style={styles.vipHeaderBtn}
+                    >
                         {isPremium ? (
                             <View style={styles.vipActiveBadge}>
                                 <Ionicons name="sparkles" size={10} color="#059669" />
