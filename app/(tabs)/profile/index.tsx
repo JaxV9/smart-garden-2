@@ -30,7 +30,7 @@ const LEVEL_LABELS: Record<string, string> = {
 
 export default function ProfileScreen() {
   const { user, isPremium } = useUserContext();
-  const { logout, updateUser } = useUser();
+  const { logout } = useUser();
   const { t, language, changeLanguage } = useTranslation();
   const { gardenInfo } = useGardenContext();
   const { loadGardenInfo } = useGardenInfo();
@@ -207,40 +207,6 @@ export default function ProfileScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* PRIVACY */}
-        <View style={styles.blockCard}>
-          <View style={styles.gardenHeader}>
-            <View style={styles.gardenHeaderLeft}>
-              <View style={styles.iconCircle}>
-                <Feather
-                  name="eye-off"
-                  size={18}
-                  color="#5A7F54"
-                />
-              </View>
-
-              <Text style={styles.gardenTitle}>
-                {t('profile_private_account')}
-              </Text>
-            </View>
-
-            <Switch
-              value={user?.isPrivate || false}
-              onValueChange={(val) =>
-                updateUser({ isPrivate: val })
-              }
-              trackColor={{
-                false: '#e5e5e5',
-                true: '#5A7F54',
-              }}
-              thumbColor="#ffffff"
-            />
-          </View>
-
-          <Text style={styles.infoLabel}>
-            Masquer vos statistiques aux autres utilisateurs
-          </Text>
-        </View>
 
         {/* LANGUAGE SELECTOR */}
         <View style={styles.blockCard}>

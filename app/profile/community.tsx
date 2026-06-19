@@ -226,7 +226,7 @@ export default function CommunityProfileScreen() {
         </View>
 
         <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Intéactions</Text>
+          <Text style={styles.sectionTitle}>Interactions</Text>
           <TouchableOpacity
             style={[
               styles.filterButton,
