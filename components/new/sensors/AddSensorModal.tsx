@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import { DEFAULT_SENSOR_PROVISIONING_URL } from "@/constants/smartGardenProvisioning";
 import { useSensorProvisioning } from "@/hooks/useSensorProvisioning";
+import { useTranslation } from "@/contexts/language.context";
 
 type AddSensorModalProps = {
   visible: boolean;
@@ -23,6 +24,7 @@ export function AddSensorModal({
   onClose,
   onProvisioned,
 }: AddSensorModalProps) {
+  const { t } = useTranslation();
   const [sensorBaseUrl, setSensorBaseUrl] = useState(
     DEFAULT_SENSOR_PROVISIONING_URL
   );
@@ -62,7 +64,7 @@ export function AddSensorModal({
     setFormError(null);
 
     if (!sensorBaseUrl.trim()) {
-      setFormError("L'adresse du capteur est requise.");
+      setFormError(t('sensor_address_required', "L'adresse du capteur est requise."));
       return;
     }
 
@@ -73,12 +75,12 @@ export function AddSensorModal({
     setFormError(null);
 
     if (!sensorBaseUrl.trim()) {
-      setFormError("L'adresse du capteur est requise.");
+      setFormError(t('sensor_address_required', "L'adresse du capteur est requise."));
       return;
     }
 
     if (!wifiSsid.trim()) {
-      setFormError("Le nom du Wi-Fi est requis.");
+      setFormError(t('sensor_wifi_ssid_required', "Le nom du Wi-Fi est requis."));
       return;
     }
 
@@ -101,7 +103,7 @@ export function AddSensorModal({
       <View style={styles.overlay}>
         <View style={styles.modal}>
           <View style={styles.header}>
-            <Text style={styles.title}>Ajouter un capteur</Text>
+            <Text style={styles.title}>{t('sensor_add_one', 'Ajouter un capteur')}</Text>
             <Pressable onPress={onClose} style={styles.iconButton}>
               <Ionicons name="close" size={22} color="#111827" />
             </Pressable>
@@ -110,13 +112,12 @@ export function AddSensorModal({
           <View style={styles.notice}>
             <Ionicons name="wifi-outline" size={20} color="#2F7D32" />
             <Text style={styles.noticeText}>
-              Connecte ton téléphone ou simulateur au Wi-Fi du capteur,
-              puis vérifie sa connexion locale.
+              {t('sensor_notice', "Connecte ton téléphone ou simulateur au Wi-Fi du capteur, puis vérifie sa connexion locale.")}
             </Text>
           </View>
 
           <View style={styles.form}>
-            <Text style={styles.sectionTitle}>Adresse locale du capteur</Text>
+            <Text style={styles.sectionTitle}>{t('sensor_local_address', 'Adresse locale du capteur')}</Text>
             <View style={styles.inlineRow}>
               <TextInput
                 value={sensorBaseUrl}
@@ -157,23 +158,23 @@ export function AddSensorModal({
             <View style={styles.deviceInfo}>
               <Text style={styles.deviceName}>
                 {deviceInfo
-                  ? `${detectedSensors.length} capteur(s) détecté(s)`
-                  : "Capteur non vérifié"}
+                  ? t('sensor_detected_count').replace('{{count}}', String(detectedSensors.length))
+                  : t('sensor_unverified', 'Capteur non vérifié')}
               </Text>
               <Text style={styles.deviceMeta}>
                 {deviceInfo
                   ? detectedSensorNames
-                  : "Utilise le bouton de recherche pour lire /device-info."}
+                  : t('sensor_search_help', 'Utilise le bouton de recherche pour lire /device-info.')}
               </Text>
             </View>
           </View>
 
           <View style={styles.form}>
-            <Text style={styles.sectionTitle}>Wi-Fi du jardin</Text>
+            <Text style={styles.sectionTitle}>{t('sensor_garden_wifi', 'Wi-Fi du jardin')}</Text>
             <TextInput
               value={wifiSsid}
               onChangeText={setWifiSsid}
-              placeholder="Nom du Wi-Fi"
+              placeholder={t('sensor_wifi_name_placeholder', 'Nom du Wi-Fi')}
               autoCapitalize="none"
               autoCorrect={false}
               style={styles.input}
@@ -181,7 +182,7 @@ export function AddSensorModal({
             <TextInput
               value={wifiPassword}
               onChangeText={setWifiPassword}
-              placeholder="Mot de passe"
+              placeholder={t('sensor_wifi_password_placeholder', 'Mot de passe')}
               autoCapitalize="none"
               autoCorrect={false}
               secureTextEntry
@@ -206,7 +207,7 @@ export function AddSensorModal({
             ) : (
               <>
                 <Ionicons name="wifi" size={18} color="#FFFFFF" />
-                <Text style={styles.submitText}>Configurer</Text>
+                <Text style={styles.submitText}>{t('sensor_configure', 'Configurer')}</Text>
               </>
             )}
           </Pressable>

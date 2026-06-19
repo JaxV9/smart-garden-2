@@ -2,9 +2,11 @@ import { SensorsSection } from '@/components/new/sensors/sensorsSection';
 import AppHeader from '@/components/new/ui/AppHeader';
 import { StyleSheet, View } from 'react-native';
 import { useTour } from '@/contexts/tour.context';
+import { useTranslation } from '@/contexts/language.context';
 import React, { useRef } from 'react';
 
 export default function Index() {
+  const { t } = useTranslation();
   const { registerElement } = useTour();
   const sensorsRef = useRef<View>(null);
 
@@ -21,7 +23,7 @@ export default function Index() {
   return (
     <View style={styles.container}>
       <AppHeader
-        title="Capteurs"
+        title={t('sensors_title', 'Capteurs')}
         showBack={true}
         fallbackRoute="/home"
       />
