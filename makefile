@@ -6,3 +6,9 @@ build-android:
 
 build-ios:
 	eas build --platform android --profile preview-ios
+
+build-aab:
+	cd android && gradlew bundleRelease
+
+build-apk:
+	cd android && gradlew assembleRelease
