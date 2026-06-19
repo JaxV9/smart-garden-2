@@ -78,17 +78,17 @@ export const ResumeSection = () => {
     }, [gardenInfo.location]);
 
     const getWeatherConfig = (code: number) => {
-        if (code === 0) return { icon: 'sunny' as const, label: 'Ensoleillé', color: '#F59E0B', bgColor: '#FFFBEB' };
-        if (code >= 1 && code <= 3) return { icon: 'partly-sunny' as const, label: 'Partiellement nuageux', color: '#6B7280', bgColor: '#F3F4F6' };
-        if (code === 45 || code === 48) return { icon: 'cloudy' as const, label: 'Brouillard', color: '#9CA3AF', bgColor: '#F9FAFB' };
+        if (code === 0) return { icon: 'sunny' as const, label: t('weather_clear', 'Ensoleillé'), color: '#F59E0B', bgColor: '#FFFBEB' };
+        if (code >= 1 && code <= 3) return { icon: 'partly-sunny' as const, label: t('weather_partly_cloudy', 'Partiellement nuageux'), color: '#6B7280', bgColor: '#F3F4F6' };
+        if (code === 45 || code === 48) return { icon: 'cloudy' as const, label: t('weather_fog', 'Brouillard'), color: '#9CA3AF', bgColor: '#F9FAFB' };
         if ((code >= 51 && code <= 55) || (code >= 61 && code <= 65) || (code >= 80 && code <= 82)) {
-            return { icon: 'rainy' as const, label: 'Pluie', color: '#3B82F6', bgColor: '#EFF6FF' };
+            return { icon: 'rainy' as const, label: t('weather_rain', 'Pluie'), color: '#3B82F6', bgColor: '#EFF6FF' };
         }
         if ((code >= 56 && code <= 57) || (code >= 66 && code <= 67) || (code >= 71 && code <= 77) || (code >= 85 && code <= 86)) {
-            return { icon: 'snow' as const, label: 'Neige', color: '#10B981', bgColor: '#ECFDF5' };
+            return { icon: 'snow' as const, label: t('weather_snow', 'Neige'), color: '#10B981', bgColor: '#ECFDF5' };
         }
-        if (code >= 95) return { icon: 'thunderstorm' as const, label: 'Orage', color: '#7C3AED', bgColor: '#F5F3FF' };
-        return { icon: 'cloudy' as const, label: 'Nuageux', color: '#6B7280', bgColor: '#F3F4F6' };
+        if (code >= 95) return { icon: 'thunderstorm' as const, label: t('weather_thunderstorm', 'Orage'), color: '#7C3AED', bgColor: '#F5F3FF' };
+        return { icon: 'cloudy' as const, label: t('weather_cloudy', 'Nuageux'), color: '#6B7280', bgColor: '#F3F4F6' };
     };
 
     return (
@@ -102,63 +102,44 @@ export const ResumeSection = () => {
                     <Text style={styles.welcomeTitle}>{t('home_welcome_title')}</Text>
                     <Text style={styles.welcomeSubtitle}>{t('home_welcome_subtitle')}</Text>
                 </View>
-                <View style={styles.welcomeIconContainer}>
-                    <Ionicons name="sunny" size={32} color="#F59E0B" />
-                </View>
-            </View>
 
-            {/* Weather Card */}
-            {gardenInfo.location ? (
-                <View style={styles.weatherCard}>
-                    {weatherLoading ? (
-                        <View style={styles.weatherCenter}>
+                {/* Right side weather or placeholder */}
+                {gardenInfo.location ? (
+                    <View style={styles.weatherBlock}>
+                        {weatherLoading ? (
                             <ActivityIndicator size="small" color="#5A7F54" />
-                            <Text style={styles.weatherLoadingText}>Chargement de la météo pour {gardenInfo.location}...</Text>
-                        </View>
-                    ) : weatherError ? (
-                        <View style={styles.weatherErrorContainer}>
-                            <Ionicons name="cloud-offline-outline" size={24} color="#EF4444" />
-                            <Text style={styles.weatherErrorText}>Météo indisponible ({weatherError})</Text>
-                        </View>
-                    ) : weatherData ? (
-                        <View style={styles.weatherRow}>
-                            <View style={styles.weatherMain}>
-                                <Text style={styles.weatherCity}>{weatherData.cityName}</Text>
-                                <Text style={styles.weatherTemp}>{Math.round(weatherData.temp)}°C</Text>
-                                <Text style={styles.weatherDesc}>{getWeatherConfig(weatherData.code).label}</Text>
+                        ) : weatherError ? (
+                            <View style={styles.weatherErrorContainer}>
+                                <Ionicons name="cloud-offline-outline" size={18} color="#EF4444" />
+                                <Text style={styles.weatherErrorText}>
+                                    {weatherError === "Ville non trouvée" ? t('weather_city_not_found') : weatherError === "Erreur de connexion" ? t('weather_connection_error') : t('weather_error')}
+                                </Text>
                             </View>
-                            <View style={styles.weatherRight}>
-                                <View style={[styles.weatherIconBg, { backgroundColor: getWeatherConfig(weatherData.code).bgColor }]}>
+                        ) : weatherData ? (
+                            <View style={styles.weatherMainBlock}>
+                                <Text style={styles.weatherCity}>{weatherData.cityName}</Text>
+                                <View style={styles.weatherIconTempRow}>
                                     <Ionicons
                                         name={getWeatherConfig(weatherData.code).icon}
-                                        size={32}
+                                        size={36}
                                         color={getWeatherConfig(weatherData.code).color}
                                     />
+                                    <Text style={styles.weatherTemp}>{Math.round(weatherData.temp)}°C</Text>
                                 </View>
-                                <View style={styles.weatherHumidityRow}>
-                                    <Ionicons name="water" size={14} color="#3B82F6" />
-                                    <Text style={styles.weatherHumidityVal}>{weatherData.humidity}% d'humidité</Text>
-                                </View>
+                                <Text style={styles.weatherDesc}>{getWeatherConfig(weatherData.code).label}</Text>
                             </View>
-                        </View>
-                    ) : null}
-                </View>
-            ) : (
-                <Pressable
-                    onPress={() => router.push('/profile/garden-info')}
-                    style={styles.weatherPlaceholderCard}
-                >
-                    <View style={styles.weatherPlaceholderLeft}>
-                        <Text style={styles.weatherPlaceholderTitle}>Météo indisponible</Text>
-                        <Text style={styles.weatherPlaceholderSub}>
-                            Renseignez la localisation de votre potager dans vos paramètres pour afficher la météo locale.
-                        </Text>
+                        ) : null}
                     </View>
-                    <View style={styles.weatherPlaceholderIconContainer}>
-                        <Ionicons name="location-outline" size={24} color="#5A7F54" />
-                    </View>
-                </Pressable>
-            )}
+                ) : (
+                    <Pressable
+                        onPress={() => router.push('/profile/garden-info')}
+                        style={styles.addLocationBtn}
+                    >
+                        <Ionicons name="location-outline" size={18} color="#5A7F54" />
+                        <Text style={styles.addLocationText}>{t('weather_configure_location')}</Text>
+                    </Pressable>
+                )}
+            </View>
 
             <Text style={styles.sectionHeaderTitle}>{t('home_dashboard')}</Text>
             
@@ -282,26 +263,75 @@ const styles = StyleSheet.create({
     },
     welcomeLeft: {
         flex: 1,
-        paddingRight: 12,
+        justifyContent: 'center',
+        paddingRight: 16,
     },
     welcomeTitle: {
-        fontSize: 18,
+        fontSize: 20,
         fontWeight: '800',
         color: '#1F2937',
-        marginBottom: 4,
+        marginBottom: 2,
     },
     welcomeSubtitle: {
-        fontSize: 13,
-        color: '#6B7280',
+        fontSize: 14,
+        fontWeight: '600',
+        color: '#4B5563',
         lineHeight: 18,
     },
-    welcomeIconContainer: {
-        width: 52,
-        height: 52,
-        borderRadius: 26,
-        backgroundColor: '#FFFBEB',
-        alignItems: 'center',
+    weatherBlock: {
+        alignItems: 'flex-end',
         justifyContent: 'center',
+    },
+    weatherMainBlock: {
+        alignItems: 'flex-end',
+    },
+    weatherCity: {
+        fontSize: 11,
+        fontWeight: '800',
+        color: '#9CA3AF',
+        textTransform: 'uppercase',
+        letterSpacing: 0.5,
+        marginBottom: 4,
+    },
+    weatherIconTempRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+    },
+    weatherTemp: {
+        fontSize: 28,
+        fontWeight: '800',
+        color: '#1F2937',
+    },
+    weatherDesc: {
+        fontSize: 12,
+        fontWeight: '600',
+        color: '#6B7280',
+        marginTop: 4,
+    },
+    weatherErrorContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+    },
+    weatherErrorText: {
+        fontSize: 12,
+        color: '#EF4444',
+        fontWeight: '600',
+    },
+    addLocationBtn: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#F3F4F6',
+        paddingVertical: 8,
+        paddingHorizontal: 12,
+        borderRadius: 12,
+        gap: 6,
+    },
+    addLocationText: {
+        fontSize: 12,
+        fontWeight: '700',
+        color: '#5A7F54',
     },
     sectionHeaderTitle: {
         fontSize: 16,
@@ -382,124 +412,5 @@ const styles = StyleSheet.create({
     toolSubtitle: {
         fontSize: 12,
         color: '#6B7280',
-    },
-    weatherCard: {
-        backgroundColor: '#FFFFFF',
-        borderRadius: 20,
-        padding: 20,
-        marginBottom: 20,
-        borderWidth: 1,
-        borderColor: '#E5E7EB',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.05,
-        shadowRadius: 8,
-        elevation: 2,
-    },
-    weatherCenter: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: 12,
-        paddingVertical: 10,
-    },
-    weatherLoadingText: {
-        fontSize: 13,
-        color: '#6B7280',
-        fontWeight: '500',
-    },
-    weatherErrorContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 10,
-        paddingVertical: 4,
-    },
-    weatherErrorText: {
-        fontSize: 13,
-        color: '#EF4444',
-        fontWeight: '600',
-    },
-    weatherRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-    },
-    weatherMain: {
-        flex: 1,
-    },
-    weatherCity: {
-        fontSize: 14,
-        fontWeight: '700',
-        color: '#6B7280',
-        textTransform: 'uppercase',
-        letterSpacing: 0.5,
-        marginBottom: 4,
-    },
-    weatherTemp: {
-        fontSize: 32,
-        fontWeight: '800',
-        color: '#1F2937',
-    },
-    weatherDesc: {
-        fontSize: 14,
-        fontWeight: '600',
-        color: '#4B5563',
-        marginTop: 2,
-    },
-    weatherRight: {
-        alignItems: 'flex-end',
-        gap: 8,
-    },
-    weatherIconBg: {
-        width: 56,
-        height: 56,
-        borderRadius: 28,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    weatherHumidityRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 4,
-    },
-    weatherHumidityVal: {
-        fontSize: 12,
-        fontWeight: '600',
-        color: '#4B5563',
-    },
-    weatherPlaceholderCard: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        backgroundColor: '#F9FAFB',
-        borderRadius: 20,
-        padding: 20,
-        marginBottom: 20,
-        borderWidth: 1,
-        borderColor: '#E5E7EB',
-        borderStyle: 'dashed',
-    },
-    weatherPlaceholderLeft: {
-        flex: 1,
-        paddingRight: 12,
-    },
-    weatherPlaceholderTitle: {
-        fontSize: 15,
-        fontWeight: '800',
-        color: '#4B5563',
-        marginBottom: 4,
-    },
-    weatherPlaceholderSub: {
-        fontSize: 12,
-        color: '#6B7280',
-        lineHeight: 16,
-    },
-    weatherPlaceholderIconContainer: {
-        width: 44,
-        height: 44,
-        borderRadius: 22,
-        backgroundColor: '#EBF6EB',
-        alignItems: 'center',
-        justifyContent: 'center',
     },
 });
