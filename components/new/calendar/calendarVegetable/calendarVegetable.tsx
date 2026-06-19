@@ -1,6 +1,7 @@
 import { Vegetable, VegetablePlannification } from "@/models/models";
 import { Image } from "expo-image";
 import { StyleSheet, Text, View } from "react-native";
+import { useTranslation } from "@/contexts/language.context";
 
 interface CalendarVegetableProps {
     vegetable: Vegetable,
@@ -8,6 +9,7 @@ interface CalendarVegetableProps {
 }
 
 export function CalendarVegetable({ vegetable, type }: CalendarVegetableProps) {
+    const { t } = useTranslation();
 
     function getStyleContainerType() {
         switch (type) {
@@ -48,7 +50,7 @@ export function CalendarVegetable({ vegetable, type }: CalendarVegetableProps) {
                 source={getIconType()}
                 style={{ width: 16, height: 16 }}
             />
-            <Text style={getStyleTextType()}>{vegetable.name}</Text>
+            <Text style={getStyleTextType()}>{t('veg_name_' + vegetable.id, vegetable.name)}</Text>
         </View>
     )
 }

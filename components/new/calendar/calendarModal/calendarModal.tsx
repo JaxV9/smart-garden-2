@@ -4,6 +4,7 @@ import { StyleSheet, Text, View } from "react-native";
 import { BackButton } from "../../backButton/backButton";
 import { CalendarMonthCard } from "../calendarMonthCard/calendarMonthCard";
 import { CalendarVegetable } from "../calendarVegetable/calendarVegetable";
+import { useTranslation } from "@/contexts/language.context";
 
 interface CalendarModalProps {
     month: Month
@@ -12,6 +13,7 @@ interface CalendarModalProps {
 }
 
 export function CalendarModal({ month, vegetables, callback }: CalendarModalProps) {
+    const { t } = useTranslation();
 
     return (
         <BlurView intensity={12} style={styles.container}>
@@ -25,7 +27,7 @@ export function CalendarModal({ month, vegetables, callback }: CalendarModalProp
                         ))
                     }
                     {vegetables.length === 0 &&
-                        <Text style={styles.subInfo}>Aucune activité</Text>
+                        <Text style={styles.subInfo}>{t('cal_no_activity', 'Aucune activité')}</Text>
                     }
                 </CalendarMonthCard>
             </View>

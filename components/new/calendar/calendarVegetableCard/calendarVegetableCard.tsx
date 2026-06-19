@@ -1,8 +1,13 @@
 import { Vegetable, VegetablePlannification } from "@/models/models";
 import { Image } from "expo-image";
 import { StyleSheet, Text, View } from "react-native";
+import { useTranslation } from "@/contexts/language.context";
 
-const MONTHS_SHORT = ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'];
+const MONTHS_KEYS = [
+    'month_janvier', 'month_février', 'month_mars', 'month_avril',
+    'month_mai', 'month_juin', 'month_juillet', 'month_août',
+    'month_septembre', 'month_octobre', 'month_novembre', 'month_décembre'
+];
 
 const MONTH_INDEX: Record<string, number> = {
     January: 0, February: 1, March: 2, April: 3,
@@ -59,18 +64,27 @@ function getBarStyle(type: VegetablePlannification) {
     }
 }
 
-function getBarLabel(type: VegetablePlannification) {
-    switch (type) {
-        case 'sowing': return 'Semis';
-        case 'plantation': return 'Plantation';
-        case 'harvest': return 'Récolte';
-    }
-}
-
 export function CalendarVegetableCard({ vegetable, entries }: CalendarVegetableCardProps) {
+    const { t } = useTranslation();
     const types: VegetablePlannification[] = ['sowing', 'plantation', 'harvest'];
 
     const TOTAL_CELLS = 12;
+
+    function getBarLabel(type: VegetablePlannification) {
+        switch (type) {
+            case 'sowing': return t('cal_sowing', 'Semis');
+            case 'plantation': return t('cal_planting', 'Plantation');
+            case 'harvest': return t('cal_harvest', 'Récolte');
+        }
+    }
+
+    const getShortMonthName = (monthKey: string) => {
+        const full = t(monthKey);
+        if (full.endsWith('月')) {
+            return full.replace('月', '');
+        }
+        return full.charAt(0).toUpperCase();
+    };
 
     return (
         <View style={styles.card}>
@@ -82,14 +96,14 @@ export function CalendarVegetableCard({ vegetable, entries }: CalendarVegetableC
                         contentFit="contain"
                     />
                 </View>
-                <Text style={styles.name}>{vegetable.name}</Text>
+                <Text style={styles.name}>{t('veg_name_' + vegetable.id, vegetable.name)}</Text>
             </View>
 
             <View style={styles.timelineWrapper}>
                 <View style={styles.monthRow}>
-                    {MONTHS_SHORT.map((m, i) => (
+                    {MONTHS_KEYS.map((mKey, i) => (
                         <View key={i} style={styles.monthCell}>
-                            <Text style={styles.monthLabel}>{m}</Text>
+                            <Text style={styles.monthLabel}>{getShortMonthName(mKey)}</Text>
                         </View>
                     ))}
                 </View>

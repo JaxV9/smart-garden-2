@@ -5,12 +5,14 @@ import { CalendarModal } from "./calendarModal/calendarModal";
 import { CalendarMonthCard } from "./calendarMonthCard/calendarMonthCard";
 import { CalendarVegetable } from "./calendarVegetable/calendarVegetable";
 import { CalendarVegetableCard, VegetableMonthEntry } from "./calendarVegetableCard/calendarVegetableCard";
+import { useTranslation } from "@/contexts/language.context";
 
 interface CalendarProps {
     calendarProp: Calendar
 }
 
 export function CalendarComp({ calendarProp }: CalendarProps) {
+    const { t } = useTranslation();
     const [monthModal, setMonthModal] = useState<{
         month: Month
         vegetables: VegetableMonth[]
@@ -44,20 +46,23 @@ export function CalendarComp({ calendarProp }: CalendarProps) {
 
     const filteredVegetables = useMemo(() => {
         if (!search.trim()) return vegetableMap;
-        return vegetableMap.filter(v =>
-            v.vegetable.name.toLowerCase().includes(search.toLowerCase())
-        );
-    }, [vegetableMap, search]);
+        const q = search.toLowerCase();
+        return vegetableMap.filter(v => {
+            const rawName = v.vegetable.name.toLowerCase();
+            const localizedName = t('veg_name_' + v.vegetable.id, v.vegetable.name).toLowerCase();
+            return rawName.includes(q) || localizedName.includes(q);
+        });
+    }, [vegetableMap, search, t]);
 
     return (
         <View style={{ flex: 1, paddingTop: 28 }}>
             <ScrollView style={styles.scrollContainer}>
                 <View style={styles.switchContainer}>
                     <Pressable onPress={() => changeMode('month')} style={mode === 'month' ? styles.switchBtnActive : styles.switchBtnInactive}>
-                        <Text>Par mois</Text>
+                        <Text>{t('cal_by_month', 'Par mois')}</Text>
                     </Pressable>
                     <Pressable onPress={() => changeMode('vegetable')} style={mode === 'vegetable' ? styles.switchBtnActive : styles.switchBtnInactive}>
-                        <Text>Par plantes</Text>
+                        <Text>{t('cal_by_plant', 'Par plantes')}</Text>
                     </Pressable>
                 </View>
                 {mode === 'vegetable' &&
@@ -66,7 +71,7 @@ export function CalendarComp({ calendarProp }: CalendarProps) {
                             <Text style={styles.searchIcon}>🔍</Text>
                             <TextInput
                                 style={styles.searchInput}
-                                placeholder="Rechercher"
+                                placeholder={t('cal_search_placeholder', 'Rechercher')}
                                 placeholderTextColor="#9ca3af"
                                 value={search}
                                 onChangeText={setSearch}
@@ -80,7 +85,7 @@ export function CalendarComp({ calendarProp }: CalendarProps) {
                             />
                         ))}
                         {filteredVegetables.length === 0 &&
-                            <Text style={styles.subInfo}>Aucun légume trouvé</Text>
+                            <Text style={styles.subInfo}>{t('cal_no_vegetable', 'Aucun légume trouvé')}</Text>
                         }
                     </View>
                 }
@@ -88,13 +93,13 @@ export function CalendarComp({ calendarProp }: CalendarProps) {
                     <>
                         <View style={styles.legendContainer}>
                             <View style={[styles.legendTag, styles.isSowing]}>
-                                <Text style={styles.isTextSowing}>Semis</Text>
+                                <Text style={styles.isTextSowing}>{t('cal_sowing', 'Semis')}</Text>
                             </View>
                             <View style={[styles.legendTag, styles.isPlantation]}>
-                                <Text style={styles.isTextPlantation}>Plantation</Text>
+                                <Text style={styles.isTextPlantation}>{t('cal_planting', 'Plantation')}</Text>
                             </View>
                             <View style={[styles.legendTag, styles.isHarvest]}>
-                                <Text style={styles.isTextHarvest}>Récolte</Text>
+                                <Text style={styles.isTextHarvest}>{t('cal_harvest', 'Récolte')}</Text>
                             </View>
                         </View>
                         <View style={styles.container}>
@@ -113,7 +118,7 @@ export function CalendarComp({ calendarProp }: CalendarProps) {
                                         </Text>
                                     }
                                     {month.vegetables.length === 0 &&
-                                        <Text style={styles.subInfo}>Aucune activité</Text>
+                                        <Text style={styles.subInfo}>{t('cal_no_activity', 'Aucune activité')}</Text>
                                     }
                                 </CalendarMonthCard>
                             ))}

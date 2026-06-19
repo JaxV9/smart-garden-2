@@ -278,6 +278,16 @@ export const translations: Record<LanguageType, Record<string, string>> = {
         cal_locked_feat_2: 'Indicateurs saisonniers détaillés',
         cal_locked_btn: 'Débloquer le Calendrier - 6,99€',
 
+        // Calendar UI
+        cal_by_month: 'Par mois',
+        cal_by_plant: 'Par plantes',
+        cal_search_placeholder: 'Rechercher',
+        cal_no_vegetable: 'Aucun légume trouvé',
+        cal_no_activity: 'Aucune activité',
+        cal_sowing: 'Semis',
+        cal_planting: 'Plantation',
+        cal_harvest: 'Récolte',
+
         tasks_locked_title: 'Gestion des Tâches VIP 👑',
         tasks_locked_sub: 'Organisez vos sessions de jardinage, planifiez les arrosages réguliers et ne manquez plus jamais le bon moment pour récolter.',
         tasks_locked_feat_1: 'Création de tâches personnalisées',
@@ -872,6 +882,16 @@ export const translations: Record<LanguageType, Record<string, string>> = {
         cal_locked_feat_1: 'Smart monthly planning',
         cal_locked_feat_2: 'Detailed seasonal indicators',
         cal_locked_btn: 'Unlock Calendar - €6.99',
+
+        // Calendar UI
+        cal_by_month: 'By month',
+        cal_by_plant: 'By plant',
+        cal_search_placeholder: 'Search',
+        cal_no_vegetable: 'No vegetable found',
+        cal_no_activity: 'No activity',
+        cal_sowing: 'Sowing',
+        cal_planting: 'Planting',
+        cal_harvest: 'Harvest',
 
         tasks_locked_title: 'VIP Task Management 👑',
         tasks_locked_sub: 'Organize your gardening sessions, plan regular waterings, and never miss the right time to harvest again.',
@@ -1468,6 +1488,16 @@ export const translations: Record<LanguageType, Record<string, string>> = {
         cal_locked_feat_2: 'Indicadores estacionales detallados',
         cal_locked_btn: 'Desbloquear Calendario - 6,99€',
 
+        // Calendar UI
+        cal_by_month: 'Por mes',
+        cal_by_plant: 'Por plantas',
+        cal_search_placeholder: 'Buscar',
+        cal_no_vegetable: 'No se encontraron vegetales',
+        cal_no_activity: 'Sin actividad',
+        cal_sowing: 'Siembra',
+        cal_planting: 'Plantación',
+        cal_harvest: 'Cosecha',
+
         tasks_locked_title: 'Gestión de tareas VIP 👑',
         tasks_locked_sub: 'Organice sus sesiones de jardinería, planifique riegos regulares y no vuelva a perderse el momento adecuado para cosechar.',
         tasks_locked_feat_1: 'Creación de tareas personalizadas',
@@ -2063,6 +2093,16 @@ export const translations: Record<LanguageType, Record<string, string>> = {
         cal_locked_feat_2: 'Indicatori stagionali dettagliati',
         cal_locked_btn: 'Sblocca Calendario - 6,99€',
 
+        // Calendar UI
+        cal_by_month: 'Per mese',
+        cal_by_plant: 'Per piante',
+        cal_search_placeholder: 'Cerca',
+        cal_no_vegetable: 'Nessun ortaggio trovato',
+        cal_no_activity: 'Nessuna attività',
+        cal_sowing: 'Semina',
+        cal_planting: 'Piantagione',
+        cal_harvest: 'Raccolta',
+
         tasks_locked_title: 'Gestione Attività VIP 👑',
         tasks_locked_sub: 'Organizza le tue sessioni di giardinaggio, pianifica annaffiature regolari e non perdere mai più il momento giusto per raccogliere.',
         tasks_locked_feat_1: 'Création de tâches personnalisées',
@@ -2656,6 +2696,16 @@ export const translations: Record<LanguageType, Record<string, string>> = {
         cal_locked_feat_1: '智能月度规划',
         cal_locked_feat_2: '详细季节指标',
         cal_locked_btn: '解锁日历 - 6.99欧元',
+
+        // Calendar UI
+        cal_by_month: '按月',
+        cal_by_plant: '按植物',
+        cal_search_placeholder: '搜索',
+        cal_no_vegetable: '未找到蔬菜',
+        cal_no_activity: '无活动',
+        cal_sowing: '播种',
+        cal_planting: '种植',
+        cal_harvest: '收获',
 
         tasks_locked_title: 'VIP 任务管理 👑',
         tasks_locked_sub: '组织您的园艺活动，规划定期浇水，再也不会错过最佳收获时机。',
@@ -3252,6 +3302,16 @@ export const translations: Record<LanguageType, Record<string, string>> = {
         cal_locked_feat_2: '詳細な季節ごとの指標',
         cal_locked_btn: 'カレンダーをアンロック - 6.99€',
 
+        // Calendar UI
+        cal_by_month: '月別',
+        cal_by_plant: '植物別',
+        cal_search_placeholder: '検索',
+        cal_no_vegetable: '野菜が見つかりません',
+        cal_no_activity: '活動なし',
+        cal_sowing: '播種',
+        cal_planting: '定植',
+        cal_harvest: '収穫',
+
         tasks_locked_title: 'VIP タスク管理 👑',
         tasks_locked_sub: '毎日のガーデニング作業を整理し、定期的な水やりを計画。収穫のベストタイミングを逃しません。',
         tasks_locked_feat_1: 'カスタムタスクの作成',
@@ -3846,6 +3906,16 @@ export const translations: Record<LanguageType, Record<string, string>> = {
         cal_locked_feat_1: 'تخطيط شهري ذكي',
         cal_locked_feat_2: 'مؤشرات موسمية مفصلة',
         cal_locked_btn: 'فتح التقويم - 6.99 يورو',
+
+        // Calendar UI
+        cal_by_month: 'حسب الشهر',
+        cal_by_plant: 'حسب النبات',
+        cal_search_placeholder: 'بحث',
+        cal_no_vegetable: 'لم يتم العثور على خضروات',
+        cal_no_activity: 'لا نشاط',
+        cal_sowing: 'البذر',
+        cal_planting: 'الزراعة',
+        cal_harvest: 'الحصاد',
 
         tasks_locked_title: 'إدارة المهام VIP 👑',
         tasks_locked_sub: 'نظم جلسات الزراعة الخاصة بك، وخطط للري المنتظم ولا تفوت الوقت المناسب للحصاد مرة أخرى.',

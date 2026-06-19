@@ -57,7 +57,7 @@ export default function Calendar() {
     return (
         <View style={styles.container}>
             <AppHeader
-                title="Calendrier"
+                title={t('home_tool_calendar_title', 'Calendrier')}
                 showBack={true}
                 showNotifications={true}
                 fallbackRoute="/home"
