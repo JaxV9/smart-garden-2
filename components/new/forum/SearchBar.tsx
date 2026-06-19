@@ -1,5 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { StyleSheet, TextInput, View } from 'react-native';
+import { useTranslation } from '@/contexts/language.context';
 
 interface SearchBarProps {
     value: string;
@@ -7,13 +8,15 @@ interface SearchBarProps {
     placeholder?: string;
 }
 
-export default function SearchBar({ value, onChangeText, placeholder = "Rechercher dans le forum..." }: SearchBarProps) {
+export default function SearchBar({ value, onChangeText, placeholder }: Omit<SearchBarProps, 'placeholder'> & { placeholder?: string }) {
+    const { t } = useTranslation();
+    const resolvedPlaceholder = placeholder ?? t('forum_search_placeholder');
     return (
         <View style={styles.searchContainer}>
             <Ionicons name="search-outline" size={20} color="#666" />
             <TextInput
                 style={styles.searchInput}
-                placeholder={placeholder}
+                placeholder={resolvedPlaceholder}
                 value={value}
                 onChangeText={onChangeText}
                 placeholderTextColor="#111827"

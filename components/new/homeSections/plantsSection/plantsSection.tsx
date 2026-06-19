@@ -8,11 +8,13 @@ import { useVegetablesContext } from "@/contexts/vegetables.context";
 
 import type { GardenVegetable } from "@/models/models";
 import { VegetableCard } from "@/components/new/vegetablesList/vegetable/vegetable";
+import { useTranslation } from "@/contexts/language.context";
 
 export function PlantsSection() {
   const { gardenVegetables } = useGardenContext();
   const { loadGardenVegetables } = useGarden();
   const { vegetablesContext } = useVegetablesContext();
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (vegetablesContext.length > 0) {
@@ -38,11 +40,11 @@ if (!gardenVegetables || gardenVegetables.length === 0) {
         />
 
         <Text style={styles.emptyText}>
-            Ajouter une première plante à votre jardin !
+            {t('home_empty_title')}
         </Text>
 
         <Pressable style={styles.cta} onPress={goToAddVegetable}>
-            <Text style={styles.ctaText}>+ AJOUTER UNE PLANTE</Text>
+            <Text style={styles.ctaText}>{t('home_add_plant_btn')}</Text>
         </Pressable>
         </View>
     );
@@ -63,7 +65,7 @@ if (!gardenVegetables || gardenVegetables.length === 0) {
       />
 
       <Pressable style={[styles.cta, { marginTop: 16 }]} onPress={goToAddVegetable}>
-        <Text style={styles.ctaText}>+ AJOUTER UNE PLANTE</Text>
+        <Text style={styles.ctaText}>{t('home_add_plant_btn')}</Text>
       </Pressable>
     </View>
   );

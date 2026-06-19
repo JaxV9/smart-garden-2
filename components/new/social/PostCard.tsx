@@ -69,11 +69,11 @@ export default function PostCard({ post, onLike, onComment, onDelete, onUpdate }
         <View style={styles.postCard}>
             <View style={styles.postHeader}>
                 <View style={styles.avatarPlaceholder}>
-                    <Ionicons name="person" size={20} color="#666" />
+                    <Ionicons name="person" size={20} color="#5A7F54" />
                 </View>
                 <View style={styles.postHeaderInfo}>
                     <TouchableOpacity onPress={() => router.push({ pathname: '/user/[id]', params: { id: post.author.id } })}>
-                        <Text style={[styles.postAuthor, { color: '#5B8E55', textDecorationLine: 'underline' }]}>{post.author.name || 'Utilisateur'}</Text>
+                        <Text style={styles.postAuthor}>{post.author.name || 'Utilisateur'}</Text>
                     </TouchableOpacity>
                     <Text style={styles.postTime}>{getTimeAgo(post.createdAt)}</Text>
                 </View>
@@ -166,13 +166,15 @@ export default function PostCard({ post, onLike, onComment, onDelete, onUpdate }
 const styles = StyleSheet.create({
     postCard: {
         backgroundColor: 'white',
-        borderRadius: 12,
-        padding: 16,
-        marginBottom: 15,
+        borderRadius: 20,
+        padding: 20,
+        marginBottom: 16,
+        borderWidth: 1,
+        borderColor: '#E5E7EB',
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.1,
-        shadowRadius: 3,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.02,
+        shadowRadius: 8,
         elevation: 2,
     },
     postHeader: {
@@ -185,15 +187,15 @@ const styles = StyleSheet.create({
         width: 40,
         height: 40,
         borderRadius: 20,
-        backgroundColor: '#e5e5e5',
+        backgroundColor: '#EBF6EB',
         justifyContent: 'center',
         alignItems: 'center',
     },
     postHeaderInfo: { flex: 1 },
-    postAuthor: { fontSize: 15, fontWeight: '600', color: '#333' },
+    postAuthor: { fontSize: 15, fontWeight: '700', color: '#5A7F54' },
     postTime: { fontSize: 12, color: '#999', marginTop: 2 },
     menuButton: { padding: 4 },
-    postContent: { fontSize: 15, lineHeight: 22, color: '#333', marginBottom: 12 },
+    postContent: { fontSize: 15, lineHeight: 22, color: '#1F2937', marginBottom: 12 },
     imagesContainer: { marginBottom: 12 },
     postImage: { width: '100%', height: 250, borderRadius: 12 },
     postActions: { flexDirection: 'row', gap: 20, paddingTop: 12, borderTopWidth: 1, borderTopColor: '#f0f0f0' },
@@ -232,6 +234,16 @@ const styles = StyleSheet.create({
         borderColor: '#e5e7eb',
         marginBottom: 16,
     },
-    editSaveBtn: { backgroundColor: '#5B8E55', paddingVertical: 14, borderRadius: 12, alignItems: 'center' },
+    editSaveBtn: {
+        backgroundColor: '#5A7F54',
+        paddingVertical: 14,
+        borderRadius: 14,
+        alignItems: 'center',
+        shadowColor: '#5A7F54',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.12,
+        shadowRadius: 6,
+        elevation: 2,
+    },
     editSaveBtnText: { color: 'white', fontSize: 16, fontWeight: '600' },
 });

@@ -1,6 +1,8 @@
 import { useForumContext } from "@/contexts/forum.context";
-import { useFetch } from "./useFetch";
+import { useNotificationContext } from "@/contexts/notification.context";
+import { useUserContext } from "@/contexts/user.context";
 import { useCallback } from "react";
+import { useFetch } from "./useFetch";
 
 /**
  * Représente un tag (catégorie) de forum.
@@ -120,6 +122,8 @@ export interface UserComment {
 export function useForum() {
     const { tags, setTags, topics, setTopics } = useForumContext();
     const { httpClient } = useFetch(undefined);
+    const { addNotification } = useNotificationContext();
+    const { user } = useUserContext();
 
     /**
      * Charge les tags s’ils ne sont pas déjà présents dans le contexte.
@@ -146,10 +150,41 @@ export function useForum() {
         const url = tagId ? `/api/topics?tagId=${tagId}` : "/api/topics";
         const response = await http.get(url);
         if (response.status !== "Failure") {
-            setTopics(response.payload as Topic[]);
+            const fetchedTopics = response.payload as Topic[];
+
+            if (topics.length > 0 && user?.id) {
+                for (const newTopic of fetchedTopics) {
+                    if (newTopic.authorId === user.id || newTopic.author?.id === user.id) {
+                        const oldTopic = topics.find(t => t.id === newTopic.id);
+                        if (oldTopic) {
+                            if (newTopic._count.comments > oldTopic._count.comments) {
+                                try {
+                                    const topicDetailResponse = await http.get(`/api/topic/${newTopic.id}`);
+                                    if (topicDetailResponse.status !== "Failure") {
+                                        const topicDetail = topicDetailResponse.payload as TopicDetail;
+                                        const foreignComments = topicDetail.comments.filter(c => c.authorId !== user.id && c.author?.id !== user.id);
+                                        if (foreignComments.length > 0) {
+                                            const newestReply = foreignComments[foreignComments.length - 1];
+                                            addNotification(
+                                                "💬 Nouvelle réponse !",
+                                                `${newestReply.author?.name || "Un membre"} a répondu à ton sujet "${newTopic.title}" : "${newestReply.content}"`,
+                                                "COMMUNITY"
+                                            );
+                                        }
+                                    }
+                                } catch (e) {
+                                    console.log("Error checking forum reply author:", e);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            setTopics(fetchedTopics);
         }
         return response.status;
-    }, [httpClient, setTopics]);
+    }, [httpClient, topics, setTopics, user?.id, addNotification]);
 
     /**
      * Récupère les détails d’un sujet (topic) spécifique par son ID.
@@ -183,9 +218,14 @@ export function useForum() {
         if (response.status !== "Failure") {
             const newTopic = response.payload as Topic;
             setTopics([newTopic, ...topics]);
+            addNotification(
+                "💬 Sujet publié !",
+                `Votre sujet "${title}" est maintenant en ligne sur le forum !`,
+                "COMMUNITY"
+            );
         }
         return response.status;
-    }, [httpClient, topics, setTopics]);
+    }, [httpClient, topics, setTopics, addNotification]);
 
     /**
      * Ajoute un commentaire à un sujet donné.
@@ -201,10 +241,16 @@ export function useForum() {
         const http = await httpClient;
         const response = await http.post(`/api/topic/${topicId}/comment`, payload);
         if (response.status !== "Failure") {
-            return response.payload as Comment;
+            const comment = response.payload as Comment;
+            addNotification(
+                "💬 Réponse envoyée !",
+                `Votre commentaire a bien été publié sur le forum.`,
+                "COMMUNITY"
+            );
+            return comment;
         }
         return null;
-    }, [httpClient]);
+    }, [httpClient, addNotification]);
 
     /**
      * Crée un nouveau tag et l’ajoute à la liste locale.

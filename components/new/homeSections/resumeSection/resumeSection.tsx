@@ -1,158 +1,257 @@
 import { useGardenContext } from '@/contexts/garden.context';
+import { useUserContext } from '@/contexts/user.context';
 import { useTasks } from '@/hooks/useTasks';
-import { Image } from 'expo-image';
 import { router } from 'expo-router';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
-
+import React from 'react';
+import { Pressable, StyleSheet, Text, View, ScrollView } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from '@/contexts/language.context';
 
 export const ResumeSection = () => {
-    const { gardenVegetables } = useGardenContext()
+    const { gardenVegetables } = useGardenContext();
+    const { activityStreak } = useUserContext();
     const { tasks } = useTasks();
+    const { t } = useTranslation();
 
     const completedTasksCount = tasks.filter(task => task.completed).length;
 
     return (
-        <>
-            <View style={styles.container}>
-                <View style={styles.squaresContainer}>
-                    <View style={[styles.item, styles.plant]}>
-                        <Text style={styles.numbers}>{gardenVegetables.length}</Text>
-                        <Text style={styles.label}>Plantes cultivées</Text>
-                    </View>
-                    <View style={[styles.item, styles.task]}>
-                        <Text style={styles.numbers}>{completedTasksCount}</Text>
-                        <Text style={styles.label}>Tâches complétées</Text>
-                    </View>
-                    <View style={[styles.item, styles.activity]}>
-                        <Text style={styles.numbers}>3</Text>
-                        <Text style={styles.label}>Jours d'activité</Text>
-                    </View>
-                    <View style={[styles.item, styles.sensor]}>
-                        <Text style={styles.numbers}>1</Text>
-                        <Text style={styles.label}>Capteurs connectés</Text>
-                    </View>
+        <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.scrollContent}
+            style={styles.scrollView}
+        >
+            <View style={styles.welcomeCard}>
+                <View style={styles.welcomeLeft}>
+                    <Text style={styles.welcomeTitle}>{t('home_welcome_title')}</Text>
+                    <Text style={styles.welcomeSubtitle}>{t('home_welcome_subtitle')}</Text>
                 </View>
-                <Text style={styles.title}>Outils</Text>
-                <View style={styles.squaresContainer}>
-                    <Pressable onPress={() => router.replace('/taches')} style={styles.toolContainer}>
-                        <View style={styles.row}>
-                            <Image source={require('@/assets/icons/taskIcon.svg')}
-                                style={styles.taskIcon} />
-                            <Text style={styles.toolTitle}>Tâches</Text>
-                        </View>
-                        <Text>Planifier les tâches</Text>
-                    </Pressable>
-                    <Pressable onPress={() => router.replace('/calendar')} style={styles.toolContainer}>
-                        <View style={styles.row}>
-                            <Image source={require('@/assets/icons/calendarIcon.svg')}
-                                style={styles.calendarIcon} />
-                            <Text style={styles.toolTitle}>Calendrier</Text>
-                        </View>
-                        <Text>Calendrier d'entretien</Text>
-                    </Pressable>
-                    <Pressable onPress={() => router.replace('/capteurs')} style={styles.toolContainer}>
-                        <View style={styles.row}>
-                            <Image source={require('@/assets/icons/sensorIcon.svg')}
-                                style={styles.sensorIcon} />
-                            <Text style={styles.toolTitle}>Capteurs</Text>
-                        </View>
-                        <Text>Gérer les capteurs</Text>
-                    </Pressable>
-                    <Pressable onPress={() => router.replace('/plan')} style={styles.toolContainer}>
-                        <View style={styles.row}>
-                            <Image source={require('@/assets/icons/planIcon.svg')}
-                                style={styles.planIcon} />
-                            <Text style={styles.toolTitle}>Plan</Text>
-                        </View>
-                        <Text>Dessiner le plan</Text>
-                    </Pressable>
+                <View style={styles.welcomeIconContainer}>
+                    <Ionicons name="sunny" size={32} color="#F59E0B" />
                 </View>
             </View>
-        </>
+
+            <Text style={styles.sectionHeaderTitle}>{t('home_dashboard')}</Text>
+            
+            <View style={styles.statsGrid}>
+                <View style={[styles.statCard, { backgroundColor: '#EBF6EB' }]}>
+                    <View style={styles.statHeader}>
+                        <Text style={[styles.statNumber, { color: '#2E7D32' }]}>{gardenVegetables.length}</Text>
+                        <View style={[styles.statIconBadge, { backgroundColor: 'rgba(46, 125, 50, 0.12)' }]}>
+                            <Ionicons name="leaf" size={16} color="#2E7D32" />
+                        </View>
+                    </View>
+                    <Text style={styles.statLabel}>{t('home_stat_plants')}</Text>
+                </View>
+
+                <View style={[styles.statCard, { backgroundColor: '#E6F8F3' }]}>
+                    <View style={styles.statHeader}>
+                        <Text style={[styles.statNumber, { color: '#00796B' }]}>{completedTasksCount}</Text>
+                        <View style={[styles.statIconBadge, { backgroundColor: 'rgba(0, 121, 107, 0.12)' }]}>
+                            <Ionicons name="checkmark-done" size={16} color="#00796B" />
+                        </View>
+                    </View>
+                    <Text style={styles.statLabel}>{t('home_stat_tasks')}</Text>
+                </View>
+
+                <View style={[styles.statCard, { backgroundColor: '#FFF3F2' }]}>
+                    <View style={styles.statHeader}>
+                        <Text style={[styles.statNumber, { color: '#C62828' }]}>{activityStreak}</Text>
+                        <View style={[styles.statIconBadge, { backgroundColor: 'rgba(198, 40, 40, 0.12)' }]}>
+                            <Ionicons name="flame" size={16} color="#C62828" />
+                        </View>
+                    </View>
+                    <Text style={styles.statLabel}>{t('home_stat_streak')}</Text>
+                </View>
+
+                <View style={[styles.statCard, { backgroundColor: '#F0F4FF' }]}>
+                    <View style={styles.statHeader}>
+                        <Text style={[styles.statNumber, { color: '#1565C0' }]}>1</Text>
+                        <View style={[styles.statIconBadge, { backgroundColor: 'rgba(21, 101, 192, 0.12)' }]}>
+                            <Ionicons name="radio" size={16} color="#1565C0" />
+                        </View>
+                    </View>
+                    <Text style={styles.statLabel}>{t('home_stat_sensors')}</Text>
+                </View>
+            </View>
+
+            <Text style={styles.sectionHeaderTitle}>{t('home_tools')}</Text>
+
+            <View style={styles.toolsList}>
+                <Pressable onPress={() => router.replace('/taches')} style={styles.toolCard}>
+                    <View style={[styles.toolIconWrapper, { backgroundColor: '#EBF6EB' }]}>
+                        <Ionicons name="checkbox" size={22} color="#2E7D32" />
+                    </View>
+                    <View style={styles.toolTextWrapper}>
+                        <Text style={styles.toolTitle}>{t('home_tool_tasks_title')}</Text>
+                        <Text style={styles.toolSubtitle}>{t('home_tool_tasks_subtitle')}</Text>
+                    </View>
+                    <Ionicons name="chevron-forward" size={18} color="#9CA3AF" />
+                </Pressable>
+
+                <Pressable onPress={() => router.replace('/calendar')} style={styles.toolCard}>
+                    <View style={[styles.toolIconWrapper, { backgroundColor: '#E6F8F3' }]}>
+                        <Ionicons name="calendar" size={22} color="#00796B" />
+                    </View>
+                    <View style={styles.toolTextWrapper}>
+                        <Text style={styles.toolTitle}>{t('home_tool_calendar_title')}</Text>
+                        <Text style={styles.toolSubtitle}>{t('home_tool_calendar_subtitle')}</Text>
+                    </View>
+                    <Ionicons name="chevron-forward" size={18} color="#9CA3AF" />
+                </Pressable>
+
+                <Pressable onPress={() => router.replace('/capteurs')} style={styles.toolCard}>
+                    <View style={[styles.toolIconWrapper, { backgroundColor: '#F0F4FF' }]}>
+                        <Ionicons name="hardware-chip" size={22} color="#1565C0" />
+                    </View>
+                    <View style={styles.toolTextWrapper}>
+                        <Text style={styles.toolTitle}>{t('home_tool_sensors_title')}</Text>
+                        <Text style={styles.toolSubtitle}>{t('home_tool_sensors_subtitle')}</Text>
+                    </View>
+                    <Ionicons name="chevron-forward" size={18} color="#9CA3AF" />
+                </Pressable>
+
+                <Pressable onPress={() => router.replace('/plan')} style={styles.toolCard}>
+                    <View style={[styles.toolIconWrapper, { backgroundColor: '#FFFDF0' }]}>
+                        <Ionicons name="map" size={22} color="#D97706" />
+                    </View>
+                    <View style={styles.toolTextWrapper}>
+                        <Text style={styles.toolTitle}>{t('home_tool_plan_title')}</Text>
+                        <Text style={styles.toolSubtitle}>{t('home_tool_plan_subtitle')}</Text>
+                    </View>
+                    <Ionicons name="chevron-forward" size={18} color="#9CA3AF" />
+                </Pressable>
+            </View>
+        </ScrollView>
     );
 };
 
 const styles = StyleSheet.create({
-    container: {
-        gap: 16
+    scrollView: {
+        flex: 1,
     },
-    squaresContainer: {
+    scrollContent: {
+        paddingHorizontal: 20,
+        paddingTop: 16,
+        paddingBottom: 40,
+    },
+    welcomeCard: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        backgroundColor: '#FFFFFF',
+        borderRadius: 20,
+        padding: 20,
+        marginBottom: 20,
+        borderWidth: 1,
+        borderColor: '#E5E7EB',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.05,
+        shadowRadius: 8,
+        elevation: 2,
+    },
+    welcomeLeft: {
+        flex: 1,
+        paddingRight: 12,
+    },
+    welcomeTitle: {
+        fontSize: 18,
+        fontWeight: '800',
+        color: '#1F2937',
+        marginBottom: 4,
+    },
+    welcomeSubtitle: {
+        fontSize: 13,
+        color: '#6B7280',
+        lineHeight: 18,
+    },
+    welcomeIconContainer: {
+        width: 52,
+        height: 52,
+        borderRadius: 26,
+        backgroundColor: '#FFFBEB',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    sectionHeaderTitle: {
+        fontSize: 16,
+        fontWeight: '800',
+        color: '#374151',
+        marginBottom: 12,
+        letterSpacing: 0.2,
+    },
+    statsGrid: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        gap: 8,
-        justifyContent: 'center',
-        alignItems: 'center'
+        gap: 12,
+        marginBottom: 24,
     },
-    item: {
-        width: '48%',
+    statCard: {
+        width: '47%',
+        borderRadius: 16,
         padding: 16,
-        backgroundColor: '#f5f5f5',
-        borderRadius: 8,
-        gap: 8
+        borderWidth: 1,
+        borderColor: 'rgba(0,0,0,0.03)',
     },
-    numbers: {
-        fontSize: 22,
-        fontWeight: 600
-    },
-    plant: {
-        backgroundColor: '#EBECD2'
-    },
-    task: {
-        backgroundColor: '#D1EFE7'
-    },
-    activity: {
-        backgroundColor: '#E7BDBB'
-    },
-    sensor: {
-        backgroundColor: '#E7C2A0'
-    },
-    label: {
-        fontSize: 14
-    },
-    title: {
-        fontSize: 20,
-    },
-    toolContainer: {
-        width: '48%',
-        justifyContent: 'center',
+    statHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
         alignItems: 'center',
+        marginBottom: 10,
+    },
+    statNumber: {
+        fontSize: 24,
+        fontWeight: '800',
+    },
+    statIconBadge: {
+        width: 32,
+        height: 32,
+        borderRadius: 16,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    statLabel: {
+        fontSize: 12,
+        fontWeight: '600',
+        color: '#4B5563',
+    },
+    toolsList: {
+        gap: 12,
+    },
+    toolCard: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#FFFFFF',
+        borderRadius: 16,
         padding: 16,
-        backgroundColor: '#ffff',
-        borderRadius: 8,
-        gap: 8,
+        borderWidth: 1,
+        borderColor: '#E5E7EB',
         shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
-        shadowOpacity: 0.1,
-        shadowRadius: 3,
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.03,
+        shadowRadius: 6,
         elevation: 1,
     },
-    toolTitle: {
-        fontWeight: 600,
-        color: '#5B8E55'
-    },
-    row: {
-        flexDirection: 'row',
-        gap: 8,
+    toolIconWrapper: {
+        width: 44,
+        height: 44,
+        borderRadius: 12,
+        alignItems: 'center',
         justifyContent: 'center',
-        alignItems: 'center'
+        marginRight: 16,
     },
-    taskIcon: {
-        width: 17,
-        height: 14
+    toolTextWrapper: {
+        flex: 1,
     },
-    calendarIcon: {
-        width: 14.7,
-        height: 16.33
+    toolTitle: {
+        fontSize: 15,
+        fontWeight: '700',
+        color: '#1F2937',
+        marginBottom: 3,
     },
-    sensorIcon: {
-        width: 24,
-        height: 24
+    toolSubtitle: {
+        fontSize: 12,
+        color: '#6B7280',
     },
-    planIcon: {
-        width: 19,
-        height: 19
-    }
 });

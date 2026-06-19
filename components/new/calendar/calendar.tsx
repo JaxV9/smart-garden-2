@@ -18,7 +18,6 @@ export function CalendarComp({ calendarProp }: CalendarProps) {
     return (
         <View style={{ flex: 1 }}>
             <ScrollView style={styles.scrollContainer}>
-                <Text style={styles.title}>Calendrier</Text>
                 <View style={styles.legendContainer}>
                     <View style={[styles.legendTag, styles.isSowing]}>
                         <Text style={styles.isTextSowing}>Semis</Text>

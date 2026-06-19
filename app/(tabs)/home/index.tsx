@@ -1,14 +1,20 @@
-import { ResumeSection } from "@/components/new/homeSections/resumeSection/resumeSection";
 import { PlantsSection } from "@/components/new/homeSections/plantsSection/plantsSection";
-import { HomeSection } from "@/components/new/navGardenSection/navbar";
+import { ResumeSection } from "@/components/new/homeSections/resumeSection/resumeSection";
+import AppHeader from "@/components/new/ui/AppHeader";
+import { useGardenContext } from "@/contexts/garden.context";
 import { useVegetablesContext } from "@/contexts/vegetables.context";
 import { useGarden } from "@/hooks/useGarden";
 import { useVegetable } from "@/hooks/useVegetable";
 import { useEffect, useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
+import { useTranslation } from "@/contexts/language.context";
 
 export default function Index() {
-  const [currentSection, setCurrentSection] = useState<HomeSection>("resume");
+  const [currentSection, setCurrentSection] = useState<"resume" | "plants">("resume");
+  const { t } = useTranslation();
+
+  const { gardenInfo } = useGardenContext();
+
   const { loadGardenVegetables } = useGarden();
   const { vegetablesContext } = useVegetablesContext();
   const { loadVegetables } = useVegetable();
@@ -23,33 +29,48 @@ export default function Index() {
     }
   }, [vegetablesContext]);
 
+  const gardenTitle = gardenInfo?.name ?? t('plan_default_name');
+
   return (
     <View style={styles.container}>
-      <View style={styles.gap16}>
-        <Text style={styles.title}>Mon jardin</Text>
-        <View style={styles.headerBtnContainer}>
-          <Pressable
-            onPress={() => setCurrentSection("resume")}
-            style={
-              currentSection === "resume"
-                ? styles.headerBtnSelected
-                : styles.headerBtn
-            }
-          >
-            <Text style={styles.headerTxtBtn}>Résumé</Text>
-          </Pressable>
-          <Pressable
-            onPress={() => setCurrentSection("plants")}
-            style={
-              currentSection === "plants"
-                ? styles.headerBtnSelected
-                : styles.headerBtn
-            }
-          >
-            <Text style={styles.headerTxtBtn}>Mes plantes</Text>
-          </Pressable>
-        </View>
+      <AppHeader
+        title={gardenTitle}
+        showBack={false}
+        showNotifications={true}
+      />
+
+      <View style={styles.tabsContainer}>
+        <Pressable
+          onPress={() => setCurrentSection("resume")}
+          style={[
+            styles.tabBtn,
+            currentSection === "resume" && styles.tabBtnSelected,
+          ]}
+        >
+          <Text style={[
+            styles.tabText,
+            currentSection === "resume" && styles.tabTextSelected
+          ]}>
+            {t('home_tab_resume', 'Résumé')}
+          </Text>
+        </Pressable>
+
+        <Pressable
+          onPress={() => setCurrentSection("plants")}
+          style={[
+            styles.tabBtn,
+            currentSection === "plants" && styles.tabBtnSelected,
+          ]}
+        >
+          <Text style={[
+            styles.tabText,
+            currentSection === "plants" && styles.tabTextSelected
+          ]}>
+            {t('home_tab_plants', 'Mes plantes')}
+          </Text>
+        </Pressable>
       </View>
+
       {currentSection === "resume" && <ResumeSection />}
       {currentSection === "plants" && <PlantsSection />}
     </View>
@@ -59,43 +80,41 @@ export default function Index() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 64,
-    paddingLeft: 8,
-    paddingRight: 8,
-    gap: 16,
     backgroundColor: "#F9FAFB",
   },
-  gap16: {
-    gap: 16,
-  },
-  gap8: {
-    gap: 8,
-  },
-  title: {
-    fontSize: 22,
-  },
-  headerBtnContainer: {
+  tabsContainer: {
     flexDirection: "row",
-    gap: 16,
-    paddingBottom: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: "#F1F1F1",
+    backgroundColor: "#F3F4F6",
+    borderRadius: 14,
+    padding: 4,
+    marginHorizontal: 20,
+    marginTop: 16,
+    marginBottom: 8,
   },
-  headerBtnSelected: {
-    backgroundColor: "#61b4586f",
-    padding: 8,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "#5B8E55",
+  tabBtn: {
+    flex: 1,
+    paddingVertical: 10,
+    borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "transparent",
   },
-  headerBtn: {
-    backgroundColor: "#F1F1F1",
-    padding: 8,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "#E5E7EB",
+  tabBtnSelected: {
+    backgroundColor: "#FFFFFF",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 2,
   },
-  headerTxtBtn: {
-    fontSize: 18,
+  tabText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#6B7280",
+    letterSpacing: 0.1,
+  },
+  tabTextSelected: {
+    color: "#1F2937",
+    fontWeight: "800",
   },
 });

@@ -53,13 +53,13 @@ export default function TutorialCard({ tutorial, onLike, onPress, onDelete, onUp
     const getCategoryColor = (category: string) => {
         switch (category) {
             case 'ASTUCES':
-                return '#fde68a';
+                return '#FEF3C7';
             case 'DIY':
-                return '#fed7aa';
+                return '#FFEDD5';
             case 'TECHNIQUES':
-                return '#ddd6fe';
+                return '#EEF2FF';
             default:
-                return '#e5e5e5';
+                return '#F3F4F6';
         }
     };
 
@@ -165,7 +165,7 @@ export default function TutorialCard({ tutorial, onLike, onPress, onDelete, onUp
                             </Text>
                         </View>
                         <TouchableOpacity onPress={(e) => { e.stopPropagation(); if(tutorial.author.id) router.push({ pathname: '/user/[id]', params: { id: tutorial.author.id } }); }}>
-                            <Text style={[styles.authorName, { color: '#5B8E55', textDecorationLine: 'underline' }]}>
+                            <Text style={styles.authorName}>
                                 {tutorial.author.name || 'Utilisateur'}
                             </Text>
                         </TouchableOpacity>
@@ -275,14 +275,14 @@ export default function TutorialCard({ tutorial, onLike, onPress, onDelete, onUp
 const styles = StyleSheet.create({
     card: {
         backgroundColor: 'white',
-        borderRadius: 12,
+        borderRadius: 20,
         borderWidth: 1,
-        borderColor: '#e5e5e5',
-        marginBottom: 15,
+        borderColor: '#E5E7EB',
+        marginBottom: 16,
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.1,
-        shadowRadius: 3,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.02,
+        shadowRadius: 8,
         elevation: 2,
         overflow: 'hidden',
     },
@@ -298,7 +298,7 @@ const styles = StyleSheet.create({
     thumbnailPlaceholder: {
         width: '100%',
         height: '100%',
-        backgroundColor: '#f5f5f5',
+        backgroundColor: '#F9FAFB',
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -311,7 +311,7 @@ const styles = StyleSheet.create({
         gap: 4,
         paddingHorizontal: 10,
         paddingVertical: 6,
-        borderRadius: 6,
+        borderRadius: 8,
     },
     videoBadge: {
         backgroundColor: '#ef4444',
@@ -339,7 +339,7 @@ const styles = StyleSheet.create({
         fontWeight: '600',
     },
     content: {
-        padding: 16,
+        padding: 20,
     },
     titleRow: {
         flexDirection: 'row',
@@ -350,8 +350,8 @@ const styles = StyleSheet.create({
     title: {
         flex: 1,
         fontSize: 16,
-        fontWeight: '600',
-        color: '#000',
+        fontWeight: '800',
+        color: '#1F2937',
         lineHeight: 22,
     },
     menuButton: {
@@ -372,34 +372,38 @@ const styles = StyleSheet.create({
         width: 24,
         height: 24,
         borderRadius: 12,
-        backgroundColor: '#5B8E55',
+        backgroundColor: '#EBF6EB',
         justifyContent: 'center',
         alignItems: 'center',
     },
     avatarText: {
-        color: 'white',
-        fontSize: 12,
-        fontWeight: '600',
+        color: '#5A7F54',
+        fontSize: 11,
+        fontWeight: '800',
     },
     authorName: {
-        fontSize: 14,
-        color: '#666',
+        fontSize: 13,
+        fontWeight: '700',
+        color: '#5A7F54',
     },
     categoryBadge: {
         alignSelf: 'flex-start',
-        paddingHorizontal: 10,
-        paddingVertical: 4,
-        borderRadius: 12,
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 999,
         marginBottom: 12,
     },
     categoryText: {
-        fontSize: 12,
-        fontWeight: '500',
-        color: '#333',
+        fontSize: 11,
+        fontWeight: '700',
+        color: '#374151',
     },
     stats: {
         flexDirection: 'row',
         gap: 16,
+        paddingTop: 12,
+        borderTopWidth: 1,
+        borderTopColor: '#F3F4F6',
     },
     statItem: {
         flexDirection: 'row',
@@ -407,8 +411,9 @@ const styles = StyleSheet.create({
         gap: 4,
     },
     statText: {
-        fontSize: 14,
-        color: '#666',
+        fontSize: 13,
+        fontWeight: '600',
+        color: '#6B7280',
     },
     // Menu
     modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.3)', justifyContent: 'center', alignItems: 'center' },
@@ -444,6 +449,17 @@ const styles = StyleSheet.create({
         marginBottom: 16,
     },
     editTextArea: { minHeight: 110, paddingTop: 12 },
-    editSaveBtn: { backgroundColor: '#5B8E55', paddingVertical: 14, borderRadius: 12, alignItems: 'center', marginTop: 8 },
+    editSaveBtn: {
+        backgroundColor: '#5A7F54',
+        paddingVertical: 14,
+        borderRadius: 14,
+        alignItems: 'center',
+        marginTop: 8,
+        shadowColor: '#5A7F54',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.12,
+        shadowRadius: 6,
+        elevation: 2,
+    },
     editSaveBtnText: { color: 'white', fontSize: 16, fontWeight: '600' },
 });
