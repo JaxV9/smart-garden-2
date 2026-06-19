@@ -29,7 +29,7 @@ export default function Index() {
         }, 200);
     };
 
-    const isLocked = !isPremium && !(visible && (step === 6 || step === 7));
+    const isLocked = !isPremium && !visible;
 
     useEffect(() => {
         if (isLocked) {

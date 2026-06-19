@@ -64,14 +64,10 @@ export default function ProfileScreen() {
   };
 
   useEffect(() => {
-    if (step === 22) {
+    if (step === 14) {
       scrollRef.current?.scrollTo({ y: 0, animated: true });
-    } else if (step === 23) {
-      scrollRef.current?.scrollTo({ y: 100, animated: true });
-    } else if (step === 24) {
+    } else if (step === 15) {
       scrollRef.current?.scrollTo({ y: 220, animated: true });
-    } else if (step === 25) {
-      scrollRef.current?.scrollTo({ y: 340, animated: true });
     }
     measureAll();
   }, [step]);

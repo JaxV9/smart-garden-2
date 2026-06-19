@@ -15,6 +15,7 @@ import { GardenSensor } from '@/models/models';
 import { useNotificationContext } from '@/contexts/notification.context';
 import { useUserContext } from '@/contexts/user.context';
 import { useTranslation } from '@/contexts/language.context';
+import { useTour } from '@/contexts/tour.context';
 import { AddSensorModal } from './AddSensorModal';
 
 const FAKE_LIGHT = 85;
@@ -60,8 +61,10 @@ export function SensorsSection() {
   const { httpClient } = useFetch(undefined);
   const { addNotification } = useNotificationContext();
   const { isPremium } = useUserContext();
+  const { visible } = useTour();
   const { t } = useTranslation();
   const router = useRouter();
+  const isPremiumActive = isPremium || visible;
 
   const [sensors, setSensors] = useState<GardenSensor[]>([]);
   const [loading, setLoading] = useState(true);
@@ -274,21 +277,21 @@ export function SensorsSection() {
         )}
 
         {hasSensors && humidityReading && (
-          <View style={[styles.card, styles.adviceCard, !isPremium && styles.lockedAdviceCard]}>
+          <View style={[styles.card, styles.adviceCard, !isPremiumActive && styles.lockedAdviceCard]}>
             <View style={styles.adviceHeader}>
               <View style={styles.adviceTitleWrapper}>
                 <Ionicons name="bulb" size={20} color="#D4AF37" />
                 <Text style={styles.adviceTitle}>{t('sensor_advice_title')}</Text>
               </View>
 
-              {!isPremium && (
+              {!isPremiumActive && (
                 <View style={styles.vipBadge}>
                   <Text style={styles.vipBadgeText}>VIP</Text>
                 </View>
               )}
             </View>
 
-            {isPremium ? (
+            {isPremiumActive ? (
               <View style={styles.adviceBody}>
                 {humidityReading.value_numeric < 30 ? (
                   <Text style={styles.adviceText}>{t('sensor_advice_low')}</Text>

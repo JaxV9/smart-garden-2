@@ -52,10 +52,8 @@ export default function PersonalInfoScreen() {
   };
 
   useEffect(() => {
-    if (step === 26) {
+    if (step === 16) {
       scrollRef.current?.scrollTo({ y: 0, animated: true });
-    } else if (step === 27) {
-      scrollRef.current?.scrollTo({ y: 150, animated: true });
     }
     measureAll();
   }, [step]);

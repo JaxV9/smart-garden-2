@@ -28,7 +28,7 @@ export default function Index() {
   const { vegetableId } = useLocalSearchParams<{ vegetableId: string }>();
   const vm = useVegetableDetails(vegetableId);
 
-  const { registerElement, step } = useTour();
+  const { registerElement, step, visible } = useTour();
 
   const scrollRef = useRef<ScrollView>(null);
   const metaRef = useRef<View>(null);
@@ -49,16 +49,14 @@ export default function Index() {
   };
 
   useEffect(() => {
-    if (step === 17) {
-      scrollRef.current?.scrollTo({ y: 0, animated: true });
-    } else if (step === 18) {
-      scrollRef.current?.scrollTo({ y: 260, animated: true });
+    if (step === 11) {
+      scrollRef.current?.scrollTo({ y: 130, animated: true });
     }
     measureAll();
   }, [step]);
 
   useEffect(() => {
-    if (!isPremium) {
+    if (!isPremium && !visible) {
       Animated.parallel([
         Animated.timing(fadeAnim, {
           toValue: 1,
@@ -73,7 +71,7 @@ export default function Index() {
         }),
       ]).start();
     }
-  }, [isPremium]);
+  }, [isPremium, visible]);
 
   const { addVegetableToGarden, removeVegetablesFromGarden } = useGarden()
   const { gardenVegetables } = useGardenContext()
@@ -198,7 +196,7 @@ export default function Index() {
               </>
             )}
 
-            {!isPremium && (
+            {!isPremium && !visible && (
               <Animated.View 
                 ref={lockRef}
                 onLayout={measureAll}

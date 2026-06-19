@@ -64,10 +64,8 @@ export default function CommunityProfileScreen() {
   };
 
   useEffect(() => {
-    if (step === 28) {
+    if (step === 17) {
       scrollRef.current?.scrollTo({ y: 0, animated: true });
-    } else if (step === 29) {
-      scrollRef.current?.scrollTo({ y: 120, animated: true });
     }
     measureAll();
   }, [step]);

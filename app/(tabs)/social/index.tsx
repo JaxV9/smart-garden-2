@@ -24,12 +24,14 @@ export default function Index() {
 
     useEffect(() => {
         if (visible) {
-            if (step === 19) {
+            if (step === 12) {
                 setCurrentTab('social');
-            } else if (step === 20) {
+            } else if (step === 13) {
                 setCurrentTab('forum');
-            } else if (step === 21) {
-                setCurrentTab('tutos');
+                const timer = setTimeout(() => {
+                    setCurrentTab('tutos');
+                }, 1800);
+                return () => clearTimeout(timer);
             }
         }
     }, [step, visible]);

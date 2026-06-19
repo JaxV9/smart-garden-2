@@ -14,6 +14,7 @@ import {
 } from 'react-native';
 import { useUserContext } from '@/contexts/user.context';
 import { useTranslation } from '@/contexts/language.context';
+import { useTour } from '@/contexts/tour.context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { AreaManager } from './areaManager';
@@ -26,8 +27,10 @@ import { ZoomItem } from './zoom';
 export const Plan = () => {
     const { gardenVegetables } = useGardenContext()
     const { isPremium } = useUserContext();
+    const { visible } = useTour();
     const { t } = useTranslation();
     const router = useRouter();
+    const isPremiumActive = isPremium || visible;
 
     const {
         scale,
@@ -62,13 +65,13 @@ export const Plan = () => {
     const [newPlanName, setNewPlanName] = useState("");
 
     React.useEffect(() => {
-        if (!isPremium && activePlan !== defaultPlanName && allPlans.indexOf(activePlan) > 0) {
+        if (!isPremiumActive && activePlan !== defaultPlanName && allPlans.indexOf(activePlan) > 0) {
             setActivePlan(defaultPlanName);
         }
-    }, [isPremium, activePlan, defaultPlanName, allPlans]);
+    }, [isPremiumActive, activePlan, defaultPlanName, allPlans]);
 
     const handlePressAddPlan = () => {
-        if (!isPremium && allPlans.length >= 1) {
+        if (!isPremiumActive && allPlans.length >= 1) {
             router.push('/premium' as any);
         } else {
             setIsCreateModalVisible(true);
@@ -108,7 +111,7 @@ export const Plan = () => {
                 >
                     {allPlans.map((plan, index) => {
                         const isActive = plan === activePlan;
-                        const isLocked = index > 0 && !isPremium;
+                        const isLocked = index > 0 && !isPremiumActive;
 
                         return (
                             <TouchableOpacity
@@ -162,7 +165,7 @@ export const Plan = () => {
                     >
                         <Ionicons name="add-circle" size={18} color="#5A7F54" />
                         <Text style={styles.addPlanBtnText}>{t('plan_new_btn')}</Text>
-                        {!isPremium && (
+                        {!isPremiumActive && (
                             <Ionicons name="lock-closed" size={10} color="#D4AF37" style={{ marginLeft: 2 }} />
                         )}
                     </TouchableOpacity>

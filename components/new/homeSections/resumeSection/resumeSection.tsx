@@ -23,6 +23,7 @@ export const ResumeSection = () => {
     const statTasksRef = useRef<View>(null);
     const statStreakRef = useRef<View>(null);
     const statSensorsRef = useRef<View>(null);
+    const statsGridRef = useRef<View>(null);
     const toolTasksRef = useRef<View>(null);
     const toolCalendarRef = useRef<View>(null);
     const toolSensorsRef = useRef<View>(null);
@@ -45,6 +46,9 @@ export const ResumeSection = () => {
             statSensorsRef.current?.measureInWindow((x, y, w, h) => {
                 if (w && h) registerElement('home_stat_sensors', { x, y, width: w, height: h });
             });
+            statsGridRef.current?.measureInWindow((x, y, w, h) => {
+                if (w && h) registerElement('home_stats_grid', { x, y, width: w, height: h });
+            });
             toolTasksRef.current?.measureInWindow((x, y, w, h) => {
                 if (w && h) registerElement('home_tool_tasks', { x, y, width: w, height: h });
             });
@@ -62,15 +66,15 @@ export const ResumeSection = () => {
 
     // Auto-scroll depending on active step
     useEffect(() => {
-        if (step >= 0 && step <= 4) {
+        if (step >= 0 && step <= 1) {
             scrollRef.current?.scrollTo({ y: 0, animated: true });
-        } else if (step === 5) {
+        } else if (step === 2) {
             scrollRef.current?.scrollTo({ y: 140, animated: true });
-        } else if (step === 8) {
+        } else if (step === 4) {
             scrollRef.current?.scrollTo({ y: 220, animated: true });
-        } else if (step === 10) {
+        } else if (step === 6) {
             scrollRef.current?.scrollTo({ y: 300, animated: true });
-        } else if (step === 12) {
+        } else if (step === 8) {
             scrollRef.current?.scrollToEnd({ animated: true });
         }
         measureAll();
@@ -210,7 +214,11 @@ export const ResumeSection = () => {
 
             <Text style={styles.sectionHeaderTitle}>{t('home_dashboard')}</Text>
             
-            <View style={styles.statsGrid}>
+            <View 
+                ref={statsGridRef}
+                onLayout={measureAll}
+                style={styles.statsGrid}
+            >
                 <View 
                     ref={statPlantsRef}
                     onLayout={measureAll}

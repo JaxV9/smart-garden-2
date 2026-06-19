@@ -31,7 +31,7 @@ export default function Calendar() {
         }, 200);
     };
 
-    const isLocked = !isPremium && !(visible && step === 9);
+    const isLocked = !isPremium && !visible;
 
     useEffect(() => {
         if (isLocked) {
