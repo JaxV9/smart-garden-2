@@ -42,7 +42,7 @@ export function useOnboarding() {
                 location: gardenLocation ?? null,
             });
 
-            router.push('/')
+            router.replace('/')
             return
         }
         setError(true)

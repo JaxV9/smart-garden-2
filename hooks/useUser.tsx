@@ -115,7 +115,7 @@ export function useUser() {
         setIsLogin(false);
         setUser(undefined);
         setActivityStreak(0);
-        router.push('/')
+        router.replace('/')
         return 'Success';
     }
 
