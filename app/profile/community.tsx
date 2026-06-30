@@ -264,27 +264,29 @@ export default function CommunityProfileScreen() {
           style={styles.sectionHeader}
         >
           <Text style={styles.sectionTitle}>{t('community_interactions')}</Text>
-          <TouchableOpacity
-            style={[
-              styles.filterButton,
-              activeFiltersCount > 0 && styles.filterButtonActive,
-            ]}
-            onPress={openFilters}
-          >
-            <Feather
-              name="sliders"
-              size={14}
-              color={activeFiltersCount > 0 ? '#FFFFFF' : COLORS.greenDark}
-            />
-            <Text
+          {rawInteractions.length > 0 && (
+            <TouchableOpacity
               style={[
-                styles.filterButtonText,
-                activeFiltersCount > 0 && styles.filterButtonTextActive,
+                styles.filterButton,
+                activeFiltersCount > 0 && styles.filterButtonActive,
               ]}
+              onPress={openFilters}
             >
-              {t('community_filters')} {activeFiltersCount > 0 ? `(${activeFiltersCount})` : ''}
-            </Text>
-          </TouchableOpacity>
+              <Feather
+                name="sliders"
+                size={14}
+                color={activeFiltersCount > 0 ? '#FFFFFF' : COLORS.greenDark}
+              />
+              <Text
+                style={[
+                  styles.filterButtonText,
+                  activeFiltersCount > 0 && styles.filterButtonTextActive,
+                ]}
+              >
+                {t('community_filters')} {activeFiltersCount > 0 ? `(${activeFiltersCount})` : ''}
+              </Text>
+            </TouchableOpacity>
+          )}
         </View>
 
         {loading ? (
