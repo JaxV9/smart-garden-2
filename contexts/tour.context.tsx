@@ -3,6 +3,7 @@ import * as SecureStore from 'expo-secure-store';
 import { router, usePathname } from 'expo-router';
 
 import { useVegetablesContext } from '@/contexts/vegetables.context';
+import { useUserContext } from '@/contexts/user.context';
 
 export interface ElementLayout {
     x: number;
@@ -30,19 +31,43 @@ export const TourProvider = ({ children }: { children: React.ReactNode }) => {
     const [elements, setElements] = useState<Record<string, ElementLayout>>({});
     const pathname = usePathname();
     const { vegetablesContext } = useVegetablesContext();
+    const { isLogin, user } = useUserContext();
 
     // Check tour completion status
     useEffect(() => {
         const checkTour = async () => {
-            const completed = await SecureStore.getItemAsync('app_tour_completed');
+            const isAuthOrOnboardingPath = 
+                pathname.startsWith('/starting') || 
+                pathname.startsWith('/login') || 
+                pathname.startsWith('/register') || 
+                pathname.startsWith('/onboarding') ||
+                pathname === '/';
+
+            if (!isLogin || !user || user.level === null || isAuthOrOnboardingPath) {
+                setVisible(false);
+                return;
+            }
+
+            let completed = null;
+            try {
+                completed = await SecureStore.getItemAsync('app_tour_completed');
+            } catch (e) {
+                console.error("Failed to read app_tour_completed:", e);
+            }
+
             if (completed === 'false' || !completed) {
-                setVisible(true);
+                setVisible(prev => {
+                    if (!prev) {
+                        setStep(-1);
+                    }
+                    return true;
+                });
             } else {
                 setVisible(false);
             }
         };
         checkTour();
-    }, [pathname]);
+    }, [pathname, isLogin, user]);
 
     const registerElement = (key: string, layout: ElementLayout) => {
         setElements(prev => ({
