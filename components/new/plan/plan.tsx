@@ -185,9 +185,9 @@ export const Plan = () => {
             <SaveBtn isSaving={isSaving} shouldSave={shouldSave} callback={saveGardenSpaces} />
 
             <Touch scale={scale} isAbsolute={true}>
-                {activeSpaces.map((gardenSpace) => (
+                {activeSpaces.map((gardenSpace, index) => (
                     <Space
-                        key={gardenSpace.spaceName}
+                        key={gardenSpace.id || `space-${index}`}
                         gardenSpace={gardenSpace}
                         scale={scale}
                         editCel={editCel}
