@@ -406,12 +406,13 @@ export function DeleteAccountModal({ visible, onClose }: DeleteAccountModalProps
                     <Text style={styles.dataLabel}>{tLocal(`delete_data_${key}`, key)}</Text>
                     <Text style={styles.dataDesc}>{tLocal(`delete_data_${key}_desc`, "")}</Text>
                   </View>
-                  <Switch
-                    value={scope[key]}
-                    onValueChange={() => toggleScope(key)}
-                    trackColor={{ true: "#DC2626", false: "#E5E7EB" }}
-                    thumbColor={scope[key] ? "#FFF" : "#9CA3AF"}
-                  />
+                  <View pointerEvents="none">
+                    <Switch
+                      value={scope[key]}
+                      trackColor={{ true: "#DC2626", false: "#E5E7EB" }}
+                      thumbColor={scope[key] ? "#FFF" : "#9CA3AF"}
+                    />
+                  </View>
                 </Pressable>
               ))}
 
@@ -423,7 +424,13 @@ export function DeleteAccountModal({ visible, onClose }: DeleteAccountModalProps
               </Text>
               <Pressable
                 style={[styles.dataRow, styles.dangerRow, wantsFullDelete && styles.dangerRowActive]}
-                onPress={() => setWantsFullDelete((v) => !v)}
+                onPress={() => {
+                  const nextVal = !wantsFullDelete;
+                  setWantsFullDelete(nextVal);
+                  if (nextVal) {
+                    setScope({ garden: true, tasks: true, sensors: true, community: true, tutorials: true });
+                  }
+                }}
               >
                 <View style={[styles.dataIcon, { backgroundColor: "#FEE2E2" }]}>
                   <Ionicons name="skull-outline" size={18} color="#DC2626" />
@@ -436,12 +443,13 @@ export function DeleteAccountModal({ visible, onClose }: DeleteAccountModalProps
                     {tLocal("delete_full_account_desc", "Toutes vos données seront effacées et votre compte supprimé.")}
                   </Text>
                 </View>
-                <Switch
-                  value={wantsFullDelete}
-                  onValueChange={(v) => { setWantsFullDelete(v); if (v) setScope({ garden: true, tasks: true, sensors: true, community: true, tutorials: true }); }}
-                  trackColor={{ true: "#DC2626", false: "#E5E7EB" }}
-                  thumbColor={wantsFullDelete ? "#FFF" : "#9CA3AF"}
-                />
+                <View pointerEvents="none">
+                  <Switch
+                    value={wantsFullDelete}
+                    trackColor={{ true: "#DC2626", false: "#E5E7EB" }}
+                    thumbColor={wantsFullDelete ? "#FFF" : "#9CA3AF"}
+                  />
+                </View>
               </Pressable>
 
               <View style={styles.actions}>
