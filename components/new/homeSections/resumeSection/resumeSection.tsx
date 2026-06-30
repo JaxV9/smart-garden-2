@@ -118,9 +118,12 @@ export const ResumeSection = () => {
                     return;
                 }
 
-                const { latitude, longitude, name } = geoData.results[0];
+                const { latitude, longitude, name, country_code } = geoData.results[0];
 
-                const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,weather_code`;
+                let weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,weather_code&timezone=auto`;
+                if (country_code === 'FR') {
+                    weatherUrl += '&models=meteofrance_seamless';
+                }
                 const weatherRes = await fetch(weatherUrl);
                 const weatherJson = await weatherRes.json();
 
