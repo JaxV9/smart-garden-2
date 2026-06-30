@@ -105,7 +105,7 @@ export function AddSensorModal({
         successTitle,
         t(
           "sensor_reconnect_wifi",
-          "Reconnecte ton téléphone au Wi-Fi du jardin pour voir les mesures."
+          "Reconnecte ton téléphone à ton réseau Wi-Fi pour voir les mesures."
         )
       );
     }

@@ -302,7 +302,7 @@ export function useSensorProvisioning() {
             setProvisioningStatus(
               t(
                 "sensor_prov_status_reconnect",
-                "Configuration envoyée. Reconnecte ton téléphone au Wi-Fi du jardin."
+                "Configuration envoyée. Reconnecte ton téléphone à ton réseau Wi-Fi."
               )
             );
             return "Success";
