@@ -61,7 +61,7 @@ export const ResumeSection = () => {
             toolPlanRef.current?.measureInWindow((x, y, w, h) => {
                 if (w && h) registerElement('home_tool_plan', { x, y, width: w, height: h });
             });
-        }, 320);
+        }, 500);
     };
 
     // Auto-scroll depending on active step

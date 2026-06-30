@@ -91,15 +91,15 @@ export const AppTourGuide = () => {
 
         // Exact fallback coordinates if elements haven't layout-rendered yet
         switch (step) {
-            case 0: return { x: 16, y: 180, width: SCREEN_WIDTH - 32, height: 95 };
-            case 1: return { x: 16, y: 300, width: SCREEN_WIDTH - 32, height: 195 };
-            case 2: return { x: 20, y: 515, width: SCREEN_WIDTH - 40, height: 75 };
+            case 0: return { x: 16, y: 215, width: SCREEN_WIDTH - 32, height: 95 };
+            case 1: return { x: 16, y: 330, width: SCREEN_WIDTH - 32, height: 195 };
+            case 2: return { x: 20, y: 580, width: SCREEN_WIDTH - 40, height: 75 };
             case 3: return { x: 16, y: 100, width: SCREEN_WIDTH - 32, height: SCREEN_HEIGHT - 220 };
-            case 4: return { x: 20, y: 600, width: SCREEN_WIDTH - 40, height: 75 };
+            case 4: return { x: 20, y: 670, width: SCREEN_WIDTH - 40, height: 75 };
             case 5: return { x: 16, y: 100, width: SCREEN_WIDTH - 32, height: SCREEN_HEIGHT - 220 };
-            case 6: return { x: 20, y: 685, width: SCREEN_WIDTH - 40, height: 75 };
+            case 6: return { x: 20, y: 760, width: SCREEN_WIDTH - 40, height: 75 };
             case 7: return { x: 16, y: 100, width: SCREEN_WIDTH - 32, height: SCREEN_HEIGHT - 220 };
-            case 8: return { x: 20, y: 770, width: SCREEN_WIDTH - 40, height: 75 };
+            case 8: return { x: 20, y: 850, width: SCREEN_WIDTH - 40, height: 75 };
             case 9: return { x: 16, y: 100, width: SCREEN_WIDTH - 32, height: SCREEN_HEIGHT - 220 };
             case 10: return { x: 16, y: 108, width: SCREEN_WIDTH - 32, height: 400 };
             case 11: return { x: 16, y: 100, width: SCREEN_WIDTH - 32, height: SCREEN_HEIGHT - 220 };
@@ -242,7 +242,7 @@ export const AppTourGuide = () => {
                     Animated.delay(500),
                     Animated.parallel([
                         Animated.timing(dragX, {
-                            toValue: 80,
+                            toValue: 0,
                             duration: 1200,
                             easing: Easing.out(Easing.ease),
                             useNativeDriver: true,
