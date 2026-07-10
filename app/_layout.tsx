@@ -1,35 +1,49 @@
+import { AppTourGuide } from "@/components/new/ui/AppTourGuide";
 import { BottomSheetProvider } from "@/contexts/bottomSheetContext";
 import { ForumProvider } from "@/contexts/forum.context";
 import { GardenProvider } from "@/contexts/garden.context";
+import { LanguageProvider } from "@/contexts/language.context";
+import { NotificationProvider } from "@/contexts/notification.context";
+import { RatingProvider } from "@/contexts/rating.context";
 import { SocialProvider } from "@/contexts/social.context";
 import { ThemeProvider } from "@/contexts/themeContext";
+import { TourProvider } from "@/contexts/tour.context";
 import { TutorialsProvider } from "@/contexts/tutorials.context";
 import { UserProvider } from "@/contexts/user.context";
-import { LanguageProvider } from "@/contexts/language.context";
 import { VegetablesProvider } from "@/contexts/vegetables.context";
-import { NotificationProvider } from "@/contexts/notification.context";
-import { TourProvider } from "@/contexts/tour.context";
-import { RatingProvider } from "@/contexts/rating.context";
+import {
+  Poppins_400Regular,
+  Poppins_500Medium,
+  Poppins_600SemiBold,
+  Poppins_700Bold,
+  Poppins_800ExtraBold,
+  Poppins_900Black,
+  useFonts,
+} from "@expo-google-fonts/poppins";
 import { Stack } from "expo-router";
-import { AppTourGuide } from "@/components/new/ui/AppTourGuide";
-import Head from "expo-router/head";
-import { useFonts } from 'expo-font';
-import Ionicons from '@expo/vector-icons/Ionicons';
-import Feather from '@expo/vector-icons/Feather';
+import * as SplashScreen from "expo-splash-screen";
+import { useEffect } from "react";
+
+SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  const [loaded, error] = useFonts({
-    'Ionicons': require('../assets/fonts/Ionicons.ttf'),
-    'Feather': require('../assets/fonts/Feather.ttf'),
+  const [fontsLoaded] = useFonts({
+    Poppins: Poppins_400Regular,
+    Poppins_400Regular,
+    Poppins_500Medium,
+    Poppins_600SemiBold,
+    Poppins_700Bold,
+    Poppins_800ExtraBold,
+    Poppins_900Black,
   });
 
-  if (error) {
-    console.error("Error loading PWA fonts:", error);
-  }
+  useEffect(() => {
+    if (fontsLoaded) {
+      SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded]);
 
-  if (!loaded) {
-    return null;
-  }
+  if (!fontsLoaded) return null;
 
   return (
     <>
@@ -41,49 +55,49 @@ export default function RootLayout() {
         <link rel="manifest" href="/manifest.json" />
       </Head>
       <UserProvider>
-      <LanguageProvider>
-        <ThemeProvider>
-          <BottomSheetProvider>
-          <VegetablesProvider>
-            <GardenProvider>
-              <ForumProvider>
-                <SocialProvider>
-                  <TutorialsProvider>
-                    <NotificationProvider>
-                      <TourProvider>
-                        <RatingProvider>
-                          <Stack
-                            screenOptions={{
-                              headerShown: false,
-                              animation: "none",
-                            }}
-                          >
-                            <Stack.Screen
-                              name="vegetable/[vegetableId]/index"
-                              options={{
-                                animation: "slide_from_right",
-                              }}
-                            />
-                            <Stack.Screen
-                              name="premium/index"
-                              options={{
-                                animation: "slide_from_bottom",
-                              }}
-                            />
-                          </Stack>
-                          <AppTourGuide />
-                        </RatingProvider>
-                      </TourProvider>
-                    </NotificationProvider>
-                  </TutorialsProvider>
-                </SocialProvider>
-              </ForumProvider>
-            </GardenProvider>
-          </VegetablesProvider>
-        </BottomSheetProvider>
-      </ThemeProvider>
-     </LanguageProvider>
-    </UserProvider>
-   </>
+        <LanguageProvider>
+          <ThemeProvider>
+            <BottomSheetProvider>
+              <VegetablesProvider>
+                <GardenProvider>
+                  <ForumProvider>
+                    <SocialProvider>
+                      <TutorialsProvider>
+                        <NotificationProvider>
+                          <TourProvider>
+                            <RatingProvider>
+                              <Stack
+                                screenOptions={{
+                                  headerShown: false,
+                                  animation: "none",
+                                }}
+                              >
+                                <Stack.Screen
+                                  name="vegetable/[vegetableId]/index"
+                                  options={{
+                                    animation: "slide_from_right",
+                                  }}
+                                />
+                                <Stack.Screen
+                                  name="premium/index"
+                                  options={{
+                                    animation: "slide_from_bottom",
+                                  }}
+                                />
+                              </Stack>
+                              <AppTourGuide />
+                            </RatingProvider>
+                          </TourProvider>
+                        </NotificationProvider>
+                      </TutorialsProvider>
+                    </SocialProvider>
+                  </ForumProvider>
+                </GardenProvider>
+              </VegetablesProvider>
+            </BottomSheetProvider>
+          </ThemeProvider>
+        </LanguageProvider>
+      </UserProvider>
+    </>
   );
 }
