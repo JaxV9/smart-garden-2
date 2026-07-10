@@ -12,6 +12,7 @@ import * as SecureStore from 'expo-secure-store';
 import {
   Image,
   Modal,
+  Platform,
   ScrollView,
   StyleSheet,
   Switch,
@@ -90,8 +91,14 @@ export default function ProfileScreen() {
     router.push('/profile/garden-info');
   };
 
+
+
   const handleStartTutorial = async () => {
-    await SecureStore.setItemAsync('app_tour_completed', 'false');
+    if (typeof window !== 'undefined' && Platform.OS === 'web') {
+      localStorage.setItem('app_tour_completed', 'false');
+    } else {
+      await SecureStore.setItemAsync('app_tour_completed', 'false');
+    }
     router.replace('/(tabs)/home');
   };
 

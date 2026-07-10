@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Affiche Session de Test - SmartGarden</title>
+    <!-- Google Fonts: Poppins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap"
+        rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-green: #5B8E55;
+            --primary-red: #D12750;
+            --bg-cream: #FFFDF0;
+            --text-dark: #2C3E2B;
+            --text-muted: #556B54;
+            --border-light: #E0EADE;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f3f4f6;
+            color: var(--text-dark);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 40px 20px;
+        }
+
+        /* Container for UI and Poster side-by-side */
+        .workspace {
+            display: flex;
+            gap: 40px;
+            max-width: 1200px;
+            width: 100%;
+            align-items: flex-start;
+        }
+
+        /* Control Panel Styles (Hidden in Print) */
+        .control-panel {
+            flex: 1;
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            position: sticky;
+            top: 40px;
+            max-height: calc(100vh - 80px);
+            overflow-y: auto;
+        }
+
+        .panel-section-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--primary-green);
+            margin: 24px 0 12px 0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--border-light);
+            padding-bottom: 4px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .form-row .form-group {
+            margin-bottom: 0;
+            flex: 1;
+        }
+
+        .form-row .form-group.small-width {
+            flex: 0 0 60px;
+        }
+
+        .control-panel h2 {
+            font-size: 1.25rem;
+            margin-bottom: 20px;
+            color: var(--primary-green);
+            border-bottom: 2px solid var(--border-light);
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: var(--text-muted);
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ccd6cc;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 0.9rem;
+            color: var(--text-dark);
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            border-color: var(--primary-green);
+        }
+
+        .btn-print {
+            display: block;
+            width: 100%;
+            background-color: var(--primary-green);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            margin-top: 20px;
+        }
+
+        .btn-print:hover {
+            background-color: #4a7545;
+        }
+
+        .btn-print:active {
+            transform: scale(0.98);
+        }
+
+        /* Poster Canvas */
+        .poster-container {
+            width: 595px;
+            /* A4 Ratio (approx standard width for display) */
+            height: 842px;
+            /* A4 Ratio */
+            background-color: var(--bg-cream);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            position: relative;
+            padding: 35px 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            overflow: hidden;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        .poster-container.pure-white {
+            background-color: #ffffff;
+            box-shadow: none;
+            border: 1px solid #ccc;
+        }
+
+        /* Elegant leafy borders to save ink but add premium aesthetic */
+        .poster-border {
+            position: absolute;
+            top: 20px;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            border: 2px solid var(--primary-green);
+            pointer-events: none;
+        }
+
+        .poster-border-inner {
+            position: absolute;
+            top: 25px;
+            bottom: 25px;
+            left: 25px;
+            right: 25px;
+            border: 1px solid var(--primary-green);
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        /* Header Style */
+        .poster-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            z-index: 1;
+        }
+
+        .logo-container {
+            margin-bottom: 4px;
+        }
+
+        .logo-svg {
+            width: 50px;
+            height: 65px;
+        }
+
+        .brand-name {
+            font-size: 1.45rem;
+            font-weight: 800;
+            color: var(--primary-green);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 0px;
+        }
+
+        .brand-tagline {
+            font-size: 0.72rem;
+            color: var(--primary-red);
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        /* Main Content */
+        .poster-body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            width: 100%;
+            z-index: 1;
+            margin: 12px 0;
+        }
+
+        .poster-title {
+            font-size: 1.65rem;
+            font-weight: 800;
+            color: var(--text-dark);
+            line-height: 1.2;
+            margin-bottom: 12px;
+        }
+
+        .poster-title span {
+            color: var(--primary-green);
+        }
+
+        .poster-description {
+            font-size: 0.76rem;
+            line-height: 1.4;
+            color: var(--text-muted);
+            max-width: 440px;
+            margin-bottom: 10px;
+        }
+
+        /* Two columns middle section */
+        .poster-middle-section.draggable-block {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            width: 100%;
+            margin: 10px 0;
+            z-index: 1;
+            padding: 0 24px;
+            box-sizing: border-box;
+        }
+
+        .features-vertical-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex: 1.1;
+            width: 100%;
+        }
+
+        .feature-item {
+            background: #ffffff;
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            padding: 10px 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 2px 6px rgba(91, 142, 85, 0.04);
+            text-align: left;
+        }
+
+        .feature-icon-wrapper {
+            background-color: #F0F7EF;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-shrink: 0;
+            font-size: 0.95rem;
+        }
+
+        .feature-text {
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            line-height: 1.35;
+        }
+
+        .mockup-container {
+            flex: 0.9;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            width: 100%;
+        }
+
+        .mockup-img {
+            max-height: 460px;
+            width: auto;
+            object-fit: contain;
+            filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.1));
+            margin-left: 59px;
+        }
+
+        /* QR Code Area */
+        .qr-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 1;
+        }
+
+        .qr-wrapper {
+            background: white;
+            padding: 8px;
+            border-radius: 12px;
+            border: 2px solid var(--primary-green);
+            box-shadow: 0 4px 12px rgba(91, 142, 85, 0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .qr-image {
+            width: 110px;
+            height: 110px;
+            display: block;
+        }
+
+        .qr-instruction {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--primary-green);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 2px;
+        }
+
+        .qr-subinstruction {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        /* Footer Style */
+        .poster-footer {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            z-index: 1;
+            width: 100%;
+        }
+
+        .divider {
+            width: 60px;
+            height: 2px;
+            background-color: var(--primary-green);
+            margin-bottom: 8px;
+            opacity: 0.5;
+        }
+
+        .session-info {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .contact-info {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        /* Help tip */
+        .ink-note {
+            font-size: 0.75rem;
+            color: #888;
+            margin-top: 15px;
+            text-align: center;
+            line-height: 1.4;
+        }
+
+        /* Toggle Button */
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 10px;
+            background: #f8faf8;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px dashed var(--primary-green);
+        }
+
+        .toggle-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 22px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 22px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked+.slider {
+            background-color: var(--primary-green);
+        }
+
+        input:checked+.slider:before {
+            transform: translateX(22px);
+        }
+
+        /* Block Order Panel Styles */
+        .order-list {
+            background: #f8faf8;
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            padding: 8px;
+            margin-bottom: 20px;
+        }
+
+        .order-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px;
+            background: white;
+            border: 1px solid #e2e8e2;
+            border-radius: 6px;
+            margin-bottom: 6px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .order-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .order-item:hover {
+            border-color: var(--primary-green);
+            box-shadow: 0 2px 8px rgba(91, 142, 85, 0.08);
+        }
+
+        .order-actions {
+            display: flex;
+            gap: 4px;
+        }
+
+        .order-btn {
+            background: #f0f4f0;
+            border: none;
+            color: var(--primary-green);
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.1s ease;
+        }
+
+        .order-btn:hover {
+            background: var(--primary-green);
+            color: white;
+        }
+
+        .order-btn:disabled {
+            background: #eef2ee;
+            color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .draggable-block {
+            transition: all 0.2s ease;
+            position: relative;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .highlighted-block {
+            outline: 2px dashed var(--primary-green);
+            outline-offset: 6px;
+            border-radius: 8px;
+            background-color: rgba(91, 142, 85, 0.04);
+        }
+
+        /* PRINT STYLE CHEATS */
+        @media print {
+            @page {
+                size: A4;
+                margin: 0;
+            }
+
+            html,
+            body {
+                width: 210mm;
+                height: 297mm;
+                margin: 0;
+                padding: 0;
+                background: #ffffff;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            .control-panel {
+                display: none !important;
+            }
+
+            .workspace {
+                display: block;
+                width: 210mm;
+                height: 297mm;
+                margin: 0;
+                padding: 0;
+            }
+
+            .poster-container {
+                width: 210mm !important;
+                height: 297mm !important;
+                min-height: 297mm !important;
+                max-height: 297mm !important;
+                box-shadow: none !important;
+                border: none !important;
+                background-color: #ffffff !important;
+                /* Forces white to save ink */
+                padding: 15mm 15mm !important;
+                margin: 0 !important;
+                box-sizing: border-box !important;
+                page-break-inside: avoid !important;
+                page-break-after: avoid !important;
+                page-break-before: avoid !important;
+                overflow: hidden !important;
+            }
+
+            /* Enable printing background colors & images if needed, but we keep it white to save ink */
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="workspace">
+
+        <!-- Control Panel -->
+        <div class="control-panel">
+            <h2>Configuration de l'affiche</h2>
+
+            <h3 class="panel-section-title" style="margin-top: 0;">En-tête de Marque</h3>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="input-brand">Nom de l'application</label>
+                    <input type="text" id="input-brand" value="SmartGarden">
+                </div>
+                <div class="form-group">
+                    <label for="input-tagline">Slogan</label>
+                    <input type="text" id="input-tagline" value="Votre potager connecté">
+                </div>
+            </div>
+
+            <h3 class="panel-section-title">Contenu Principal</h3>
+            <div class="form-group">
+                <label for="input-url">Lien du QR Code (ex: groupe de test, formulaire)</label>
+                <input type="text" id="input-url" value="https://play.google.com/apps/testing/com.smartgarden_iim">
+            </div>
+
+            <div class="form-group">
+                <label for="input-title">Titre principal</label>
+                <input type="text" id="input-title" value="Aidez-nous à faire grandir SmartGarden !">
+            </div>
+
+            <div class="form-group">
+                <label for="input-desc">Texte de description</label>
+                <textarea id="input-desc"
+                    rows="3">Nous lançons notre phase de test fermé. Scannez le QR code ci-dessous pour rejoindre la session, installer l'application et partager vos retours avec nous !</textarea>
+            </div>
+
+            <h3 class="panel-section-title">Fonctionnalités (Émojis & Textes)</h3>
+            <!-- Feature 1 -->
+            <div class="form-row">
+                <div class="form-group small-width">
+                    <label for="input-feat1-emoji">Icône</label>
+                    <input type="text" id="input-feat1-emoji" value="🌱" style="text-align: center;">
+                </div>
+                <div class="form-group">
+                    <label for="input-feat1-text">Fonctionnalité 1</label>
+                    <input type="text" id="input-feat1-text"
+                        value="Carnet de bord digital : Suivez l'évolution de chaque plante">
+                </div>
+            </div>
+            <!-- Feature 2 -->
+            <div class="form-row">
+                <div class="form-group small-width">
+                    <label for="input-feat2-emoji">Icône</label>
+                    <input type="text" id="input-feat2-emoji" value="📅" style="text-align: center;">
+                </div>
+                <div class="form-group">
+                    <label for="input-feat2-text">Fonctionnalité 2</label>
+                    <input type="text" id="input-feat2-text"
+                        value="Planification assistée : Créez votre calendrier de culture">
+                </div>
+            </div>
+            <!-- Feature 3 -->
+            <div class="form-row">
+                <div class="form-group small-width">
+                    <label for="input-feat3-emoji">Icône</label>
+                    <input type="text" id="input-feat3-emoji" value="🧑‍🌾" style="text-align: center;">
+                </div>
+                <div class="form-group">
+                    <label for="input-feat3-text">Fonctionnalité 3</label>
+                    <input type="text" id="input-feat3-text"
+                        value="Réseau social horticole : Échangez et partagez vos astuces">
+                </div>
+            </div>
+            <!-- Feature 4 -->
+            <div class="form-row">
+                <div class="form-group small-width">
+                    <label for="input-feat4-emoji">Icône</label>
+                    <input type="text" id="input-feat4-emoji" value="🎥" style="text-align: center;">
+                </div>
+                <div class="form-group">
+                    <label for="input-feat4-text">Fonctionnalité 4</label>
+                    <input type="text" id="input-feat4-text"
+                        value="Tutoriels interactifs : Apprenez en vidéos et articles">
+                </div>
+            </div>
+
+            <h3 class="panel-section-title">Instructions & Bas de Page</h3>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="input-qr-inst">Texte du QR Code</label>
+                    <input type="text" id="input-qr-inst" value="Scanner pour tester">
+                </div>
+                <div class="form-group">
+                    <label for="input-qr-subinst">Sous-titre QR</label>
+                    <input type="text" id="input-qr-subinst" value="Disponible sur iOS & Android via le lien">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="input-session">Informations de session / Date</label>
+                    <input type="text" id="input-session" value="Session de test active • Juillet 2026">
+                </div>
+                <div class="form-group">
+                    <label for="input-contact">Lien ou contact (bas de page)</label>
+                    <input type="text" id="input-contact" value="smartgarden.contact@gmail.com">
+                </div>
+            </div>
+
+            <h3 class="panel-section-title">Disposition des Blocs</h3>
+            <div class="order-list" id="order-list"></div>
+
+            <div class="toggle-container">
+                <span class="toggle-label">Mode Économie d'Encre (Fond Blanc)</span>
+                <label class="switch">
+                    <input type="checkbox" id="toggle-ink" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <button class="btn-print" onclick="window.print()">Imprimer / Enregistrer en PDF</button>
+
+            <div class="ink-note">
+                💡 <strong>Astuce PDF & Impression :</strong> Pour enregistrer l'affiche, choisissez
+                <strong>"Enregistrer au format PDF"</strong> dans le menu "Destination" de la fenêtre d'impression.
+                Cochez/décochez le <i>Mode Économie d'Encre</i> selon vos préférences avant d'imprimer.
+            </div>
+        </div>
+
+        <!-- The A4 Poster Page -->
+        <div class="poster-container pure-white" id="poster">
+
+            <!-- Elegant Frame -->
+            <div class="poster-border"></div>
+            <div class="poster-border-inner"></div>
+            <!-- Brand Header -->
+            <div class="poster-header draggable-block" id="block-header">
+                <div class="logo-container">
+                    <!-- SmartGarden Strawberry and Leaf Icon SVG extracted from app -->
+                    <svg class="logo-svg" viewBox="0 0 176 230" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Strawberry Body -->
+                        <path
+                            d="M35.0879 147.564C34.1179 130.751 44.9121 91.4258 88.62 91.4258C125.311 91.4258 141.751 120.498 141.751 147.564C141.751 178.842 114.083 189.869 88.62 220.344C69.172 195.483 36.8923 178.842 35.0879 147.564Z"
+                            fill="#D12750" />
+                        <!-- Top Leaves -->
+                        <path
+                            d="M106.63 21.052C108.434 13.8341 103.021 0 88.5851 0C74.1494 0 68.1989 12.2302 70.3401 21.052C72.4812 29.8737 88.5851 82.2029 88.5851 82.2029C88.5851 82.2029 104.825 28.2698 106.63 21.052Z"
+                            fill="#5B8E55" />
+                        <path
+                            d="M55.8764 40.2414C52.7954 35.1066 41.8411 30.314 33.6252 38.5298C25.4094 46.7456 28.9833 57.093 35.2227 60.8951C41.4621 64.6973 80.4098 85.3144 80.4098 85.3144C80.4098 85.3144 58.9574 45.3763 55.8764 40.2414Z"
+                            fill="#5B8E55" />
+                        <path
+                            d="M120.547 40.2414C123.628 35.1066 134.583 30.314 142.799 38.5298C151.014 46.7456 147.44 57.093 141.201 60.8951C134.962 64.6973 96.0141 85.3144 96.0141 85.3144C96.0141 85.3144 117.466 45.3763 120.547 40.2414Z"
+                            fill="#5B8E55" />
+                        <!-- Strawberry Highlights -->
+                        <path
+                            d="M68.41 158.908C69.5386 160.247 68.6961 161.541 67.7186 161.842C64.9899 162.682 60.7436 156.554 60.2686 149.906C59.3829 137.51 66.0233 131.17 65.6256 132.465C65.2279 133.76 58.4166 147.058 68.41 158.908Z"
+                            fill="#FFFBF5" />
+                        <path
+                            d="M105.178 124.522C103.834 123.4 104.439 121.979 105.349 121.512C107.89 120.211 113.137 125.507 114.762 131.97C117.791 144.023 112.355 151.422 112.521 150.077C112.687 148.733 117.081 134.452 105.178 124.522Z"
+                            fill="#FFFBF5" />
+                        <path
+                            d="M59.6988 142.4C59.7327 143.267 58.9498 143.814 58.4383 143.823C57.0104 143.85 57.2439 140.021 59.2391 136.489C62.9596 129.902 67.8534 127.6 67.258 128.215C66.6627 128.829 59.3987 134.727 59.6988 142.4Z"
+                            fill="#FFFBF5" />
+                        <path
+                            d="M116.632 139.263C116.448 138.415 117.123 137.74 117.625 137.642C119.027 137.367 119.463 141.178 118.113 145.004C115.595 152.137 111.176 155.255 111.656 154.547C112.135 153.838 118.262 146.766 116.632 139.263Z"
+                            fill="#FFFBF5" />
+                        <circle cx="88.3609" cy="143.554" r="23.2574" fill="#FFFBF5" />
+                    </svg>
+                </div>
+                <div class="brand-name" id="display-brand">SmartGarden</div>
+                <div class="brand-tagline" id="display-tagline">Votre potager connecté</div>
+            </div>
+
+            <!-- Poster Main Body (Title & Description) -->
+            <div class="poster-body draggable-block" id="block-title-desc">
+                <h1 class="poster-title" id="display-title">Aidez-nous à faire grandir <span>SmartGarden</span> !</h1>
+                <p class="poster-description" id="display-desc">
+                    Nous lançons notre phase de test fermé. Scannez le QR code ci-dessous pour rejoindre la session,
+                    installer l'application et partager vos retours avec nous !
+                </p>
+            </div>
+
+            <!-- Key Features of SmartGarden & Mockup (two columns) -->
+            <div class="poster-middle-section draggable-block" id="block-middle">
+                <div class="features-vertical-list" id="display-features-list">
+                    <div class="feature-item">
+                        <span class="feature-icon-wrapper" id="display-feat1-emoji">🌱</span>
+                        <div class="feature-text" id="display-feat1-text">Carnet de bord digital : Suivez l'évolution de
+                            chaque plante</div>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon-wrapper" id="display-feat2-emoji">📅</span>
+                        <div class="feature-text" id="display-feat2-text">Planification assistée : Créez votre
+                            calendrier de culture</div>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon-wrapper" id="display-feat3-emoji">🧑‍🌾</span>
+                        <div class="feature-text" id="display-feat3-text">Réseau social horticole : Échangez et partagez
+                            vos astuces</div>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon-wrapper" id="display-feat4-emoji">🎥</span>
+                        <div class="feature-text" id="display-feat4-text">Tutoriels interactifs : Apprenez en vidéos et
+                            articles</div>
+                    </div>
+                </div>
+                <div class="mockup-container">
+                    <img src="image.png" alt="SmartGarden App Mockup" class="mockup-img">
+                </div>
+            </div>
+
+            <!-- QR Code Section -->
+            <div class="qr-section draggable-block" id="block-qr">
+                <div class="qr-wrapper">
+                    <!-- Using a high-quality QR code generator API, matching our primary green color #5B8E55 -->
+                    <img class="qr-image" id="qr-img" src="" alt="QR Code de test">
+                </div>
+                <div class="qr-instruction" id="display-qr-inst">Scanner pour tester</div>
+                <div class="qr-subinstruction" id="display-qr-subinst">Disponible sur iOS & Android via le lien</div>
+            </div>
+
+            <!-- Footer / Contact Info -->
+            <div class="poster-footer draggable-block" id="block-footer">
+                <div class="divider"></div>
+                <div class="session-info" id="display-session">Session de test active • Juillet 2026</div>
+                <div class="contact-info" id="display-contact">smartgarden.contact@gmail.com</div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        // Live update of values between the form inputs and the poster visualization
+        const inputBrand = document.getElementById('input-brand');
+        const inputTagline = document.getElementById('input-tagline');
+        const inputUrl = document.getElementById('input-url');
+        const inputTitle = document.getElementById('input-title');
+        const inputDesc = document.getElementById('input-desc');
+
+        const inputFeat1Emoji = document.getElementById('input-feat1-emoji');
+        const inputFeat1Text = document.getElementById('input-feat1-text');
+        const inputFeat2Emoji = document.getElementById('input-feat2-emoji');
+        const inputFeat2Text = document.getElementById('input-feat2-text');
+        const inputFeat3Emoji = document.getElementById('input-feat3-emoji');
+        const inputFeat3Text = document.getElementById('input-feat3-text');
+        const inputFeat4Emoji = document.getElementById('input-feat4-emoji');
+        const inputFeat4Text = document.getElementById('input-feat4-text');
+
+        const inputQrInst = document.getElementById('input-qr-inst');
+        const inputQrSubinst = document.getElementById('input-qr-subinst');
+
+        const inputSession = document.getElementById('input-session');
+        const inputContact = document.getElementById('input-contact');
+        const toggleInk = document.getElementById('toggle-ink');
+
+        const displayBrand = document.getElementById('display-brand');
+        const displayTagline = document.getElementById('display-tagline');
+        const displayTitle = document.getElementById('display-title');
+        const displayDesc = document.getElementById('display-desc');
+
+        const displayFeat1Emoji = document.getElementById('display-feat1-emoji');
+        const displayFeat1Text = document.getElementById('display-feat1-text');
+        const displayFeat2Emoji = document.getElementById('display-feat2-emoji');
+        const displayFeat2Text = document.getElementById('display-feat2-text');
+        const displayFeat3Emoji = document.getElementById('display-feat3-emoji');
+        const displayFeat3Text = document.getElementById('display-feat3-text');
+        const displayFeat4Emoji = document.getElementById('display-feat4-emoji');
+        const displayFeat4Text = document.getElementById('display-feat4-text');
+
+        const displayQrInst = document.getElementById('display-qr-inst');
+        const displayQrSubinst = document.getElementById('display-qr-subinst');
+
+        const displaySession = document.getElementById('display-session');
+        const displayContact = document.getElementById('display-contact');
+        const qrImg = document.getElementById('qr-img');
+        const poster = document.getElementById('poster');
+
+        function updatePoster() {
+            displayBrand.innerText = inputBrand.value;
+            displayTagline.innerText = inputTagline.value;
+
+            // Highlight Brand name in the title if present
+            let titleVal = inputTitle.value;
+            const brandName = inputBrand.value || "SmartGarden";
+            if (titleVal.toLowerCase().includes(brandName.toLowerCase())) {
+                // Replace case-insensitively with formatted span
+                const regex = new RegExp(brandName, 'gi');
+                titleVal = titleVal.replace(regex, `<span>${brandName}</span>`);
+            }
+            displayTitle.innerHTML = titleVal;
+
+            displayDesc.innerText = inputDesc.value;
+
+            displayFeat1Emoji.innerText = inputFeat1Emoji.value;
+            displayFeat1Text.innerText = inputFeat1Text.value;
+            displayFeat2Emoji.innerText = inputFeat2Emoji.value;
+            displayFeat2Text.innerText = inputFeat2Text.value;
+            displayFeat3Emoji.innerText = inputFeat3Emoji.value;
+            displayFeat3Text.innerText = inputFeat3Text.value;
+            displayFeat4Emoji.innerText = inputFeat4Emoji.value;
+            displayFeat4Text.innerText = inputFeat4Text.value;
+
+            displayQrInst.innerText = inputQrInst.value;
+            displayQrSubinst.innerText = inputQrSubinst.value;
+
+            displaySession.innerText = inputSession.value;
+            displayContact.innerText = inputContact.value;
+
+            // Update QR Code image source with URL-encoded data.
+            const encodedUrl = encodeURIComponent(inputUrl.value);
+            qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodedUrl}&color=5b8e55&bgcolor=ffffff&qzone=1`;
+        }
+
+        function updateBackground() {
+            if (toggleInk.checked) {
+                poster.classList.add('pure-white');
+            } else {
+                poster.classList.remove('pure-white');
+            }
+        }
+
+        // ===== DRAGGABLE BLOCKS REORDERING =====
+        let blocks = [
+            { id: 'block-header', name: '🏷️ En-tête (Logo, Nom)' },
+            { id: 'block-title-desc', name: '📝 Titre & Description' },
+            { id: 'block-middle', name: '✨ Liste & Mockup Téléphone' },
+            { id: 'block-qr', name: '📱 Section QR Code' },
+            { id: 'block-footer', name: '✉️ Bas de page' }
+        ];
+
+        const orderListContainer = document.getElementById('order-list');
+
+        function renderOrderList() {
+            orderListContainer.innerHTML = '';
+            blocks.forEach((block, index) => {
+                const item = document.createElement('div');
+                item.className = 'order-item';
+
+                // Highlight target block on hover
+                item.addEventListener('mouseenter', () => {
+                    const el = document.getElementById(block.id);
+                    if (el) el.classList.add('highlighted-block');
+                });
+                item.addEventListener('mouseleave', () => {
+                    const el = document.getElementById(block.id);
+                    if (el) el.classList.remove('highlighted-block');
+                });
+
+                item.innerHTML = `
+                <span>${block.name}</span>
+                <div class="order-actions">
+                    <button class="order-btn" onclick="moveBlock(${index}, -1)" ${index === 0 ? 'disabled' : ''} title="Monter">▲</button>
+                    <button class="order-btn" onclick="moveBlock(${index}, 1)" ${index === blocks.length - 1 ? 'disabled' : ''} title="Descendre">▼</button>
+                </div>
+            `;
+                orderListContainer.appendChild(item);
+            });
+        }
+
+        window.moveBlock = function (index, direction) {
+            const targetIndex = index + direction;
+            if (targetIndex < 0 || targetIndex >= blocks.length) return;
+
+            // Swap in array
+            const temp = blocks[index];
+            blocks[index] = blocks[targetIndex];
+            blocks[targetIndex] = temp;
+
+            // Update CSS order on poster elements
+            blocks.forEach((block, idx) => {
+                const el = document.getElementById(block.id);
+                if (el) el.style.order = idx + 1;
+            });
+
+            renderOrderList();
+        };
+
+        // Initial order setup
+        blocks.forEach((block, idx) => {
+            const el = document.getElementById(block.id);
+            if (el) el.style.order = idx + 1;
+        });
+        renderOrderList();
+
+        // Event listeners for inputs
+        inputBrand.addEventListener('input', updatePoster);
+        inputTagline.addEventListener('input', updatePoster);
+        inputUrl.addEventListener('input', updatePoster);
+        inputTitle.addEventListener('input', updatePoster);
+        inputDesc.addEventListener('input', updatePoster);
+
+        inputFeat1Emoji.addEventListener('input', updatePoster);
+        inputFeat1Text.addEventListener('input', updatePoster);
+        inputFeat2Emoji.addEventListener('input', updatePoster);
+        inputFeat2Text.addEventListener('input', updatePoster);
+        inputFeat3Emoji.addEventListener('input', updatePoster);
+        inputFeat3Text.addEventListener('input', updatePoster);
+        inputFeat4Emoji.addEventListener('input', updatePoster);
+        inputFeat4Text.addEventListener('input', updatePoster);
+
+        inputQrInst.addEventListener('input', updatePoster);
+        inputQrSubinst.addEventListener('input', updatePoster);
+
+        inputSession.addEventListener('input', updatePoster);
+        inputContact.addEventListener('input', updatePoster);
+        toggleInk.addEventListener('change', updateBackground);
+
+        // Initial render
+        updatePoster();
+        updateBackground();
+    </script>
+</body>
+
+</html>

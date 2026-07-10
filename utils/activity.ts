@@ -1,4 +1,22 @@
 import * as SecureStore from 'expo-secure-store';
+import { Platform } from 'react-native';
+
+const getItemSafe = async (key: string): Promise<string | null> => {
+    if (typeof window === 'undefined') return null;
+    if (Platform.OS === 'web') {
+        return localStorage.getItem(key);
+    }
+    return await SecureStore.getItemAsync(key);
+};
+
+const setItemSafe = async (key: string, value: string): Promise<void> => {
+    if (typeof window === 'undefined') return;
+    if (Platform.OS === 'web') {
+        localStorage.setItem(key, value);
+        return;
+    }
+    await SecureStore.setItemAsync(key, value);
+};
 
 /**
  * Updates and retrieves the consecutive connection days (streak) for a user.
@@ -14,13 +32,13 @@ export async function updateActivityStreak(userId: string): Promise<number> {
         const lastConnKey = `last_connection_${userId}`;
         const streakKey = `activity_streak_${userId}`;
 
-        let creationDate = await SecureStore.getItemAsync(creationKey);
+        let creationDate = await getItemSafe(creationKey);
         if (!creationDate) {
-            await SecureStore.setItemAsync(creationKey, todayStr);
+            await setItemSafe(creationKey, todayStr);
         }
 
-        const lastConn = await SecureStore.getItemAsync(lastConnKey);
-        const streakStr = await SecureStore.getItemAsync(streakKey);
+        const lastConn = await getItemSafe(lastConnKey);
+        const streakStr = await getItemSafe(streakKey);
         let streak = streakStr ? parseInt(streakStr, 10) : 0;
         if (isNaN(streak) || streak < 0) {
             streak = 0;
@@ -46,8 +64,8 @@ export async function updateActivityStreak(userId: string): Promise<number> {
             }
         }
 
-        await SecureStore.setItemAsync(lastConnKey, todayStr);
-        await SecureStore.setItemAsync(streakKey, streak.toString());
+        await setItemSafe(lastConnKey, todayStr);
+        await setItemSafe(streakKey, streak.toString());
 
         return streak;
     } catch (error) {
@@ -62,7 +80,7 @@ export async function updateActivityStreak(userId: string): Promise<number> {
 export async function getActivityStreak(userId: string): Promise<number> {
     try {
         const streakKey = `activity_streak_${userId}`;
-        const streakStr = await SecureStore.getItemAsync(streakKey);
+        const streakStr = await getItemSafe(streakKey);
         const streak = streakStr ? parseInt(streakStr, 10) : 0;
         return isNaN(streak) ? 0 : streak;
     } catch (error) {

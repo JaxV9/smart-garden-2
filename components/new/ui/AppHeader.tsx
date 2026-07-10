@@ -5,6 +5,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNotificationContext } from '@/contexts/notification.context';
 import { useUserContext } from '@/contexts/user.context';
 import { useTranslation } from '@/contexts/language.context';
+import { useRating } from '@/contexts/rating.context';
 
 interface AppHeaderProps {
     title: string;
@@ -27,6 +28,7 @@ export default function AppHeader({
     
     let unreadCount = 0;
     let isPremium = false;
+    let showRatingModal = () => {};
     try {
         const context = useNotificationContext();
         unreadCount = context.unreadCount;
@@ -35,6 +37,11 @@ export default function AppHeader({
     try {
         const userContext = useUserContext();
         isPremium = userContext.isPremium;
+    } catch (e) {
+    }
+    try {
+        const ratingContext = useRating();
+        showRatingModal = ratingContext.showRatingModal;
     } catch (e) {
     }
 
@@ -80,6 +87,10 @@ export default function AppHeader({
                                 <Text style={styles.vipHeaderText}>{t('vip_header_club')}</Text>
                             </View>
                         )}
+                    </Pressable>
+
+                    <Pressable onPress={showRatingModal} style={styles.starBtn}>
+                        <Ionicons name="star" size={22} color="#FBBF24" />
                     </Pressable>
 
                     <Pressable onPress={() => router.push('/notifications' as any)} style={styles.notificationBtn}>
@@ -130,6 +141,9 @@ const styles = StyleSheet.create({
     },
     vipHeaderBtn: {
         padding: 2,
+    },
+    starBtn: {
+        padding: 4,
     },
     vipHeaderBadge: {
         flexDirection: 'row',

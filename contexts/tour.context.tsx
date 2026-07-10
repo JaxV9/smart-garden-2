@@ -25,6 +25,25 @@ interface TourContextType {
 
 const TourContext = createContext<TourContextType | undefined>(undefined);
 
+import { Platform } from 'react-native';
+
+const getTourCompleted = async () => {
+    if (typeof window === 'undefined') return null;
+    if (Platform.OS === 'web') {
+        return localStorage.getItem('app_tour_completed');
+    }
+    return await SecureStore.getItemAsync('app_tour_completed');
+};
+
+const setTourCompleted = async (val: string) => {
+    if (typeof window === 'undefined') return;
+    if (Platform.OS === 'web') {
+        localStorage.setItem('app_tour_completed', val);
+        return;
+    }
+    await SecureStore.setItemAsync('app_tour_completed', val);
+};
+
 export const TourProvider = ({ children }: { children: React.ReactNode }) => {
     const [visible, setVisible] = useState(false);
     const [step, setStep] = useState<-1 | number>(-1);
@@ -50,7 +69,7 @@ export const TourProvider = ({ children }: { children: React.ReactNode }) => {
 
             let completed = null;
             try {
-                completed = await SecureStore.getItemAsync('app_tour_completed');
+                completed = await getTourCompleted();
             } catch (e) {
                 console.error("Failed to read app_tour_completed:", e);
             }
@@ -77,14 +96,14 @@ export const TourProvider = ({ children }: { children: React.ReactNode }) => {
     };
 
     const startTour = async () => {
-        await SecureStore.setItemAsync('app_tour_completed', 'false');
+        await setTourCompleted('false');
         setStep(-1);
         setVisible(true);
         router.replace('/(tabs)/home');
     };
 
     const skipTour = async () => {
-        await SecureStore.setItemAsync('app_tour_completed', 'true');
+        await setTourCompleted('true');
         setStep(-1);
         setVisible(false);
         router.replace('/(tabs)/home');

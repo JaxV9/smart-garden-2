@@ -12,6 +12,25 @@ interface LanguageContextType {
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
+import { Platform } from 'react-native';
+
+const getStoredLanguage = async () => {
+    if (typeof window === 'undefined') return null;
+    if (Platform.OS === 'web') {
+        return localStorage.getItem("app_language");
+    }
+    return await SecureStore.getItemAsync("app_language");
+};
+
+const setStoredLanguage = async (lang: string) => {
+    if (typeof window === 'undefined') return;
+    if (Platform.OS === 'web') {
+        localStorage.setItem("app_language", lang);
+        return;
+    }
+    await SecureStore.setItemAsync("app_language", lang);
+};
+
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
     const [language, setLanguage] = useState<LanguageType>("fr");
     const { user, setUser } = useUserContext();
@@ -22,12 +41,12 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
             if (user?.language) {
                 const userLang = user.language as LanguageType;
                 setLanguage(userLang);
-                await SecureStore.setItemAsync("app_language", userLang);
+                await setStoredLanguage(userLang);
                 return;
             }
 
             try {
-                const storedLang = await SecureStore.getItemAsync("app_language");
+                const storedLang = await getStoredLanguage();
                 if (storedLang) {
                     setLanguage(storedLang as LanguageType);
                 }
@@ -42,7 +61,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     const changeLanguage = async (newLang: LanguageType) => {
         setLanguage(newLang);
         try {
-            await SecureStore.setItemAsync("app_language", newLang);
+            await setStoredLanguage(newLang);
 
             if (user) {
                 setUser(prev => prev ? { ...prev, language: newLang } : prev);
