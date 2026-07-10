@@ -11,8 +11,39 @@ import { NotificationProvider } from "@/contexts/notification.context";
 import { TourProvider } from "@/contexts/tour.context";
 import { Stack } from "expo-router";
 import { AppTourGuide } from "@/components/new/ui/AppTourGuide";
+import {
+  useFonts,
+  Poppins_400Regular,
+  Poppins_500Medium,
+  Poppins_600SemiBold,
+  Poppins_700Bold,
+  Poppins_800ExtraBold,
+  Poppins_900Black,
+} from "@expo-google-fonts/poppins";
+import * as SplashScreen from "expo-splash-screen";
+import { useEffect } from "react";
+
+SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
+  const [fontsLoaded] = useFonts({
+    Poppins: Poppins_400Regular,
+    Poppins_400Regular,
+    Poppins_500Medium,
+    Poppins_600SemiBold,
+    Poppins_700Bold,
+    Poppins_800ExtraBold,
+    Poppins_900Black,
+  });
+
+  useEffect(() => {
+    if (fontsLoaded) {
+      SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded]);
+
+  if (!fontsLoaded) return null;
+
   return (
     <UserProvider>
       <LanguageProvider>
