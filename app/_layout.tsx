@@ -21,8 +21,10 @@ import {
   useFonts,
 } from "@expo-google-fonts/poppins";
 import { Stack } from "expo-router";
+import Head from "expo-router/head";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
+import { Platform } from "react-native";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -47,13 +49,15 @@ export default function RootLayout() {
 
   return (
     <>
-      <Head>
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="SmartGarden" />
-        <link rel="apple-touch-icon" href="/icon.png" />
-        <link rel="manifest" href="/manifest.json" />
-      </Head>
+      {Platform.OS === "web" && (
+        <Head>
+          <meta name="apple-mobile-web-app-capable" content="yes" />
+          <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+          <meta name="apple-mobile-web-app-title" content="SmartGarden" />
+          <link rel="apple-touch-icon" href="/icon.png" />
+          <link rel="manifest" href="/manifest.json" />
+        </Head>
+      )}
       <UserProvider>
         <LanguageProvider>
           <ThemeProvider>
