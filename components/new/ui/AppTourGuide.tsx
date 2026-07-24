@@ -70,11 +70,12 @@ export const AppTourGuide = () => {
         else if (step === 11) key = 'vegetable_meta';
         else if (step === 12) key = 'social_feed';
         else if (step === 13) key = 'social_feed';
-        else if (step === 14) key = 'profile_info';
-        else if (step === 15) key = 'profile_lang_selector';
-        else if (step === 16) key = 'personal_pseudo_email';
-        else if (step === 17) key = 'community_private_switch';
-        else if (step === 18) key = 'profile_garden_details';
+        else if (step === 14) key = 'social_feed';
+        else if (step === 15) key = 'profile_info';
+        else if (step === 16) key = 'profile_lang_selector';
+        else if (step === 17) key = 'personal_pseudo_email';
+        else if (step === 18) key = 'community_private_switch';
+        else if (step === 19) key = 'profile_garden_details';
 
         if (!key) return null;
 
@@ -104,12 +105,13 @@ export const AppTourGuide = () => {
             case 10: return { x: 16, y: 108, width: SCREEN_WIDTH - 32, height: 400 };
             case 11: return { x: 16, y: 100, width: SCREEN_WIDTH - 32, height: SCREEN_HEIGHT - 220 };
             case 12:
-            case 13: return { x: 16, y: 108, width: SCREEN_WIDTH - 32, height: SCREEN_HEIGHT - 230 };
-            case 14: return { x: 20, y: 108, width: SCREEN_WIDTH - 40, height: 200 };
-            case 15: return { x: 20, y: 320, width: SCREEN_WIDTH - 40, height: 250 };
-            case 16: return { x: 24, y: 220, width: SCREEN_WIDTH - 48, height: 360 };
-            case 17: return { x: 20, y: 220, width: SCREEN_WIDTH - 40, height: 490 };
-            case 18: return { x: 24, y: 150, width: SCREEN_WIDTH - 48, height: 360 };
+            case 13:
+            case 14: return { x: 16, y: 108, width: SCREEN_WIDTH - 32, height: SCREEN_HEIGHT - 230 };
+            case 15: return { x: 20, y: 108, width: SCREEN_WIDTH - 40, height: 200 };
+            case 16: return { x: 20, y: 320, width: SCREEN_WIDTH - 40, height: 250 };
+            case 17: return { x: 24, y: 220, width: SCREEN_WIDTH - 48, height: 360 };
+            case 18: return { x: 20, y: 220, width: SCREEN_WIDTH - 40, height: 490 };
+            case 19: return { x: 24, y: 150, width: SCREEN_WIDTH - 48, height: 360 };
             default: return null;
         }
     };

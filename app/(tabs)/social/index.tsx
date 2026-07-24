@@ -28,10 +28,8 @@ export default function Index() {
                 setCurrentTab('social');
             } else if (step === 13) {
                 setCurrentTab('forum');
-                const timer = setTimeout(() => {
-                    setCurrentTab('tutos');
-                }, 1800);
-                return () => clearTimeout(timer);
+            } else if (step === 14) {
+                setCurrentTab('tutos');
             }
         }
     }, [step, visible]);

@@ -123,16 +123,16 @@ export const TourProvider = ({ children }: { children: React.ReactNode }) => {
             const firstVeg = vegetablesContext && vegetablesContext.length > 0 ? vegetablesContext[0].id : 'tomato';
             return `/vegetable/${firstVeg}`;
         }
-        if (stepIdx === 12 || stepIdx === 13) return '/(tabs)/social';
-        if (stepIdx === 14 || stepIdx === 15) return '/(tabs)/profile';
-        if (stepIdx === 16) return '/profile/personal-info';
-        if (stepIdx === 17) return '/profile/community';
-        if (stepIdx === 18) return '/profile/garden-info';
+        if (stepIdx === 12 || stepIdx === 13 || stepIdx === 14) return '/(tabs)/social';
+        if (stepIdx === 15 || stepIdx === 16) return '/(tabs)/profile';
+        if (stepIdx === 17) return '/profile/personal-info';
+        if (stepIdx === 18) return '/profile/community';
+        if (stepIdx === 19) return '/profile/garden-info';
         return '/(tabs)/home';
     };
 
     const nextStep = () => {
-        const totalSteps = 19;
+        const totalSteps = 20;
         if (step === totalSteps - 1) {
             skipTour();
         } else {
