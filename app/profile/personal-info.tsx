@@ -1,5 +1,6 @@
 import { useUserContext } from '@/contexts/user.context';
 import { useUser } from '@/hooks/useUser';
+import { useTranslation } from '@/contexts/language.context';
 import { Feather } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
@@ -21,18 +22,39 @@ import { GardenerLevel } from '@/models/models';
 
 const DEFAULT_AVATAR = require('@/assets/images/avatar.png');
 
-const LEVEL_LABELS: Record<string, string> = {
-  beginner: 'Débutant.e',
-  amateur: 'Amateur.trice',
-  advanced: 'Avancé.e',
-  enthusiast: 'Passionné.e',
-};
+import { useTour } from '@/contexts/tour.context';
+import { useRef, useEffect } from 'react';
 
 export default function PersonalInfoScreen() {
   const { user } = useUserContext();
   const { updateAvatar, updateUser } = useUser();
+  const { registerElement, step } = useTour();
+  const { t } = useTranslation();
+
+  const scrollRef = useRef<ScrollView>(null);
+  const pseudoEmailRef = useRef<View>(null);
+  const levelRef = useRef<View>(null);
+
+  const measureAll = () => {
+    setTimeout(() => {
+      pseudoEmailRef.current?.measureInWindow((x, y, w, h) => {
+        if (w && h) registerElement('personal_pseudo_email', { x, y, width: w, height: h });
+      });
+      levelRef.current?.measureInWindow((x, y, w, h) => {
+        if (w && h) registerElement('personal_level', { x, y, width: w, height: h });
+      });
+    }, 320);
+  };
+
+  useEffect(() => {
+    if (step === 17) {
+      scrollRef.current?.scrollTo({ y: 0, animated: true });
+    }
+    measureAll();
+  }, [step]);
 
   const [pseudo, setPseudo] = useState<string>(user?.name ?? '');
+  const [publicName, setPublicName] = useState<string>(user?.publicName ?? user?.name ?? '');
   const [email, setEmail] = useState<string>(user?.email ?? '');
   const [experience, setExperience] = useState<GardenerLevel>(
     (user?.level as GardenerLevel) ?? 'beginner'
@@ -58,8 +80,8 @@ export default function PersonalInfoScreen() {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
       Alert.alert(
-        'Permission refusée',
-        "Nous avons besoin de l’accès aux photos pour changer votre avatar."
+        t('personal_permission_denied'),
+        t('personal_photo_permission_desc')
       );
       return;
     }
@@ -79,6 +101,7 @@ export default function PersonalInfoScreen() {
   };
 
   const handleClearPseudo = () => setPseudo('');
+  const handleClearPublicName = () => setPublicName('');
   const handleClearEmail = () => setEmail('');
 
   const toggleExperienceDropdown = () => {
@@ -109,44 +132,45 @@ export default function PersonalInfoScreen() {
 
   const handleSubmitPasswordChange = async () => {
     if (!newPassword || !confirmPassword) {
-      Alert.alert('Erreur', 'Veuillez remplir les deux champs.');
+      Alert.alert(t('error_title' as any) || 'Erreur', t('personal_error_fill_fields'));
       return;
     }
 
     if (newPassword.length < 8) {
-      Alert.alert('Erreur', 'Le mot de passe doit contenir au moins 8 caractères.');
+      Alert.alert(t('error_title' as any) || 'Erreur', t('personal_error_pwd_length'));
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      Alert.alert('Erreur', 'Les mots de passe ne correspondent pas.');
+      Alert.alert(t('error_title' as any) || 'Erreur', t('personal_error_pwd_match'));
       return;
     }
 
     const status = await updateUser({ password: newPassword });
 
     if (status === 'Failure') {
-      Alert.alert('Erreur', 'Impossible de modifier le mot de passe.');
+      Alert.alert(t('error_title' as any) || 'Erreur', t('personal_error_pwd_failed'));
       return;
     }
 
     handleClosePasswordModal();
-    Alert.alert('Succès', 'Le mot de passe a bien été mis à jour.');
+    Alert.alert(t('success_title' as any) || 'Succès', t('personal_success_pwd_updated'));
   };
 
   const handleSave = async () => {
     const status = await updateUser({
       name: pseudo || user?.name || '',
+      publicName: publicName || user?.publicName || pseudo || user?.name || '',
       email: email || user?.email || '',
       level: experience,
     });
 
     if (status === "Failure") {
-      Alert.alert("Erreur", "Impossible d'enregistrer vos informations.");
+      Alert.alert(t('error_title' as any) || 'Erreur', t('personal_error_save_failed'));
       return;
     }
 
-    Alert.alert("Succès", "Vos informations ont été mises à jour.");
+    Alert.alert(t('success_title' as any) || 'Succès', t('personal_success_save'));
   };
 
 
@@ -157,6 +181,7 @@ export default function PersonalInfoScreen() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView
+        ref={scrollRef}
         style={styles.container}
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
@@ -169,7 +194,7 @@ export default function PersonalInfoScreen() {
           >
             <Feather name="arrow-left" size={22} color="#111827" />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Informations personnelles</Text>
+          <Text style={styles.headerTitle}>{t('profile_personal_info')}</Text>
           <View style={{ width: 22 }} />
         </View>
 
@@ -186,10 +211,14 @@ export default function PersonalInfoScreen() {
         </TouchableOpacity>
 
         {/* Champs */}
-        <View style={styles.form}>
+        <View 
+          ref={pseudoEmailRef}
+          onLayout={measureAll}
+          style={styles.form}
+        >
           {/* Pseudo */}
           <View style={styles.field}>
-            <Text style={styles.label}>Pseudo</Text>
+            <Text style={styles.label}>{t('personal_pseudo_label')}</Text>
             <View style={styles.inputWrapper}>
               <Feather
                 name="user"
@@ -201,7 +230,7 @@ export default function PersonalInfoScreen() {
                 style={styles.input}
                 value={pseudo}
                 onChangeText={setPseudo}
-                placeholder="Votre pseudo"
+                placeholder={t('personal_pseudo_placeholder')}
                 placeholderTextColor={COLORS.placeholder}
               />
               {pseudo.length > 0 && (
@@ -215,9 +244,37 @@ export default function PersonalInfoScreen() {
             </View>
           </View>
 
+          {/* Nom public */}
+          <View style={styles.field}>
+            <Text style={styles.label}>{t('personal_public_name_label')}</Text>
+            <View style={styles.inputWrapper}>
+              <Feather
+                name="user"
+                size={18}
+                color={COLORS.icon}
+                style={styles.leftIcon}
+              />
+              <TextInput
+                style={styles.input}
+                value={publicName}
+                onChangeText={setPublicName}
+                placeholder={t('personal_public_name_placeholder')}
+                placeholderTextColor={COLORS.placeholder}
+              />
+              {publicName.length > 0 && (
+                <TouchableOpacity
+                  style={styles.rightIconButton}
+                  onPress={handleClearPublicName}
+                >
+                  <Feather name="x" size={16} color={COLORS.icon} />
+                </TouchableOpacity>
+              )}
+            </View>
+          </View>
+
           {/* Email */}
           <View style={styles.field}>
-            <Text style={styles.label}>Email</Text>
+            <Text style={styles.label}>{t('personal_email_label')}</Text>
             <View style={styles.inputWrapper}>
               <Feather
                 name="mail"
@@ -231,7 +288,7 @@ export default function PersonalInfoScreen() {
                 onChangeText={setEmail}
                 keyboardType="email-address"
                 autoCapitalize="none"
-                placeholder="Votre email"
+                placeholder={t('personal_email_placeholder')}
                 placeholderTextColor={COLORS.placeholder}
               />
               {email.length > 0 && (
@@ -246,8 +303,12 @@ export default function PersonalInfoScreen() {
           </View>
 
           {/* Experience level */}
-          <View style={styles.field}>
-            <Text style={styles.label}>Niveau d&apos;expérience</Text>
+          <View 
+            ref={levelRef}
+            onLayout={measureAll}
+            style={styles.field}
+          >
+            <Text style={styles.label}>{t('personal_exp_label')}</Text>
 
             <TouchableOpacity
               style={styles.inputWrapper}
@@ -255,7 +316,7 @@ export default function PersonalInfoScreen() {
               onPress={toggleExperienceDropdown}
             >
               <Text style={[styles.input, styles.textOnlyInput]}>
-                {LEVEL_LABELS[experience] ?? experience}
+                {t(`profile_level_${experience}` as any)}
               </Text>
               <Feather
                 name={isExperienceOpen ? 'chevron-up' : 'chevron-down'}
@@ -283,7 +344,7 @@ export default function PersonalInfoScreen() {
                           experience === level && styles.dropdownItemTextActive,
                         ]}
                       >
-                        {LEVEL_LABELS[level] ?? level}
+                        {t(`profile_level_${level}` as any)}
                       </Text>
                     </TouchableOpacity>
                   )
@@ -300,7 +361,7 @@ export default function PersonalInfoScreen() {
             >
               <Feather name="lock" size={16} color={COLORS.primary} />
               <Text style={styles.changePasswordText}>
-                Changer de mot de passe
+                {t('personal_change_pwd_btn')}
               </Text>
             </TouchableOpacity>
           </View>
@@ -312,7 +373,7 @@ export default function PersonalInfoScreen() {
           activeOpacity={0.8}
           onPress={handleSave}
         >
-          <Text style={styles.saveButtonText}>ENREGISTRER</Text>
+          <Text style={styles.saveButtonText}>{t('personal_save_btn')}</Text>
         </TouchableOpacity>
       </ScrollView>
 
@@ -325,7 +386,7 @@ export default function PersonalInfoScreen() {
         <View style={styles.modalOverlay}>
           <View style={styles.modalCard}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Changer le mot de passe</Text>
+              <Text style={styles.modalTitle}>{t('personal_pwd_modal_title')}</Text>
               <TouchableOpacity
                 onPress={handleClosePasswordModal}
                 hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
@@ -335,7 +396,7 @@ export default function PersonalInfoScreen() {
             </View>
 
             <View style={styles.modalField}>
-              <Text style={styles.label}>Nouveau mot de passe</Text>
+              <Text style={styles.label}>{t('personal_pwd_new_label')}</Text>
               <View style={styles.inputWrapper}>
                 <Feather
                   name="lock"
@@ -347,7 +408,7 @@ export default function PersonalInfoScreen() {
                   style={styles.input}
                   value={newPassword}
                   onChangeText={setNewPassword}
-                  placeholder="Nouveau mot de passe"
+                  placeholder={t('personal_pwd_new_label')}
                   placeholderTextColor={COLORS.placeholder}
                   secureTextEntry={!isNewPasswordVisible}
                   autoCapitalize="none"
@@ -366,7 +427,7 @@ export default function PersonalInfoScreen() {
             </View>
 
             <View style={styles.modalField}>
-              <Text style={styles.label}>Confirmer le mot de passe</Text>
+              <Text style={styles.label}>{t('personal_pwd_confirm_label')}</Text>
               <View style={styles.inputWrapper}>
                 <Feather
                   name="lock"
@@ -378,7 +439,7 @@ export default function PersonalInfoScreen() {
                   style={styles.input}
                   value={confirmPassword}
                   onChangeText={setConfirmPassword}
-                  placeholder="Confirmer le mot de passe"
+                  placeholder={t('personal_pwd_confirm_label')}
                   placeholderTextColor={COLORS.placeholder}
                   secureTextEntry={!isConfirmPasswordVisible}
                   autoCapitalize="none"
@@ -401,7 +462,7 @@ export default function PersonalInfoScreen() {
               activeOpacity={0.8}
               onPress={handleSubmitPasswordChange}
             >
-              <Text style={styles.modalPrimaryButtonText}>VALIDER</Text>
+              <Text style={styles.modalPrimaryButtonText}>{t('personal_pwd_submit_btn')}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -411,14 +472,14 @@ export default function PersonalInfoScreen() {
 }
 
 const COLORS = {
-  background: '#FFFFFF',
-  textDark: '#111827',
+  background: '#F9FAFB',
+  textDark: '#1F2937',
   textMuted: '#6B7280',
-  inputBg: '#F9FAFB',
+  inputBg: '#FFFFFF',
   border: '#E5E7EB',
-  primary: '#4F8F46',
+  primary: '#5A7F54',
   icon: '#9CA3AF',
-  placeholder: '#111827',
+  placeholder: '#9CA3AF',
 };
 
 const styles = StyleSheet.create({
@@ -444,7 +505,7 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: 'center',
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: '800',
     color: COLORS.textDark,
   },
   avatarContainer: {
@@ -459,7 +520,7 @@ const styles = StyleSheet.create({
   },
   avatarName: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '700',
     color: COLORS.textDark,
   },
   form: {
@@ -471,6 +532,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 13,
+    fontWeight: '600',
     color: COLORS.textMuted,
     marginBottom: 6,
   },
@@ -478,11 +540,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: COLORS.inputBg,
-    borderRadius: 8,
+    borderRadius: 14,
     borderWidth: 1,
     borderColor: COLORS.border,
-    paddingHorizontal: 10,
-    height: 48,
+    paddingHorizontal: 12,
+    height: 50,
   },
   leftIcon: {
     marginRight: 6,
@@ -511,54 +573,64 @@ const styles = StyleSheet.create({
   changePasswordText: {
     fontSize: 14,
     color: COLORS.primary,
-    fontWeight: '600',
+    fontWeight: '700',
   },
   dropdown: {
     marginTop: 6,
-    borderRadius: 8,
+    borderRadius: 14,
     borderWidth: 1,
     borderColor: COLORS.border,
     backgroundColor: '#FFFFFF',
     overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 6,
+    elevation: 2,
   },
   dropdownItem: {
-    paddingVertical: 10,
-    paddingHorizontal: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
   },
   dropdownItemActive: {
-    backgroundColor: '#E0F2E9',
+    backgroundColor: '#EBF6EB',
   },
   dropdownItemText: {
     fontSize: 14,
     color: COLORS.textDark,
   },
   dropdownItemTextActive: {
-    fontWeight: '600',
+    fontWeight: '700',
     color: COLORS.primary,
   },
   saveButton: {
     height: 52,
-    borderRadius: 8,
+    borderRadius: 14,
     backgroundColor: COLORS.primary,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 'auto',
+    marginTop: 20,
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.12,
+    shadowRadius: 6,
+    elevation: 2,
   },
   saveButtonText: {
     color: '#FFFFFF',
-    fontWeight: '600',
+    fontWeight: '700',
     fontSize: 15,
-    letterSpacing: 1,
+    letterSpacing: 0.5,
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(17, 24, 39, 0.32)',
+    backgroundColor: 'rgba(17, 24, 39, 0.45)',
     justifyContent: 'center',
     paddingHorizontal: 24,
   },
   modalCard: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 16,
+    borderRadius: 20,
     padding: 20,
     gap: 16,
   },
@@ -569,7 +641,7 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: 18,
-    fontWeight: '700',
+    fontWeight: '800',
     color: COLORS.textDark,
   },
   modalField: {
@@ -577,7 +649,7 @@ const styles = StyleSheet.create({
   },
   modalPrimaryButton: {
     height: 48,
-    borderRadius: 10,
+    borderRadius: 12,
     backgroundColor: COLORS.primary,
     alignItems: 'center',
     justifyContent: 'center',

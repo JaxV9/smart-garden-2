@@ -10,10 +10,10 @@ interface CalendarMonthCardProps {
 }
 
 export function CalendarMonthCard({ month, callback, children, cardWidth }: CalendarMonthCardProps) {
-    const { monthToFrench } = useCalendar()
+    const { monthToLocalized } = useCalendar()
 
     function formatText(text: Month) {
-        return monthToFrench(text)
+        return monthToLocalized(text)
     }
 
     return (

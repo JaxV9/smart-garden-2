@@ -8,9 +8,11 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { useTranslation } from '@/contexts/language.context';
 
 export const TutosFeedTab = () => {
     const router = useRouter();
+    const { t } = useTranslation();
     const { tutorials } = useTutorialsContext();
     const { loadTutorials, createTutorial, toggleLike, updateTutorial, deleteTutorial } = useTutorials();
 
@@ -40,7 +42,7 @@ export const TutosFeedTab = () => {
         if (result === 'Success') {
             setCreateModalVisible(false);
         } else {
-            alert('Erreur lors de la création du tutoriel');
+            alert(t('tutos_create_error'));
         }
     };
 
@@ -67,7 +69,7 @@ export const TutosFeedTab = () => {
         if (result === 'Success') {
             await loadData();
         } else {
-            alert('Erreur lors de la modification du tutoriel');
+            alert(t('tutos_update_error'));
         }
     };
 
@@ -90,7 +92,7 @@ export const TutosFeedTab = () => {
                     onPress={() => setCreateModalVisible(true)}
                 >
                     <Ionicons name="add" size={20} color="white" />
-                    <Text style={styles.createButtonText}>Publier un tutoriel</Text>
+                    <Text style={styles.createButtonText}>{t('tutos_publish_btn')}</Text>
                 </TouchableOpacity>
 
                 {/* Barre de recherche */}
@@ -98,7 +100,7 @@ export const TutosFeedTab = () => {
                     <Ionicons name="search-outline" size={20} color="#666" />
                     <TextInput
                         style={styles.searchInput}
-                        placeholder="Rechercher un tutoriel..."
+                        placeholder={t('tutos_search_placeholder')}
                         value={searchQuery}
                         onChangeText={setSearchQuery}
                         placeholderTextColor="#111827"

@@ -2,6 +2,7 @@ import { getTimeAgo } from '@/utils/dateFormatter';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useTranslation } from '@/contexts/language.context';
 
 interface PostCommentItemProps {
     comment: {
@@ -16,6 +17,7 @@ interface PostCommentItemProps {
 }
 
 export default function PostCommentItem({ comment }: PostCommentItemProps) {
+    const { t, language } = useTranslation();
     const router = useRouter();
 
     return (
@@ -26,9 +28,9 @@ export default function PostCommentItem({ comment }: PostCommentItemProps) {
             <View style={styles.commentContent}>
                 <View style={styles.commentHeader}>
                     <TouchableOpacity onPress={() => router.push({ pathname: '/user/[id]', params: { id: comment.author.id } })}>
-                        <Text style={[styles.commentAuthor, { color: '#5B8E55', textDecorationLine: 'underline' }]}>{comment.author.name || 'Utilisateur'}</Text>
+                        <Text style={[styles.commentAuthor, { color: '#5B8E55', textDecorationLine: 'underline' }]}>{comment.author.name || t('social_user_fallback')}</Text>
                     </TouchableOpacity>
-                    <Text style={styles.commentTime}>{getTimeAgo(comment.createdAt)}</Text>
+                    <Text style={styles.commentTime}>{getTimeAgo(comment.createdAt, language)}</Text>
                 </View>
                 <Text style={styles.commentText}>{comment.content}</Text>
             </View>

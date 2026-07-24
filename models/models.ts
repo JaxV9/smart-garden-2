@@ -1,10 +1,13 @@
 export type User = {
   id?: string;
   name: string;
+  publicName?: string | null;
   email: string;
   avatarUri?: string | null;
   level: string | null;
   isPrivate?: boolean;
+  isPremium?: boolean;
+  language?: string;
 };
 
 export type Vegetable = {
@@ -46,6 +49,9 @@ export type LoginInfos = {
   email: string;
   level: string | null;
   isPrivate?: boolean;
+  publicName?: string | null;
+  isPremium?: boolean;
+  language?: string;
 };
 
 export type SensorMeasure = {
@@ -55,6 +61,58 @@ export type SensorMeasure = {
   valeur_eau: number | null;
   tension_sol: number | null;
   valeur_brute_sol: number | null;
+};
+
+export type SensorReading = {
+  id: string;
+  sensor_id: string;
+  value_numeric: number;
+  raw_value: number | null;
+  voltage: number | null;
+  created_at: string;
+  updated_at: string;
+  recorded_at: string | null;
+};
+
+export type GardenSensor = {
+  id: string;
+  hardware_id: string | null;
+  name: string;
+  type: string;
+  unit: string;
+  is_active: boolean;
+  data_collection_enabled: boolean;
+  created_at: string;
+  updated_at: string;
+  latest_reading: SensorReading | null;
+};
+
+export type SensorClaimPayload = {
+  hardware_id: string;
+  name: string;
+  type: string;
+  unit: string;
+};
+
+export type SensorClaimResponse = {
+  sensor_id: string;
+  write_token: string;
+  api_base_url: string;
+  ingest_path: string;
+  hardware_id?: string;
+  name?: string;
+  type?: string;
+  unit?: string;
+};
+
+export type ProvisionedSensorConfig = {
+  local_id: string;
+  hardware_id: string;
+  name: string;
+  type: string;
+  unit: string;
+  sensor_id: string;
+  write_token: string;
 };
 
 export type CreateUserPayload = {

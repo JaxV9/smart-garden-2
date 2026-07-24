@@ -7,6 +7,7 @@ interface Post {
     content: string;
     images: string[];
     author: {
+        id: string;
         name?: string;
     };
     createdAt: string;

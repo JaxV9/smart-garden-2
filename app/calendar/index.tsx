@@ -1,30 +1,185 @@
-import { BackButton } from "@/components/new/backButton/backButton";
 import { CalendarComp } from "@/components/new/calendar/calendar";
+import AppHeader from "@/components/new/ui/AppHeader";
 import { useCalendar } from "@/hooks/useCalendar";
-import { router } from "expo-router";
-import { StyleSheet, View } from "react-native";
-
+import { useUserContext } from "@/contexts/user.context";
+import { useTranslation } from "@/contexts/language.context";
+import { useTour } from "@/contexts/tour.context";
+import { useRouter } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
+import { BlurView } from "expo-blur";
+import React, { useEffect, useRef } from "react";
+import { StyleSheet, View, Text, TouchableOpacity, Animated } from "react-native";
 
 export default function Calendar() {
-    const { calendar } = useCalendar()
+    const { calendar } = useCalendar();
+    const { isPremium } = useUserContext();
+    const { t } = useTranslation();
+    const { step, visible, registerElement } = useTour();
+    const router = useRouter();
+
+    const calendarRef = useRef<View>(null);
+    const fadeAnim = useRef(new Animated.Value(0)).current;
+    const scaleAnim = useRef(new Animated.Value(0.92)).current;
+
+    const handleOnLayout = () => {
+        setTimeout(() => {
+            calendarRef.current?.measureInWindow((x, y, w, h) => {
+                if (w && h) {
+                    registerElement('calendar_main', { x, y, width: w, height: h });
+                }
+            });
+        }, 200);
+    };
+
+    const isLocked = !isPremium && !visible;
+
+    useEffect(() => {
+        if (isLocked) {
+            Animated.parallel([
+                Animated.timing(fadeAnim, {
+                    toValue: 1,
+                    duration: 650,
+                    useNativeDriver: true,
+                }),
+                Animated.spring(scaleAnim, {
+                    toValue: 1,
+                    friction: 7,
+                    tension: 35,
+                    useNativeDriver: true,
+                }),
+            ]).start();
+        } else {
+            fadeAnim.setValue(0);
+            scaleAnim.setValue(0.92);
+        }
+    }, [isLocked]);
 
     return (
-        <>
-            <View style={styles.container}>
-                <BackButton callback={() => router.replace('/home')} />
+        <View style={styles.container}>
+            <AppHeader
+                title={t('home_tool_calendar_title', 'Calendrier')}
+                showBack={true}
+                showNotifications={true}
+                fallbackRoute="/home"
+            />
+
+            <View 
+                ref={calendarRef}
+                onLayout={handleOnLayout}
+                style={{ flex: 1 }}
+            >
                 <CalendarComp calendarProp={calendar} />
+
+                {isLocked && (
+                    <Animated.View style={[StyleSheet.absoluteFillObject, { opacity: fadeAnim }]}>
+                        <BlurView intensity={65} tint="light" style={StyleSheet.absoluteFill} />
+                        <Animated.View style={[styles.lockedContainer, { transform: [{ scale: scaleAnim }] }]}>
+                            <View style={styles.lockBadge}>
+                                <Ionicons name="calendar-outline" size={48} color="#D4AF37" />
+                            </View>
+                            <Text style={styles.lockedTitle}>{t('cal_locked_title')}</Text>
+                            <Text style={styles.lockedSub}>{t('cal_locked_sub')}</Text>
+
+                            <View style={styles.miniFeatures}>
+                                <View style={styles.featureRow}>
+                                    <Ionicons name="checkmark-circle" size={16} color="#5A7F54" />
+                                    <Text style={styles.featureText}>{t('cal_locked_feat_1')}</Text>
+                                </View>
+                                <View style={styles.featureRow}>
+                                    <Ionicons name="checkmark-circle" size={16} color="#5A7F54" />
+                                    <Text style={styles.featureText}>{t('cal_locked_feat_2')}</Text>
+                                </View>
+                            </View>
+
+                            <TouchableOpacity 
+                                style={styles.unlockBtn}
+                                onPress={() => router.push('/premium' as any)}
+                                activeOpacity={0.8}
+                            >
+                                <Text style={styles.unlockBtnText}>{t('cal_locked_btn')}</Text>
+                            </TouchableOpacity>
+                            </Animated.View>
+                    </Animated.View>
+                )}
             </View>
-        </>
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        paddingTop: 64,
-        paddingLeft: 8,
-        paddingRight: 8,
-        gap: 16,
-        backgroundColor: '#F9FAFB'
+        backgroundColor: '#F9FAFB',
+    },
+    lockedContainer: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingHorizontal: 24,
+        paddingBottom: 40,
+    },
+    lockBadge: {
+        width: 96,
+        height: 96,
+        borderRadius: 48,
+        backgroundColor: '#FFFDF0',
+        borderColor: '#FEF3C7',
+        borderWidth: 2,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: 20,
+    },
+    lockedTitle: {
+        fontSize: 20,
+        fontWeight: '800',
+        color: '#1E293B',
+        marginBottom: 12,
+        textAlign: 'center',
+    },
+    lockedSub: {
+        fontSize: 14,
+        color: '#64748B',
+        textAlign: 'center',
+        lineHeight: 20,
+        marginBottom: 24,
+        paddingHorizontal: 10,
+    },
+    miniFeatures: {
+        alignSelf: 'stretch',
+        backgroundColor: '#FFFFFF',
+        borderRadius: 16,
+        padding: 16,
+        borderWidth: 1,
+        borderColor: '#E2E8F0',
+        gap: 12,
+        marginBottom: 28,
+    },
+    featureRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 10,
+    },
+    featureText: {
+        fontSize: 13,
+        fontWeight: '600',
+        color: '#334155',
+    },
+    unlockBtn: {
+        backgroundColor: '#D4AF37',
+        borderRadius: 14,
+        paddingVertical: 14,
+        paddingHorizontal: 28,
+        alignItems: 'center',
+        justifyContent: 'center',
+        shadowColor: '#D4AF37',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.15,
+        shadowRadius: 8,
+        elevation: 3,
+    },
+    unlockBtnText: {
+        color: '#FFFFFF',
+        fontSize: 14,
+        fontWeight: '800',
     },
 });

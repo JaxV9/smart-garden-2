@@ -8,10 +8,21 @@ type Props = {
 };
 
 export function GardenPlantCard({ name, imageUri }: Props) {
+  const [hasError, setHasError] = React.useState(false);
+
+  React.useEffect(() => {
+    setHasError(false);
+  }, [imageUri]);
+
   return (
     <View style={s.card}>
-      {imageUri ? (
-        <Image source={{ uri: imageUri }} style={s.image} resizeMode="cover" />
+      {imageUri && !hasError ? (
+        <Image
+          source={{ uri: imageUri }}
+          style={s.image}
+          resizeMode="cover"
+          onError={() => setHasError(true)}
+        />
       ) : (
         <View style={[s.image, s.placeholder]}>
           <Text style={s.placeholderText}>

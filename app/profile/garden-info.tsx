@@ -1,6 +1,7 @@
 import { Feather } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { useTranslation } from '@/contexts/language.context';
 import {
   Alert,
   ScrollView,
@@ -13,15 +14,32 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useGardenContext } from '@/contexts/garden.context';
 import { useGardenInfo } from '@/hooks/useGardenInfo';
+import { useTour } from '@/contexts/tour.context';
 
 export default function GardenInfoScreen() {
   const { gardenInfo, updateGardenInfo } = useGardenContext();
   const { saveGardenInfo } = useGardenInfo();
+  const { registerElement, step } = useTour();
+  const { t } = useTranslation();
 
-  const [gardenName, setGardenName] = useState(gardenInfo.name ?? 'Mon Jardin');
+  const formRef = useRef<View>(null);
+
+  const measureAll = () => {
+    setTimeout(() => {
+      formRef.current?.measureInWindow((x, y, w, h) => {
+        if (w && h) registerElement('profile_garden_details', { x, y, width: w, height: h });
+      });
+    }, 320);
+  };
+
+  useEffect(() => {
+    measureAll();
+  }, [step]);
+
+  const [gardenName, setGardenName] = useState(gardenInfo.name ?? t('plan_default_name'));
   const [location, setLocation] = useState(gardenInfo.location ?? '');
   const [sections, setSections] = useState<string[]>(
-    gardenInfo.sections?.length ? gardenInfo.sections : ['Potager principal']
+    gardenInfo.sections?.length ? gardenInfo.sections : [t('plan_default_name')]
   );
   const [newSection, setNewSection] = useState('');
 
@@ -55,11 +73,11 @@ export default function GardenInfoScreen() {
     });
 
     if (status === "Failure") {
-      Alert.alert("Erreur", "Impossible d'enregistrer les informations du jardin.");
+      Alert.alert(t('error_title' as any) || "Erreur", t('garden_info_error_save'));
       return;
     }
 
-    Alert.alert('Succès', 'Les informations du jardin ont été enregistrées.');
+    Alert.alert(t('success_title' as any) || 'Succès', t('garden_info_success_save'));
     router.back();
   };
 
@@ -70,7 +88,6 @@ export default function GardenInfoScreen() {
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
       >
-        {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity
             onPress={handleGoBack}
@@ -78,24 +95,28 @@ export default function GardenInfoScreen() {
           >
             <Feather name="arrow-left" size={22} color="#111827" />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Informations du jardin</Text>
+          <Text style={styles.headerTitle}>{t('garden_info_title')}</Text>
           <View style={{ width: 22 }} />
         </View>
 
         {/* Title */}
-        <Text style={styles.gardenTitle}>{gardenName || 'Mon Jardin'}</Text>
+        <Text style={styles.gardenTitle}>{gardenName || t('plan_default_name')}</Text>
 
         {/* Form */}
-        <View style={styles.form}>
+        <View 
+          ref={formRef}
+          onLayout={measureAll}
+          style={styles.form}
+        >
           {/* garden name */}
           <View style={styles.field}>
-            <Text style={styles.label}>Nom du jardin</Text>
+            <Text style={styles.label}>{t('garden_info_name_label')}</Text>
             <View style={styles.inputWrapper}>
               <TextInput
                 style={styles.input}
                 value={gardenName}
                 onChangeText={setGardenName}
-                placeholder="Nom du jardin"
+                placeholder={t('garden_info_name_placeholder')}
                 placeholderTextColor={COLORS.placeholder}
               />
               {gardenName.length > 0 && (
@@ -111,13 +132,13 @@ export default function GardenInfoScreen() {
 
           {/* Location */}
           <View style={styles.field}>
-            <Text style={styles.label}>Localisation</Text>
+            <Text style={styles.label}>{t('garden_info_location_label')}</Text>
             <View style={styles.inputWrapper}>
               <TextInput
                 style={styles.input}
                 value={location}
                 onChangeText={setLocation}
-                placeholder="Ville / Région"
+                placeholder={t('garden_info_location_placeholder')}
                 placeholderTextColor={COLORS.placeholder}
               />
               {location.length > 0 && (
@@ -133,7 +154,7 @@ export default function GardenInfoScreen() {
 
           {/* Garden Sections (UI only) */}
           <View style={styles.field}>
-            <Text style={styles.label}>Sections du jardin</Text>
+            <Text style={styles.label}>{t('garden_info_sections_label')}</Text>
             <View style={styles.chipsRow}>
               {sections.map((section) => (
                 <View key={section} style={styles.chip}>
@@ -145,14 +166,14 @@ export default function GardenInfoScreen() {
 
           {/* Add a custom section (UI only) */}
           <View style={styles.field}>
-            <Text style={styles.label}>Ajouter une section personnalisée</Text>
+            <Text style={styles.label}>{t('garden_info_add_section_label')}</Text>
             <View style={styles.addRow}>
               <View style={[styles.inputWrapper, styles.addInputWrapper]}>
                 <TextInput
                   style={styles.input}
                   value={newSection}
                   onChangeText={setNewSection}
-                  placeholder="Nom de la section"
+                  placeholder={t('garden_info_section_placeholder')}
                   placeholderTextColor={COLORS.placeholder}
                 />
                 {newSection.length > 0 && (
@@ -170,7 +191,7 @@ export default function GardenInfoScreen() {
                 activeOpacity={0.8}
                 onPress={handleAddSection}
               >
-                <Text style={styles.addButtonText}>Ajouter</Text>
+                <Text style={styles.addButtonText}>{t('garden_info_add_btn')}</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -182,7 +203,7 @@ export default function GardenInfoScreen() {
           activeOpacity={0.8}
           onPress={handleSave}
         >
-          <Text style={styles.saveButtonText}>ENREGISTRER</Text>
+          <Text style={styles.saveButtonText}>{t('personal_save_btn')}</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
@@ -190,16 +211,16 @@ export default function GardenInfoScreen() {
 }
 
 const COLORS = {
-  background: '#FFFFFF',
-  textDark: '#111827',
+  background: '#F9FAFB',
+  textDark: '#1F2937',
   textMuted: '#6B7280',
-  inputBg: '#F9FAFB',
+  inputBg: '#FFFFFF',
   border: '#E5E7EB',
-  primary: '#4F8F46',
+  primary: '#5A7F54',
   icon: '#9CA3AF',
-  placeholder: '#111827',
-  chipBg: '#111827',
-  chipText: '#FFFFFF',
+  placeholder: '#9CA3AF',
+  chipBg: '#EBF6EB',
+  chipText: '#5A7F54',
 };
 
 const styles = StyleSheet.create({
@@ -225,13 +246,13 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: 'center',
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: '800',
     color: COLORS.textDark,
   },
   gardenTitle: {
     textAlign: 'center',
     fontSize: 16,
-    fontWeight: '500',
+    fontWeight: '600',
     color: COLORS.textMuted,
     marginBottom: 24,
   },
@@ -244,6 +265,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 13,
+    fontWeight: '600',
     color: COLORS.textMuted,
     marginBottom: 6,
   },
@@ -251,11 +273,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: COLORS.inputBg,
-    borderRadius: 8,
+    borderRadius: 14,
     borderWidth: 1,
     borderColor: COLORS.border,
-    paddingHorizontal: 10,
-    height: 48,
+    paddingHorizontal: 12,
+    height: 50,
   },
   input: {
     flex: 1,
@@ -272,12 +294,15 @@ const styles = StyleSheet.create({
   },
   chip: {
     backgroundColor: COLORS.chipBg,
-    paddingHorizontal: 12,
-    paddingVertical: 4,
+    paddingHorizontal: 14,
+    paddingVertical: 6,
     borderRadius: 999,
+    borderWidth: 1,
+    borderColor: 'rgba(90, 127, 84, 0.08)',
   },
   chipText: {
-    fontSize: 12,
+    fontSize: 13,
+    fontWeight: '700',
     color: COLORS.chipText,
   },
   addRow: {
@@ -289,32 +314,37 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   addButton: {
-    height: 48,
-    paddingHorizontal: 14,
-    borderRadius: 8,
+    height: 50,
+    paddingHorizontal: 16,
+    borderRadius: 14,
     borderWidth: 1,
-    borderColor: COLORS.textDark,
+    borderColor: COLORS.border,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#FFFFFF',
   },
   addButtonText: {
     fontSize: 14,
-    color: COLORS.textDark,
-    fontWeight: '500',
+    color: COLORS.primary,
+    fontWeight: '700',
   },
   saveButton: {
     height: 52,
-    borderRadius: 8,
+    borderRadius: 14,
     backgroundColor: COLORS.primary,
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 8,
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.12,
+    shadowRadius: 6,
+    elevation: 2,
   },
   saveButtonText: {
     color: '#FFFFFF',
-    fontWeight: '600',
+    fontWeight: '700',
     fontSize: 15,
-    letterSpacing: 1,
+    letterSpacing: 0.5,
   },
 });

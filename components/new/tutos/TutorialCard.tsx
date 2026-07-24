@@ -3,6 +3,7 @@ import { Image, StyleSheet, Text, TouchableOpacity, View, Modal, TouchableWithou
 import { useRouter } from 'expo-router';
 import { useUserContext } from '@/contexts/user.context';
 import { useState } from 'react';
+import { useTranslation } from '@/contexts/language.context';
 
 interface TutorialCardProps {
     tutorial: {
@@ -34,6 +35,7 @@ interface TutorialCardProps {
 export default function TutorialCard({ tutorial, onLike, onPress, onDelete, onUpdate }: TutorialCardProps) {
     const router = useRouter();
     const { user } = useUserContext();
+    const { t } = useTranslation();
     
     const [menuVisible, setMenuVisible] = useState(false);
     const [editVisible, setEditVisible] = useState(false);
@@ -53,24 +55,37 @@ export default function TutorialCard({ tutorial, onLike, onPress, onDelete, onUp
     const getCategoryColor = (category: string) => {
         switch (category) {
             case 'ASTUCES':
-                return '#fde68a';
+                return '#FEF3C7';
             case 'DIY':
-                return '#fed7aa';
+                return '#FFEDD5';
             case 'TECHNIQUES':
-                return '#ddd6fe';
+                return '#EEF2FF';
             default:
-                return '#e5e5e5';
+                return '#F3F4F6';
+        }
+    };
+
+    const getCategoryLabel = (category: string) => {
+        switch (category) {
+            case 'ASTUCES':
+                return t('tutos_cat_astuces');
+            case 'DIY':
+                return t('tutos_cat_diy');
+            case 'TECHNIQUES':
+                return t('tutos_cat_techniques');
+            default:
+                return category;
         }
     };
 
     const handleDelete = () => {
         setMenuVisible(false);
         Alert.alert(
-            'Supprimer le tutoriel',
-            'Es-tu sûr de vouloir supprimer ce tutoriel ? Cette action est irréversible.',
+            t('tutos_delete_title'),
+            t('tutos_delete_confirm'),
             [
-                { text: 'Annuler', style: 'cancel' },
-                { text: 'Supprimer', style: 'destructive', onPress: () => onDelete?.(tutorial.id) },
+                { text: t('social_cancel'), style: 'cancel' },
+                { text: t('social_delete'), style: 'destructive', onPress: () => onDelete?.(tutorial.id) },
             ]
         );
     };
@@ -130,7 +145,7 @@ export default function TutorialCard({ tutorial, onLike, onPress, onDelete, onUp
                         color="white"
                     />
                     <Text style={styles.typeBadgeText}>
-                        {tutorial.type === 'VIDEO' ? 'Vidéo' : 'Article'}
+                        {tutorial.type === 'VIDEO' ? t('tutos_type_video') : t('tutos_type_article')}
                     </Text>
                 </View>
 
@@ -165,8 +180,8 @@ export default function TutorialCard({ tutorial, onLike, onPress, onDelete, onUp
                             </Text>
                         </View>
                         <TouchableOpacity onPress={(e) => { e.stopPropagation(); if(tutorial.author.id) router.push({ pathname: '/user/[id]', params: { id: tutorial.author.id } }); }}>
-                            <Text style={[styles.authorName, { color: '#5B8E55', textDecorationLine: 'underline' }]}>
-                                {tutorial.author.name || 'Utilisateur'}
+                            <Text style={styles.authorName}>
+                                {tutorial.author.name || t('social_user_fallback')}
                             </Text>
                         </TouchableOpacity>
                     </View>
@@ -174,14 +189,14 @@ export default function TutorialCard({ tutorial, onLike, onPress, onDelete, onUp
 
                 {/* Catégorie */}
                 <View style={[styles.categoryBadge, { backgroundColor: getCategoryColor(tutorial.category) }]}>
-                    <Text style={styles.categoryText}>{tutorial.category}</Text>
+                    <Text style={styles.categoryText}>{getCategoryLabel(tutorial.category)}</Text>
                 </View>
 
                 {/* Stats */}
                 <View style={styles.stats}>
                     <View style={styles.statItem}>
                         <Ionicons name="eye-outline" size={16} color="#666" />
-                        <Text style={styles.statText}>{tutorial.viewCount} vues</Text>
+                        <Text style={styles.statText}>{tutorial.viewCount} {t('tutos_views')}</Text>
                     </View>
 
                     <TouchableOpacity
@@ -209,12 +224,12 @@ export default function TutorialCard({ tutorial, onLike, onPress, onDelete, onUp
                             <View style={styles.menuCard}>
                                 <TouchableOpacity style={styles.menuItem} onPress={handleEditOpen}>
                                     <Ionicons name="pencil-outline" size={18} color="#374151" />
-                                    <Text style={styles.menuItemText}>Modifier le tutoriel</Text>
+                                    <Text style={styles.menuItemText}>{t('tutos_edit_title')}</Text>
                                 </TouchableOpacity>
                                 <View style={styles.menuDivider} />
                                 <TouchableOpacity style={styles.menuItem} onPress={handleDelete}>
                                     <Ionicons name="trash-outline" size={18} color="#ef4444" />
-                                    <Text style={styles.menuItemTextDanger}>Supprimer le tutoriel</Text>
+                                    <Text style={styles.menuItemTextDanger}>{t('tutos_delete_title')}</Text>
                                 </TouchableOpacity>
                             </View>
                         </TouchableWithoutFeedback>
@@ -229,22 +244,22 @@ export default function TutorialCard({ tutorial, onLike, onPress, onDelete, onUp
                         <TouchableWithoutFeedback>
                             <View style={styles.editCard}>
                                 <View style={styles.editHeader}>
-                                    <Text style={styles.editTitle}>Modifier le tutoriel</Text>
+                                    <Text style={styles.editTitle}>{t('tutos_edit_title')}</Text>
                                     <TouchableOpacity onPress={() => setEditVisible(false)}>
                                         <Ionicons name="close" size={24} color="#374151" />
                                     </TouchableOpacity>
                                 </View>
                                 
-                                <Text style={styles.inputLabel}>Titre</Text>
+                                <Text style={styles.inputLabel}>{t('tutos_title')}</Text>
                                 <TextInput
                                     style={styles.editInput}
                                     value={editTitle}
                                     onChangeText={setEditTitle}
-                                    placeholder="Titre du tutoriel..."
+                                    placeholder={t('tutos_title_placeholder')}
                                     placeholderTextColor="#9ca3af"
                                 />
 
-                                <Text style={styles.inputLabel}>{tutorial.type === 'ARTICLE' ? 'Contenu' : 'Description'}</Text>
+                                <Text style={styles.inputLabel}>{tutorial.type === 'ARTICLE' ? t('tutos_content') : t('tutos_desc')}</Text>
                                 <TextInput
                                     style={[styles.editInput, styles.editTextArea]}
                                     value={editContent}
@@ -252,7 +267,7 @@ export default function TutorialCard({ tutorial, onLike, onPress, onDelete, onUp
                                     multiline
                                     numberOfLines={6}
                                     textAlignVertical="top"
-                                    placeholder={tutorial.type === 'ARTICLE' ? "Contenu de l'article..." : "Description de la vidéo..."}
+                                    placeholder={tutorial.type === 'ARTICLE' ? t('tutos_content_placeholder') : t('tutos_desc_placeholder')}
                                     placeholderTextColor="#9ca3af"
                                 />
 
@@ -261,7 +276,7 @@ export default function TutorialCard({ tutorial, onLike, onPress, onDelete, onUp
                                     onPress={handleEditSave}
                                     disabled={saving}
                                 >
-                                    {saving ? <ActivityIndicator color="white" /> : <Text style={styles.editSaveBtnText}>Enregistrer</Text>}
+                                    {saving ? <ActivityIndicator color="white" /> : <Text style={styles.editSaveBtnText}>{t('social_save')}</Text>}
                                 </TouchableOpacity>
                             </View>
                         </TouchableWithoutFeedback>
@@ -275,14 +290,14 @@ export default function TutorialCard({ tutorial, onLike, onPress, onDelete, onUp
 const styles = StyleSheet.create({
     card: {
         backgroundColor: 'white',
-        borderRadius: 12,
+        borderRadius: 20,
         borderWidth: 1,
-        borderColor: '#e5e5e5',
-        marginBottom: 15,
+        borderColor: '#E5E7EB',
+        marginBottom: 16,
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.1,
-        shadowRadius: 3,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.02,
+        shadowRadius: 8,
         elevation: 2,
         overflow: 'hidden',
     },
@@ -298,7 +313,7 @@ const styles = StyleSheet.create({
     thumbnailPlaceholder: {
         width: '100%',
         height: '100%',
-        backgroundColor: '#f5f5f5',
+        backgroundColor: '#F9FAFB',
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -311,7 +326,7 @@ const styles = StyleSheet.create({
         gap: 4,
         paddingHorizontal: 10,
         paddingVertical: 6,
-        borderRadius: 6,
+        borderRadius: 8,
     },
     videoBadge: {
         backgroundColor: '#ef4444',
@@ -339,7 +354,7 @@ const styles = StyleSheet.create({
         fontWeight: '600',
     },
     content: {
-        padding: 16,
+        padding: 20,
     },
     titleRow: {
         flexDirection: 'row',
@@ -350,8 +365,8 @@ const styles = StyleSheet.create({
     title: {
         flex: 1,
         fontSize: 16,
-        fontWeight: '600',
-        color: '#000',
+        fontWeight: '800',
+        color: '#1F2937',
         lineHeight: 22,
     },
     menuButton: {
@@ -372,34 +387,38 @@ const styles = StyleSheet.create({
         width: 24,
         height: 24,
         borderRadius: 12,
-        backgroundColor: '#5B8E55',
+        backgroundColor: '#EBF6EB',
         justifyContent: 'center',
         alignItems: 'center',
     },
     avatarText: {
-        color: 'white',
-        fontSize: 12,
-        fontWeight: '600',
+        color: '#5A7F54',
+        fontSize: 11,
+        fontWeight: '800',
     },
     authorName: {
-        fontSize: 14,
-        color: '#666',
+        fontSize: 13,
+        fontWeight: '700',
+        color: '#5A7F54',
     },
     categoryBadge: {
         alignSelf: 'flex-start',
-        paddingHorizontal: 10,
-        paddingVertical: 4,
-        borderRadius: 12,
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 999,
         marginBottom: 12,
     },
     categoryText: {
-        fontSize: 12,
-        fontWeight: '500',
-        color: '#333',
+        fontSize: 11,
+        fontWeight: '700',
+        color: '#374151',
     },
     stats: {
         flexDirection: 'row',
         gap: 16,
+        paddingTop: 12,
+        borderTopWidth: 1,
+        borderTopColor: '#F3F4F6',
     },
     statItem: {
         flexDirection: 'row',
@@ -407,8 +426,9 @@ const styles = StyleSheet.create({
         gap: 4,
     },
     statText: {
-        fontSize: 14,
-        color: '#666',
+        fontSize: 13,
+        fontWeight: '600',
+        color: '#6B7280',
     },
     // Menu
     modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.3)', justifyContent: 'center', alignItems: 'center' },
@@ -444,6 +464,17 @@ const styles = StyleSheet.create({
         marginBottom: 16,
     },
     editTextArea: { minHeight: 110, paddingTop: 12 },
-    editSaveBtn: { backgroundColor: '#5B8E55', paddingVertical: 14, borderRadius: 12, alignItems: 'center', marginTop: 8 },
+    editSaveBtn: {
+        backgroundColor: '#5A7F54',
+        paddingVertical: 14,
+        borderRadius: 14,
+        alignItems: 'center',
+        marginTop: 8,
+        shadowColor: '#5A7F54',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.12,
+        shadowRadius: 6,
+        elevation: 2,
+    },
     editSaveBtnText: { color: 'white', fontSize: 16, fontWeight: '600' },
 });

@@ -1,20 +1,47 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useEffect, useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  ActivityIndicator,
+  Alert,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import { useRouter } from 'expo-router';
 import { useFetch } from '@/hooks/useFetch';
+import { GardenSensor } from '@/models/models';
+import { useNotificationContext } from '@/contexts/notification.context';
+import { useUserContext } from '@/contexts/user.context';
+import { useTranslation } from '@/contexts/language.context';
+import { useTour } from '@/contexts/tour.context';
+import { AddSensorModal } from './AddSensorModal';
 
-type SensorReading = {
-  id: string;
-  sensor_id: string;
-  sensor_name: string;
-  value_numeric: number;
-  raw_value: number | null;
-  created_at: string;
-  recorded_at: string | null;
+const FAKE_LIGHT = 85;
+const SENSOR_API_URL = process.env.EXPO_PUBLIC_SENSOR_API_URL;
+
+type PendingSensorAction = {
+  sensorId: string;
+  type: 'collection' | 'unpair';
 };
 
-const FAKE_TEMPERATURE = 22;
-const FAKE_LIGHT = 85;
+function apiErrorMessage(payload: unknown, fallback: string): string {
+  if (payload && typeof payload === 'object') {
+    const errorPayload = payload as { error?: unknown; message?: unknown };
+
+    if (typeof errorPayload.error === 'string') {
+      return errorPayload.error;
+    }
+
+    if (typeof errorPayload.message === 'string') {
+      return errorPayload.message;
+    }
+  }
+
+  return fallback;
+}
 
 type MetricCardProps = {
   icon: keyof typeof Ionicons.glyphMap;
@@ -49,106 +76,416 @@ function MetricCard({
   );
 }
 
+function displayUnit(unit: string): string {
+  return unit === 'C' ? '°C' : unit;
+}
+
 export function SensorsSection() {
-  const { httpClient } = useFetch(undefined);
-  const [reading, setReading] = useState<SensorReading | null>(null);
-  const [hasData, setHasData] = useState(true);
+  const { httpClient } = useFetch(SENSOR_API_URL);
+  const { addNotification } = useNotificationContext();
+  const { isPremium } = useUserContext();
+  const { visible } = useTour();
+  const { t } = useTranslation();
+  const router = useRouter();
+  const isPremiumActive = isPremium || visible;
+
+  const [sensors, setSensors] = useState<GardenSensor[]>([]);
   const [loading, setLoading] = useState(true);
-  const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [pairingVisible, setPairingVisible] = useState(false);
+  const [pairingMode, setPairingMode] = useState<'add' | 'wifi'>('add');
+  const [pendingSensorAction, setPendingSensorAction] =
+    useState<PendingSensorAction | null>(null);
+  const [hasAlertedLowHumidity, setHasAlertedLowHumidity] = useState(false);
+
+  const loadSensors = useCallback(
+    async (showLoader = false) => {
+      if (showLoader) {
+        setLoading(true);
+      }
+
+      try {
+        const http = await httpClient;
+        const response = await http.get('/api/sensors');
+
+        if (response.status === 'Failure') {
+          setError(t('sensor_error_load', 'Impossible de charger les capteurs.'));
+          setSensors([]);
+          return;
+        }
+
+        setError(null);
+        setSensors(response.payload as GardenSensor[]);
+      } catch {
+        setError(t('sensor_error_load', 'Impossible de charger les capteurs.'));
+        setSensors([]);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [httpClient, t]
+  );
+
+  const toggleSensorCollection = useCallback(
+    async (sensor: GardenSensor) => {
+      setPendingSensorAction({ sensorId: sensor.id, type: 'collection' });
+      setError(null);
+
+      try {
+        const http = await httpClient;
+        const action = sensor.data_collection_enabled ? 'stop' : 'start';
+        const response = await http.post(`/api/sensors/${sensor.id}/${action}`, {});
+
+        if (response.status === 'Failure') {
+          setError(t('sensor_error_toggle', "Impossible de modifier l'état de collecte."));
+          return;
+        }
+
+        await loadSensors();
+      } catch {
+        setError(t('sensor_error_toggle', "Impossible de modifier l'état de collecte."));
+      } finally {
+        setPendingSensorAction(null);
+      }
+    },
+    [httpClient, loadSensors, t]
+  );
+
+  const openAddSensor = useCallback(() => {
+    setPairingMode('add');
+    setPairingVisible(true);
+  }, []);
+
+  const openWifiConfiguration = useCallback(() => {
+    setPairingMode('wifi');
+    setPairingVisible(true);
+  }, []);
+
+  const unpairSensor = useCallback(
+    (sensor: GardenSensor) => {
+      Alert.alert(
+        t('sensor_unpair_title', 'Désappairer le capteur'),
+        t(
+          'sensor_unpair_message',
+          'Le capteur "{{name}}" sera retiré de ton compte. Il faudra le réappairer pour envoyer de nouvelles mesures.'
+        ).replace('{{name}}', sensor.name),
+        [
+          { text: t('cancel', 'Annuler'), style: 'cancel' },
+          {
+            text: t('sensor_unpair_confirm', 'Désappairer'),
+            style: 'destructive',
+            onPress: async () => {
+              setPendingSensorAction({ sensorId: sensor.id, type: 'unpair' });
+              setError(null);
+
+              try {
+                const http = await httpClient;
+                const response = await http.delete(`/api/sensors/${sensor.id}`);
+
+                if (response.status === 'Failure') {
+                  setError(
+                    `${apiErrorMessage(
+                      response.payload,
+                      t('sensor_error_unpair', 'Impossible de désappairer le capteur.')
+                    )} (${response.code})`
+                  );
+                  return;
+                }
+
+                await loadSensors(true);
+              } catch {
+                setError(t('sensor_error_unpair', 'Impossible de désappairer le capteur.'));
+              } finally {
+                setPendingSensorAction(null);
+              }
+            },
+          },
+        ]
+      );
+    },
+    [httpClient, loadSensors, t]
+  );
 
   useEffect(() => {
     let isActive = true;
 
-    const fetchLatest = async () => {
-      if (!hasLoadedOnce) {
-        setLoading(true);
-      }
-      const http = await httpClient;
-      const response = await http.get('/api/sensor-readings/latest');
+    const loadActiveSensors = async (showLoader = false) => {
+      await loadSensors(showLoader);
 
       if (!isActive) {
         return;
       }
-
-      if (response.status === 'Failure') {
-        setHasData(false);
-        setReading(null);
-        if (!hasLoadedOnce) {
-          setLoading(false);
-        }
-        return;
-      }
-
-      setHasData(true);
-      setReading(response.payload as SensorReading);
-      if (!hasLoadedOnce) {
-        setLoading(false);
-        setHasLoadedOnce(true);
-      }
     };
 
-    fetchLatest();
-    const intervalId = setInterval(fetchLatest, 1000);
+    loadActiveSensors(true);
+    const intervalId = setInterval(() => loadActiveSensors(), 5000);
 
     return () => {
       isActive = false;
       clearInterval(intervalId);
     };
-  }, [httpClient, hasLoadedOnce]);
+  }, [loadSensors]);
+
+  const humiditySensor = useMemo(
+    () => sensors.find((sensor) => sensor.type === 'humidity'),
+    [sensors]
+  );
+
+  const temperatureSensor = useMemo(
+    () => sensors.find((sensor) => sensor.type === 'temperature'),
+    [sensors]
+  );
+
+  const humidityReading = humiditySensor?.latest_reading ?? null;
+
+  useEffect(() => {
+    if (!humidityReading || !humiditySensor) {
+      return;
+    }
+
+    if (humidityReading.value_numeric < 30) {
+      if (!hasAlertedLowHumidity) {
+        addNotification(
+          t('notif_sensor_thirsty_title', '🚨 Alerte Soif Extrême !'),
+          t(
+            'notif_sensor_thirsty_body',
+            'L’humidité du {{name}} est à {{value}}%. Il crie "De l’eau par pitié !"'
+          )
+            .replace('{{name}}', humiditySensor.name || t('notif_sensor_fallback_name', 'Capteur Basilic'))
+            .replace('{{value}}', String(Math.round(humidityReading.value_numeric))),
+          'SENSOR'
+        );
+        setHasAlertedLowHumidity(true);
+      }
+    } else if (humidityReading.value_numeric > 35) {
+      setHasAlertedLowHumidity(false);
+    }
+  }, [addNotification, hasAlertedLowHumidity, humidityReading, humiditySensor, t]);
+
+  const latestUpdatedAt = useMemo(() => {
+    const dates = sensors
+      .map((sensor) => sensor.latest_reading?.updated_at || sensor.latest_reading?.created_at)
+      .filter(Boolean)
+      .sort();
+
+    return dates[dates.length - 1];
+  }, [sensors]);
 
   const updatedLabel = (() => {
-    if (!reading?.created_at) {
-      return 'Mis à jour: -';
+    if (!latestUpdatedAt) {
+      return t('sensor_updated_never');
     }
-    const date = new Date(reading.created_at);
+
+    const date = new Date(latestUpdatedAt);
     if (Number.isNaN(date.getTime())) {
-      return 'Mis à jour: -';
+      return t('sensor_updated_never');
     }
-    return `Mis à jour: ${date.toLocaleString('fr-FR')}`;
+
+    return `${t('sensor_updated_at')}${date.toLocaleString()}`;
   })();
+
+  const humidityValue =
+    humidityReading?.value_numeric === undefined
+      ? '-'
+      : `${Math.round(humidityReading.value_numeric)}${displayUnit(humiditySensor?.unit || '%')}`;
+
+  const temperatureValue =
+    temperatureSensor?.latest_reading?.value_numeric === undefined
+      ? '-'
+      : `${temperatureSensor.latest_reading.value_numeric.toFixed(1)}${displayUnit(temperatureSensor.unit)}`;
+
+  const sensorTitle =
+    sensors.length === 1
+      ? sensors[0].name
+      : t('sensor_detected_count', '{{count}} capteur(s) détecté(s)').replace(
+          '{{count}}',
+          String(sensors.length)
+        );
+  const hasSensors = sensors.length > 0;
 
   return (
     <ScrollView style={styles.scrollContainer}>
       <View style={styles.container}>
-        {loading && <ActivityIndicator style={styles.loader} />}
-        {!hasData && (
+        <View style={styles.topRow}>
+          <Text style={styles.sectionTitle}>{t('sensor_my_sensors', 'Mes capteurs')}</Text>
+          <Pressable style={styles.addButton} onPress={openAddSensor}>
+            <Ionicons name="add" size={18} color="#FFFFFF" />
+            <Text style={styles.addButtonText}>{t('sensor_add', 'Ajouter')}</Text>
+          </Pressable>
+        </View>
+
+        {loading && !hasSensors && <ActivityIndicator style={styles.loader} />}
+        {error && <Text style={styles.errorText}>{error}</Text>}
+
+        {!loading && !hasSensors && (
           <View style={styles.noDataCard}>
-            <Text style={styles.noDataText}>Aucune donnée capteur.</Text>
+            <Ionicons name="wifi-outline" size={28} color="#2F7D32" />
+            <Text style={styles.noDataTitle}>
+              {t('sensor_none', 'Aucun capteur associé.')}
+            </Text>
+            <Text style={styles.noDataText}>
+              {t('sensor_no_data')}
+            </Text>
+            <Pressable style={styles.emptyAction} onPress={openAddSensor}>
+              <Ionicons name="add-circle-outline" size={18} color="#2F7D32" />
+              <Text style={styles.emptyActionText}>
+                {t('sensor_add_one', 'Ajouter un capteur')}
+              </Text>
+            </Pressable>
           </View>
         )}
-        {hasData && reading && (
+
+        {hasSensors && (
           <View style={styles.card}>
             <View style={styles.headerRow}>
-              <Text style={styles.title}>
-                {reading.sensor_name || 'Capteur Basilic'}
-              </Text>
+              <Text style={styles.title}>{sensorTitle}</Text>
               <Ionicons name="ellipsis-vertical" size={18} color="#6B7280" />
             </View>
+
             <View style={styles.metricsRow}>
               <MetricCard
                 icon="water-outline"
-                value={`${reading.value_numeric}%`}
-                label="Humidité"
+                value={humidityValue}
+                label={t('sensor_humidity')}
                 backgroundColor="#EAF4FF"
-                showPulse
                 valueColor="#111827"
               />
               <MetricCard
                 icon="thermometer-outline"
-                value={`${FAKE_TEMPERATURE}°C`}
-                label="Temp."
+                value={temperatureValue}
+                label={t('sensor_temp')}
                 backgroundColor="#FFF2E8"
+                showPulse={!!temperatureSensor?.latest_reading}
               />
               <MetricCard
                 icon="sunny-outline"
                 value={`${FAKE_LIGHT}%`}
-                label="Lumière"
+                label={t('sensor_light')}
                 backgroundColor="#FFF9DB"
               />
             </View>
+
             <Text style={styles.updated}>{updatedLabel}</Text>
           </View>
         )}
+
+        {hasSensors && humidityReading && (
+          <View style={[styles.card, styles.adviceCard, !isPremiumActive && styles.lockedAdviceCard]}>
+            <View style={styles.adviceHeader}>
+              <View style={styles.adviceTitleWrapper}>
+                <Ionicons name="bulb" size={20} color="#D4AF37" />
+                <Text style={styles.adviceTitle}>{t('sensor_advice_title')}</Text>
+              </View>
+
+              {!isPremiumActive && (
+                <View style={styles.vipBadge}>
+                  <Text style={styles.vipBadgeText}>VIP</Text>
+                </View>
+              )}
+            </View>
+
+            {isPremiumActive ? (
+              <View style={styles.adviceBody}>
+                {humidityReading.value_numeric < 30 ? (
+                  <Text style={styles.adviceText}>{t('sensor_advice_low')}</Text>
+                ) : humidityReading.value_numeric > 60 ? (
+                  <Text style={styles.adviceText}>{t('sensor_advice_high')}</Text>
+                ) : (
+                  <Text style={styles.adviceText}>{t('sensor_advice_opt')}</Text>
+                )}
+              </View>
+            ) : (
+              <View style={styles.lockedAdviceBody}>
+                <Text style={styles.lockedAdviceSub}>{t('sensor_advice_locked_sub')}</Text>
+                <TouchableOpacity
+                  style={styles.unlockBtn}
+                  onPress={() => router.push('/premium' as any)}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.unlockBtnText}>{t('sensor_advice_unlock_btn')}</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          </View>
+        )}
+
+        {hasSensors && (
+          <View style={styles.sensorList}>
+            {sensors.map((sensor) => (
+              <View style={styles.sensorRow} key={sensor.id}>
+                <View style={styles.sensorRowIcon}>
+                  <Ionicons name="radio-outline" size={18} color="#111827" />
+                </View>
+
+                <View style={styles.sensorRowText}>
+                  <Text style={styles.sensorRowName}>{sensor.name}</Text>
+                  <Text style={styles.sensorRowMeta}>
+                    {sensor.type} ·{' '}
+                    {sensor.data_collection_enabled
+                      ? t('sensor_collection_active', 'collecte active')
+                      : t('sensor_collection_stopped', 'collecte arrêtée')}
+                  </Text>
+                </View>
+                <View style={styles.sensorActions}>
+                  <Pressable
+                    onPress={openWifiConfiguration}
+                    disabled={pendingSensorAction?.sensorId === sensor.id}
+                    style={[styles.sensorAction, styles.sensorWifiAction]}
+                  >
+                    <Ionicons name="wifi-outline" size={16} color="#2563EB" />
+                  </Pressable>
+                  <Pressable
+                    onPress={() => toggleSensorCollection(sensor)}
+                    disabled={pendingSensorAction?.sensorId === sensor.id}
+                    style={[
+                      styles.sensorAction,
+                      sensor.data_collection_enabled ? styles.sensorActionStop : null,
+                    ]}
+                  >
+                    {pendingSensorAction?.sensorId === sensor.id &&
+                    pendingSensorAction.type === 'collection' ? (
+                      <ActivityIndicator size="small" color="#111827" />
+                    ) : (
+                      <Ionicons
+                        name={sensor.data_collection_enabled ? 'pause' : 'play'}
+                        size={16}
+                        color={sensor.data_collection_enabled ? '#B91C1C' : '#2F7D32'}
+                      />
+                    )}
+                  </Pressable>
+                  <Pressable
+                    onPress={() => unpairSensor(sensor)}
+                    disabled={pendingSensorAction?.sensorId === sensor.id}
+                    style={[styles.sensorAction, styles.sensorDangerAction]}
+                  >
+                    {pendingSensorAction?.sensorId === sensor.id &&
+                    pendingSensorAction.type === 'unpair' ? (
+                      <ActivityIndicator size="small" color="#111827" />
+                    ) : (
+                      <Ionicons name="trash-outline" size={16} color="#B91C1C" />
+                    )}
+                  </Pressable>
+                </View>
+              </View>
+            ))}
+          </View>
+        )}
+
+        <AddSensorModal
+          visible={pairingVisible}
+          onClose={() => setPairingVisible(false)}
+          onProvisioned={() => loadSensors(true)}
+          title={
+            pairingMode === 'wifi'
+              ? t('sensor_configure_wifi', 'Configurer le Wi-Fi')
+              : t('sensor_add_one', 'Ajouter un capteur')
+          }
+          successTitle={
+            pairingMode === 'wifi'
+              ? t('sensor_wifi_configured', 'Wi-Fi configuré')
+              : t('sensor_paired', 'Capteur appairé')
+          }
+        />
       </View>
     </ScrollView>
   );
@@ -160,39 +497,64 @@ const styles = StyleSheet.create({
   },
   container: {
     gap: 16,
-    padding: 8,
+    padding: 20,
+  },
+  topRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#111827',
+  },
+  addButton: {
+    minHeight: 38,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    backgroundColor: '#2F7D32',
+  },
+  addButtonText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#FFFFFF',
   },
   card: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 18,
-    padding: 16,
-    borderWidth: 2,
-    borderColor: '#7DCB6B',
-    shadowColor: '#111827',
-    shadowOpacity: 0.06,
-    shadowOffset: { width: 0, height: 4 },
+    borderRadius: 20,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    shadowColor: '#000',
+    shadowOpacity: 0.02,
+    shadowOffset: { width: 0, height: 2 },
     shadowRadius: 8,
+    elevation: 2,
   },
   headerRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 12,
+    marginBottom: 16,
   },
   title: {
-    fontSize: 24,
-    fontWeight: '600',
-    color: '#111827',
+    fontSize: 20,
+    fontWeight: '800',
+    color: '#1F2937',
   },
   metricsRow: {
     flexDirection: 'row',
     gap: 12,
-    marginBottom: 12,
+    marginBottom: 16,
   },
   metricCard: {
     flex: 1,
-    borderRadius: 16,
-    paddingVertical: 12,
+    borderRadius: 14,
+    paddingVertical: 14,
     alignItems: 'center',
     justifyContent: 'center',
     gap: 6,
@@ -204,31 +566,191 @@ const styles = StyleSheet.create({
   },
   metricValue: {
     fontSize: 18,
-    fontWeight: '600',
-    color: '#111827',
+    fontWeight: '800',
+    color: '#1F2937',
   },
   metricLabel: {
-    fontSize: 16,
+    fontSize: 14,
+    fontWeight: '600',
     color: '#6B7280',
   },
   updated: {
-    fontSize: 16,
-    color: '#6B7280',
+    fontSize: 13,
+    fontWeight: '500',
+    color: '#9CA3AF',
+    textAlign: 'right',
   },
   noDataCard: {
+    alignItems: 'center',
+    gap: 10,
     backgroundColor: '#FFFFFF',
-    borderRadius: 18,
-    padding: 16,
+    borderRadius: 20,
+    padding: 20,
     borderWidth: 1,
-    borderColor: '#E7E7E7',
+    borderColor: '#E5E7EB',
+  },
+  noDataTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#111827',
   },
   noDataText: {
     fontSize: 14,
     color: '#6B7280',
     textAlign: 'center',
   },
+  emptyAction: {
+    minHeight: 38,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 12,
+    borderWidth: 1,
+    borderColor: '#B6DDB0',
+    borderRadius: 8,
+    backgroundColor: '#F1FAEE',
+  },
+  emptyActionText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#2F7D32',
+  },
+  sensorList: {
+    gap: 8,
+  },
+  sensorRow: {
+    minHeight: 58,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    borderRadius: 8,
+    backgroundColor: '#FFFFFF',
+  },
+  sensorRowIcon: {
+    width: 34,
+    height: 34,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 8,
+    backgroundColor: '#F3F4F6',
+  },
+  sensorRowText: {
+    flex: 1,
+  },
+  sensorRowName: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#111827',
+  },
+  sensorRowMeta: {
+    fontSize: 13,
+    color: '#6B7280',
+  },
+  sensorActions: {
+    flexDirection: 'row',
+    gap: 6,
+  },
+  sensorAction: {
+    width: 34,
+    height: 38,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#B6DDB0',
+    borderRadius: 8,
+    backgroundColor: '#F1FAEE',
+  },
+  sensorWifiAction: {
+    borderColor: '#BFDBFE',
+    backgroundColor: '#EFF6FF',
+  },
+  sensorActionStop: {
+    borderColor: '#FECACA',
+    backgroundColor: '#FEF2F2',
+  },
+  sensorDangerAction: {
+    borderColor: '#FECACA',
+    backgroundColor: '#FEF2F2',
+  },
+  errorText: {
+    fontSize: 14,
+    color: '#B91C1C',
+  },
   loader: {
     marginTop: 8,
     alignSelf: 'center',
+  },
+  adviceCard: {
+    borderColor: '#E2E8F0',
+  },
+  lockedAdviceCard: {
+    backgroundColor: '#FCFAF0',
+    borderColor: '#FEF3C7',
+    borderWidth: 1.5,
+  },
+  adviceHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  adviceTitleWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  adviceTitle: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#1E293B',
+  },
+  vipBadge: {
+    backgroundColor: '#FEF3C7',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 8,
+  },
+  vipBadgeText: {
+    color: '#D97706',
+    fontSize: 10,
+    fontWeight: '800',
+  },
+  adviceBody: {
+    paddingVertical: 4,
+  },
+  adviceText: {
+    fontSize: 14,
+    color: '#334155',
+    lineHeight: 20,
+  },
+  lockedAdviceBody: {
+    alignItems: 'center',
+    paddingVertical: 10,
+  },
+  lockedAdviceSub: {
+    fontSize: 13,
+    color: '#64748B',
+    textAlign: 'center',
+    lineHeight: 18,
+    marginBottom: 16,
+  },
+  unlockBtn: {
+    backgroundColor: '#D4AF37',
+    borderRadius: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    shadowColor: '#D4AF37',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 1,
+  },
+  unlockBtnText: {
+    color: '#FFFFFF',
+    fontSize: 12,
+    fontWeight: '800',
   },
 });

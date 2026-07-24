@@ -18,11 +18,11 @@ export function useGarden() {
 
             const gardenVegetables = response.payload as GardenVegetablePayload[]
             const vegetables = gardenVegetables.map((gardenVegetable) => {
-                const temp = vegetablesContext.find(vegetable => vegetable.id === gardenVegetable.vegetableId) as GardenVegetable;
-                temp.gardenVegetableId = gardenVegetable.id
-                return temp
-            }) as GardenVegetable[]
-            setGardenVegetables(vegetables)
+                const base = vegetablesContext.find(vegetable => vegetable.id === gardenVegetable.vegetableId);
+                if (!base) return null;
+                return { ...base, gardenVegetableId: gardenVegetable.id } as GardenVegetable;
+            }).filter(Boolean) as GardenVegetable[];
+            setGardenVegetables(vegetables);
         }
         return response.status
     }

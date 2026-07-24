@@ -69,7 +69,7 @@ export const styles = StyleSheet.create({
     title: {
         fontSize: 26,
         fontWeight: "800",
-        color: "#2F6B3B",
+        color: "#5A7F54",
     },
     subRow: {
         marginTop: 4,
@@ -252,12 +252,17 @@ export const styles = StyleSheet.create({
     ctaButton: {
         width: "100%",
         height: 50,
-        borderRadius: 10,
+        borderRadius: 14,
         alignItems: "center",
         justifyContent: "center",
     },
     green: {
         backgroundColor: "#5A7F54",
+        shadowColor: "#5A7F54",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.12,
+        shadowRadius: 6,
+        elevation: 2,
     },
     red: {
         backgroundColor: "#ea333cff"
@@ -266,5 +271,55 @@ export const styles = StyleSheet.create({
         color: "#FFFFFF",
         fontWeight: "900",
         letterSpacing: 0.5,
+    },
+    lockedContainer: {
+        marginTop: 24,
+        padding: 24,
+        borderRadius: 20,
+        backgroundColor: "#FCFAF0",
+        borderColor: "#FEF3C7",
+        borderWidth: 1.5,
+        alignItems: "center",
+        justifyContent: "center",
+    },
+    lockedDivider: {
+        width: 60,
+        height: 4,
+        borderRadius: 2,
+        backgroundColor: "#FEF3C7",
+        marginBottom: 16,
+    },
+    lockIcon: {
+        marginBottom: 12,
+    },
+    lockedTitle: {
+        fontSize: 16,
+        fontWeight: "800",
+        color: "#B8860B",
+        marginBottom: 8,
+        textAlign: "center",
+    },
+    lockedSub: {
+        fontSize: 13,
+        color: "#6B7280",
+        lineHeight: 18,
+        textAlign: "center",
+        marginBottom: 20,
+    },
+    unlockBtn: {
+        backgroundColor: "#D4AF37",
+        borderRadius: 12,
+        paddingVertical: 12,
+        paddingHorizontal: 24,
+        shadowColor: "#D4AF37",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.15,
+        shadowRadius: 6,
+        elevation: 2,
+    },
+    unlockBtnText: {
+        color: "white",
+        fontSize: 13,
+        fontWeight: "800",
     },
 });

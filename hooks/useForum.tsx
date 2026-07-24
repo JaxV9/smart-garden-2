@@ -1,6 +1,9 @@
 import { useForumContext } from "@/contexts/forum.context";
-import { useFetch } from "./useFetch";
+import { useNotificationContext } from "@/contexts/notification.context";
+import { useUserContext } from "@/contexts/user.context";
 import { useCallback } from "react";
+import { useFetch } from "./useFetch";
+import { useTranslation } from "@/contexts/language.context";
 
 /**
  * Représente un tag (catégorie) de forum.
@@ -120,6 +123,9 @@ export interface UserComment {
 export function useForum() {
     const { tags, setTags, topics, setTopics } = useForumContext();
     const { httpClient } = useFetch(undefined);
+    const { addNotification } = useNotificationContext();
+    const { user } = useUserContext();
+    const { t } = useTranslation();
 
     /**
      * Charge les tags s’ils ne sont pas déjà présents dans le contexte.
@@ -146,10 +152,44 @@ export function useForum() {
         const url = tagId ? `/api/topics?tagId=${tagId}` : "/api/topics";
         const response = await http.get(url);
         if (response.status !== "Failure") {
-            setTopics(response.payload as Topic[]);
+            const fetchedTopics = response.payload as Topic[];
+
+            if (topics.length > 0 && user?.id) {
+                for (const newTopic of fetchedTopics) {
+                    if (newTopic.authorId === user.id || newTopic.author?.id === user.id) {
+                        const oldTopic = topics.find(t => t.id === newTopic.id);
+                        if (oldTopic) {
+                            if (newTopic._count.comments > oldTopic._count.comments) {
+                                try {
+                                    const topicDetailResponse = await http.get(`/api/topic/${newTopic.id}`);
+                                    if (topicDetailResponse.status !== "Failure") {
+                                        const topicDetail = topicDetailResponse.payload as TopicDetail;
+                                        const foreignComments = topicDetail.comments.filter(c => c.authorId !== user.id && c.author?.id !== user.id);
+                                        if (foreignComments.length > 0) {
+                                            const newestReply = foreignComments[foreignComments.length - 1];
+                                            addNotification(
+                                                t("notif_reply_title"),
+                                                t("notif_reply_body")
+                                                    .replace("{{author}}", newestReply.author?.name || t("social_user_fallback"))
+                                                    .replace("{{title}}", newTopic.title)
+                                                    .replace("{{content}}", newestReply.content),
+                                                "COMMUNITY"
+                                            );
+                                        }
+                                    }
+                                } catch (e) {
+                                    console.log("Error checking forum reply author:", e);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            setTopics(fetchedTopics);
         }
         return response.status;
-    }, [httpClient, setTopics]);
+    }, [httpClient, topics, setTopics, user?.id, addNotification, t]);
 
     /**
      * Récupère les détails d’un sujet (topic) spécifique par son ID.
@@ -183,9 +223,14 @@ export function useForum() {
         if (response.status !== "Failure") {
             const newTopic = response.payload as Topic;
             setTopics([newTopic, ...topics]);
+            addNotification(
+                t("notif_topic_title"),
+                t("notif_topic_body").replace("{{title}}", title),
+                "COMMUNITY"
+            );
         }
         return response.status;
-    }, [httpClient, topics, setTopics]);
+    }, [httpClient, topics, setTopics, addNotification, t]);
 
     /**
      * Ajoute un commentaire à un sujet donné.
@@ -201,10 +246,16 @@ export function useForum() {
         const http = await httpClient;
         const response = await http.post(`/api/topic/${topicId}/comment`, payload);
         if (response.status !== "Failure") {
-            return response.payload as Comment;
+            const comment = response.payload as Comment;
+            addNotification(
+                t("notif_reply_posted_title"),
+                t("notif_reply_posted_body"),
+                "COMMUNITY"
+            );
+            return comment;
         }
         return null;
-    }, [httpClient]);
+    }, [httpClient, addNotification, t]);
 
     /**
      * Crée un nouveau tag et l’ajoute à la liste locale.

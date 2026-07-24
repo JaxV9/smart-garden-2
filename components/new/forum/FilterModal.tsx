@@ -1,5 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Modal, ScrollView, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
+import { useTranslation } from '@/contexts/language.context';
 
 interface Tag {
     id: string;
@@ -15,6 +16,7 @@ interface FilterModalProps {
 }
 
 export default function FilterModal({ visible, tags, selectedTagId, onClose, onSelectTag }: FilterModalProps) {
+    const { t } = useTranslation();
     return (
         <Modal
             animationType="fade"
@@ -27,7 +29,7 @@ export default function FilterModal({ visible, tags, selectedTagId, onClose, onS
                     <TouchableWithoutFeedback onPress={() => {}}>
                         <View style={styles.modalContent}>
                     <View style={styles.modalHeader}>
-                        <Text style={styles.modalTitle}>Filtrer par catégorie</Text>
+                        <Text style={styles.modalTitle}>{t('forum_filter_by')}</Text>
                         <TouchableOpacity onPress={onClose}>
                             <Ionicons name="close" size={24} color="#333" />
                         </TouchableOpacity>
@@ -39,7 +41,7 @@ export default function FilterModal({ visible, tags, selectedTagId, onClose, onS
                             onPress={() => onSelectTag(null)}
                         >
                             <Text style={[styles.filterOptionText, !selectedTagId && styles.filterOptionTextSelected]}>
-                                Toutes les catégories
+                                {t('forum_filter_all')}
                             </Text>
                             {!selectedTagId && <Ionicons name="checkmark" size={20} color="#5B8E55" />}
                         </TouchableOpacity>

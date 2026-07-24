@@ -7,16 +7,16 @@ import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity } from 'react-native';
-
+import { useTranslation } from '@/contexts/language.context';
 
 export const SocialFeedTab = () => {
+    const { t } = useTranslation();
     const { posts } = useSocialContext();
     const { loadPosts, createPost, toggleLike, addComment, loadComments, deletePost, updatePost } = useSocial();
     const [loading, setLoading] = useState(false);
     const [createModalVisible, setCreateModalVisible] = useState(false);
     const [commentsModalVisible, setCommentsModalVisible] = useState(false);
     const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
-
 
     // Recharge les données à chaque fois que l'écran est en focus
     useFocusEffect(
@@ -25,13 +25,11 @@ export const SocialFeedTab = () => {
         }, [])
     );
 
-
     const loadData = async () => {
         setLoading(true);
         await loadPosts();
         setLoading(false);
     };
-
 
     const handleCreatePost = async (content: string, images: string[]) => {
         const result = await createPost(content, images);
@@ -40,21 +38,18 @@ export const SocialFeedTab = () => {
             // Recharger les posts après création
             await loadData();
         } else {
-            alert('Erreur lors de la création du post');
+            alert(t('social_create_error'));
         }
     };
-
 
     const handleLike = async (postId: string) => {
         await toggleLike(postId);
     };
 
-
     const handleCommentPress = (postId: string) => {
         setSelectedPostId(postId);
         setCommentsModalVisible(true);
     };
-
 
     const handleCloseCommentsModal = async () => {
         setCommentsModalVisible(false);
@@ -71,7 +66,6 @@ export const SocialFeedTab = () => {
         await updatePost(postId, content);
     };
 
-
     return (
         <>
             <ScrollView
@@ -83,7 +77,7 @@ export const SocialFeedTab = () => {
                     onPress={() => setCreateModalVisible(true)}
                 >
                     <Ionicons name="add" size={20} color="white" />
-                    <Text style={styles.createButtonText}>Partager une réussite</Text>
+                    <Text style={styles.createButtonText}>{t('social_share_success')}</Text>
                 </TouchableOpacity>
 
 
@@ -126,19 +120,24 @@ const styles = StyleSheet.create({
         paddingBottom: 100,
     },
     createButton: {
-        backgroundColor: '#5B8E55',
-        paddingVertical: 16,
-        borderRadius: 12,
+        backgroundColor: '#5A7F54',
+        paddingVertical: 14,
+        borderRadius: 14,
         alignItems: 'center',
-        marginTop: 20,
-        marginBottom: 20,
+        marginTop: 16,
+        marginBottom: 16,
         flexDirection: 'row',
         justifyContent: 'center',
         gap: 8,
+        shadowColor: '#5A7F54',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.12,
+        shadowRadius: 6,
+        elevation: 2,
     },
     createButtonText: {
         color: 'white',
-        fontSize: 16,
-        fontWeight: '600',
+        fontSize: 15,
+        fontWeight: '700',
     },
 });

@@ -1,6 +1,9 @@
+import { useNotificationContext } from "@/contexts/notification.context";
 import { useSocialContext } from "@/contexts/social.context";
-import { useFetch } from "./useFetch";
+import { useUserContext } from "@/contexts/user.context";
 import { useCallback } from "react";
+import { useFetch } from "./useFetch";
+import { useTranslation } from "@/contexts/language.context";
 
 /**
  * Représente un post social.
@@ -62,6 +65,9 @@ export interface AddPostCommentPayload {
 export function useSocial() {
     const { posts, setPosts } = useSocialContext();
     const { httpClient } = useFetch(undefined);
+    const { addNotification } = useNotificationContext();
+    const { user } = useUserContext();
+    const { t } = useTranslation();
 
     /**
      * Charge la liste des posts.
@@ -71,10 +77,51 @@ export function useSocial() {
         const http = await httpClient;
         const response = await http.get("/api/posts");
         if (response.status !== "Failure") {
-            setPosts(response.payload as Post[]);
+            const fetchedPosts = response.payload as Post[];
+
+            if (posts.length > 0 && user?.id) {
+                for (const newPost of fetchedPosts) {
+                    if (newPost.authorId === user.id || newPost.author?.id === user.id) {
+                        const oldPost = posts.find(p => p.id === newPost.id);
+                        if (oldPost) {
+                            if (newPost._count.likes > oldPost._count.likes) {
+                                addNotification(
+                                    t("notif_like_title"),
+                                    t("notif_like_body").replace("{{content}}", newPost.content.substring(0, 30)),
+                                    "COMMUNITY"
+                                );
+                            }
+
+                            if (newPost._count.comments > oldPost._count.comments) {
+                                try {
+                                    const commentsResponse = await http.get(`/api/post/${newPost.id}/comments`);
+                                    if (commentsResponse.status !== "Failure") {
+                                        const commentsList = commentsResponse.payload as PostComment[];
+                                        const foreignComments = commentsList.filter(c => c.authorId !== user.id && c.author?.id !== user.id);
+                                        if (foreignComments.length > 0) {
+                                            const newestComment = foreignComments[foreignComments.length - 1];
+                                            addNotification(
+                                                t("notif_comment_title"),
+                                                t("notif_comment_body")
+                                                    .replace("{{author}}", newestComment.author?.name || t("social_user_fallback"))
+                                                    .replace("{{content}}", newestComment.content),
+                                                "COMMUNITY"
+                                            );
+                                        }
+                                    }
+                                } catch (e) {
+                                    console.log("Error checking comment author:", e);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            setPosts(fetchedPosts);
         }
         return response.status;
-    }, [httpClient, setPosts]);
+    }, [httpClient, posts, setPosts, user?.id, addNotification, t]);
 
     /**
      * Crée un nouveau post et l'ajoute à la liste locale.
@@ -92,9 +139,14 @@ export function useSocial() {
         if (response.status !== "Failure") {
             const newPost = response.payload as Post;
             setPosts([newPost, ...posts]);
+            addNotification(
+                t("notif_share_title"),
+                t("notif_share_body"),
+                "COMMUNITY"
+            );
         }
         return response.status;
-    }, [httpClient, posts, setPosts]);
+    }, [httpClient, posts, setPosts, addNotification, t]);
 
     /**
      * Toggle le like sur un post (like/unlike).
@@ -107,9 +159,14 @@ export function useSocial() {
         if (response.status !== "Failure") {
             // Recharger les posts pour mettre à jour les likes
             await loadPosts();
+            addNotification(
+                t("notif_liked_back_title"),
+                t("notif_liked_back_body"),
+                "COMMUNITY"
+            );
         }
         return response.status;
-    }, [httpClient, loadPosts]);
+    }, [httpClient, loadPosts, addNotification, t]);
 
     /**
      * Ajoute un commentaire à un post donné.
@@ -125,10 +182,16 @@ export function useSocial() {
         const http = await httpClient;
         const response = await http.post(`/api/post/${postId}/comment`, payload);
         if (response.status !== "Failure") {
-            return response.payload as PostComment;
+            const comment = response.payload as PostComment;
+            addNotification(
+                t("notif_comment_posted_title"),
+                t("notif_comment_posted_body").replace("{{content}}", `${content.substring(0, 30)}${content.length > 30 ? '...' : ''}`),
+                "COMMUNITY"
+            );
+            return comment;
         }
         return null;
-    }, [httpClient]);
+    }, [httpClient, addNotification, t]);
 
     /**
      * Récupère les commentaires d'un post spécifique.
@@ -205,13 +268,13 @@ export function useSocial() {
         try {
             const http = await httpClient;
             await http.post(`/api/post/${postId}/view`, {});
-            
-            setPosts(posts.map((post: Post) => 
-                post.id === postId 
+
+            setPosts(posts.map((post: Post) =>
+                post.id === postId
                     ? { ...post, viewCount: (post.viewCount || 0) + 1 }
                     : post
             ));
-            
+
             return "Success";
         } catch (error) {
             console.log('Erreur incrémentation vues (non critique):', error);

@@ -7,6 +7,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import YoutubePlayer from 'react-native-youtube-iframe';
+import { useTranslation } from '@/contexts/language.context';
 
 interface Tutorial {
     id: string;
@@ -17,6 +18,7 @@ interface Tutorial {
     videoUrl?: string;
     type: 'ARTICLE' | 'VIDEO';
     author: {
+        id?: string;
         name?: string;
     };
     createdAt: string;
@@ -43,6 +45,7 @@ const getYoutubeVideoId = (url: string): string | null => {
 
 export default function TutorialDetailScreen() {
     const router = useRouter();
+    const { t, language } = useTranslation();
     const { id } = useLocalSearchParams<{ id: string }>();
     const { tutorials } = useTutorialsContext();
     const { toggleLike, incrementViewCount } = useTutorials();
@@ -99,7 +102,7 @@ export default function TutorialDetailScreen() {
             <SafeAreaProvider>
                 <View style={styles.loadingContainer}>
                     <ActivityIndicator size="large" color="#5B8E55" />
-                    <Text style={styles.loadingText}>Chargement...</Text>
+                    <Text style={styles.loadingText}>{t('tutos_loading')}</Text>
                 </View>
             </SafeAreaProvider>
         );
@@ -110,12 +113,12 @@ export default function TutorialDetailScreen() {
             <SafeAreaProvider>
                 <View style={styles.errorContainer}>
                     <Ionicons name="alert-circle-outline" size={64} color="#ef4444" />
-                    <Text style={styles.errorText}>Tutoriel introuvable</Text>
+                    <Text style={styles.errorText}>{t('tutos_detail_not_found')}</Text>
                     <TouchableOpacity
                         style={styles.backButton}
                         onPress={() => router.back()}
                     >
-                        <Text style={styles.backButtonText}>Retour</Text>
+                        <Text style={styles.backButtonText}>{t('tour_guide_back')}</Text>
                     </TouchableOpacity>
                 </View>
             </SafeAreaProvider>
@@ -136,7 +139,7 @@ export default function TutorialDetailScreen() {
                     >
                         <Ionicons name="arrow-back" size={24} color="#333" />
                     </TouchableOpacity>
-                    <Text style={styles.headerTitle}>Tutoriel</Text>
+                    <Text style={styles.headerTitle}>{t('tutos_detail_title')}</Text>
                     <View style={styles.headerButton} />
                 </View>
 
@@ -160,7 +163,7 @@ export default function TutorialDetailScreen() {
                     {tutorial.type === 'VIDEO' && !youtubeVideoId && (
                         <View style={styles.noVideoContainer}>
                             <Ionicons name="videocam-off-outline" size={48} color="#999" />
-                            <Text style={styles.noVideoText}>URL vidéo invalide</Text>
+                            <Text style={styles.noVideoText}>{t('tutos_detail_invalid_video')}</Text>
                         </View>
                     )}
 
@@ -168,28 +171,47 @@ export default function TutorialDetailScreen() {
                     <View style={styles.content}>
                         {/* Catégorie */}
                         <View style={[styles.categoryBadge, { backgroundColor: getCategoryColor(tutorial.category) }]}>
-                            <Text style={styles.categoryText}>{tutorial.category}</Text>
+                            <Text style={styles.categoryText}>
+                                {tutorial.category === 'ASTUCES'
+                                    ? t('tutos_cat_astuces')
+                                    : tutorial.category === 'DIY'
+                                        ? t('tutos_cat_diy')
+                                        : tutorial.category === 'TECHNIQUES'
+                                            ? t('tutos_cat_techniques')
+                                            : tutorial.category}
+                            </Text>
                         </View>
 
                         <Text style={styles.title}>{tutorial.title}</Text>
 
                         {/* Auteur */}
-                        <View style={styles.authorContainer}>
+                        <TouchableOpacity
+                            style={styles.authorContainer}
+                            onPress={() => {
+                                if (tutorial.author?.id) {
+                                    router.push({
+                                        pathname: '/user/[id]',
+                                        params: { id: tutorial.author.id }
+                                    });
+                                }
+                            }}
+                            activeOpacity={0.7}
+                        >
                             <View style={styles.avatarPlaceholder}>
                                 <Ionicons name="person" size={20} color="#666" />
                             </View>
                             <View style={styles.authorInfo}>
-                                <Text style={styles.authorName}>{tutorial.author?.name || 'Utilisateur'}</Text>
-                                <Text style={styles.publishDate}>{getTimeAgo(tutorial.createdAt)}</Text>
+                                <Text style={styles.authorName}>{tutorial.author?.name || t('social_user_fallback')}</Text>
+                                <Text style={styles.publishDate}>{getTimeAgo(tutorial.createdAt, language)}</Text>
                             </View>
-                        </View>
+                        </TouchableOpacity>
 
                         {/* Stats et actions */}
                         <View style={styles.statsContainer}>
                             <View style={styles.stats}>
                                 <View style={styles.statItem}>
                                     <Ionicons name="eye-outline" size={18} color="#666" />
-                                    <Text style={styles.statText}>{tutorial.viewCount} vues</Text>
+                                    <Text style={styles.statText}>{tutorial.viewCount} {t('tutos_views')}</Text>
                                 </View>
                             </View>
 
@@ -206,7 +228,7 @@ export default function TutorialDetailScreen() {
                         {/* Description */}
                         {tutorial.description && (
                             <View style={styles.descriptionContainer}>
-                                <Text style={styles.descriptionTitle}>Description</Text>
+                                <Text style={styles.descriptionTitle}>{t('tutos_detail_description')}</Text>
                                 <Text style={styles.descriptionText}>{tutorial.description}</Text>
                             </View>
                         )}
@@ -214,7 +236,7 @@ export default function TutorialDetailScreen() {
                         {/* Contenu principal */}
                         {tutorial.content && (
                             <View style={styles.articleContent}>
-                                <Text style={styles.contentTitle}>Contenu</Text>
+                                <Text style={styles.contentTitle}>{t('tutos_content')}</Text>
                                 <Text style={styles.articleText}>{tutorial.content}</Text>
                             </View>
                         )}
@@ -355,7 +377,8 @@ const styles = StyleSheet.create({
     authorName: {
         fontSize: 15,
         fontWeight: '600',
-        color: '#333',
+        color: '#5B8E55',
+        textDecorationLine: 'underline',
     },
     publishDate: {
         fontSize: 13,

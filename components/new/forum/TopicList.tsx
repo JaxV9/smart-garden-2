@@ -1,6 +1,7 @@
 import { FlatList, StyleSheet, Text, View } from 'react-native';
 import TopicCard from './TopicCard';
 import { useCallback } from 'react';
+import { useTranslation } from '@/contexts/language.context';
 
 interface TopicListProps {
     topics: any[];
@@ -12,6 +13,7 @@ interface TopicListProps {
 }
 
 export default function TopicList({ topics, loading, onTopicPress, onDelete, onUpdate, allTags }: TopicListProps) {
+    const { t } = useTranslation();
     const renderItem = useCallback(({ item }: { item: any }) => (
         <TopicCard
             topic={item}
@@ -25,12 +27,12 @@ export default function TopicList({ topics, loading, onTopicPress, onDelete, onU
     const keyExtractor = useCallback((item: any) => item.id, []);
 
     if (loading) {
-        return <Text style={styles.loadingText}>Chargement...</Text>;
+        return <Text style={styles.loadingText}>{t('forum_loading')}</Text>;
     }
-
+ 
     const EmptyListMessage = () => (
         <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>Aucun résultat trouvé</Text>
+            <Text style={styles.emptyText}>{t('forum_empty')}</Text>
         </View>
     );
 

@@ -8,6 +8,7 @@ import {
 
 import { useVegetablesContext } from "@/contexts/vegetables.context";
 import { useVegetable } from "@/hooks/useVegetable";
+import { useTranslation } from "@/contexts/language.context";
 
 import type {
   MonthRange,
@@ -17,10 +18,7 @@ import type {
 import { rangeFromMonths } from "../utils/month";
 import {
   cleanImageUri,
-  extractFamily,
-  extractScientific,
   normalize,
-  seasonToString,
 } from "../utils/vegetableText";
 
 type VM =
@@ -60,6 +58,7 @@ export function useVegetableDetails(vegetableId?: string): VM {
   const { vegetablesContext } = useVegetablesContext();
   const { loadVegetables, isLoading, error } = useVegetable();
   const insets = useSafeAreaInsets();
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (vegetablesContext.length === 0) {
@@ -80,8 +79,30 @@ export function useVegetableDetails(vegetableId?: string): VM {
     return { state: "error", error: String(error) };
   if (!vegetable) return { state: "not_found" };
 
-  const family = extractFamily(vegetable?.specifications);
-  const scientific = extractScientific(vegetable?.specifications);
+  const getTranslatedFamily = (rawSpecs?: string[]) => {
+    if (!rawSpecs) return "";
+    const spec = rawSpecs.find(x => x.toLowerCase().includes("famille"));
+    if (!spec) return "";
+    const parts = spec.split(":");
+    const rawFamily = (parts[1] ?? "").trim();
+    const familyKey = "fam_" + rawFamily.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z]/g, "");
+    const translatedFamilyName = t(familyKey as any) || rawFamily;
+    const label = t('plant_meta_family') || "Famille";
+    return `${label} : ${translatedFamilyName}`;
+  };
+
+  const getTranslatedScientific = (rawSpecs?: string[]) => {
+    if (!rawSpecs) return "";
+    const spec = rawSpecs.find(x => x.toLowerCase().includes("nom scientifique"));
+    if (!spec) return "";
+    const parts = spec.split(":");
+    const rawSci = (parts[1] ?? "").trim();
+    const label = t('plant_meta_scientific') || "Nom scientifique";
+    return `${label} : ${rawSci}`;
+  };
+
+  const family = getTranslatedFamily(vegetable?.specifications);
+  const scientific = getTranslatedScientific(vegetable?.specifications);
 
   const affinityPlants: PlantRef[] = (
     (vegetable?.affinity ?? []) as string[]
@@ -106,11 +127,24 @@ export function useVegetableDetails(vegetableId?: string): VM {
   const harvestRange = rangeFromMonths(vegetable?.harvest);
 
   const imageUri = cleanImageUri(vegetable?.images?.[0]);
-  const season = seasonToString(vegetable?.season);
-  const watering = vegetable?.watering ?? "";
-  const sun = vegetable?.sun_exposure ?? "";
+
+  const season = Array.isArray(vegetable?.season)
+    ? vegetable.season.map((s: string) => t(('season_' + s.toLowerCase()) as any) || s).join(", ")
+    : vegetable?.season
+    ? t(('season_' + String(vegetable.season).toLowerCase()) as any) || String(vegetable.season)
+    : "";
+
+  const watering = vegetable?.watering
+    ? t(('water_' + vegetable.watering.toLowerCase()) as any) || vegetable.watering
+    : "";
+
+  const sun = vegetable?.sun_exposure
+    ? t(('sun_' + vegetable.sun_exposure.replace(/\s+/g, '_').toLowerCase()) as any) || vegetable.sun_exposure
+    : "";
+
   const temp = vegetable?.temperature ?? "";
-  const advices = (vegetable?.advices ?? []) as string[];
+  const rawAdvices = (vegetable?.advices ?? []) as string[];
+  const advices = rawAdvices.map((adv, idx) => t(('veg_tip_' + vegetable.id + '_' + idx) as any) || adv);
 
   const onBack = () => router.back();
 
@@ -126,7 +160,11 @@ export function useVegetableDetails(vegetableId?: string): VM {
 
   return {
     state: "ready",
-    vegetable,
+    vegetable: {
+      ...vegetable,
+      name: t(('veg_name_' + vegetable.id) as any) || vegetable.name,
+      description: t(('veg_desc_' + vegetable.id) as any) || vegetable.description,
+    },
     imageUri,
     family,
     scientific,
@@ -137,7 +175,7 @@ export function useVegetableDetails(vegetableId?: string): VM {
     temp,
     advices: advices.length
       ? advices
-      : ["Aucun conseil disponible pour le moment."],
+      : [t('plant_no_advice') || "Aucun conseil disponible pour le moment."],
 
     sowingRange,
     plantationRange,

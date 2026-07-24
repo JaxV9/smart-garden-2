@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
 import { ActivityIndicator, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
+import { useTranslation } from '@/contexts/language.context';
 
 interface CreateTutorialModalProps {
     visible: boolean;
@@ -9,6 +10,7 @@ interface CreateTutorialModalProps {
 }
 
 export default function CreateTutorialModal({ visible, onClose, onSubmit }: CreateTutorialModalProps) {
+    const { t } = useTranslation();
     const [type, setType] = useState<'VIDEO' | 'ARTICLE'>('ARTICLE');
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
@@ -19,17 +21,17 @@ export default function CreateTutorialModal({ visible, onClose, onSubmit }: Crea
 
     const handleSubmit = async () => {
         if (!title.trim()) {
-            alert('Veuillez entrer un titre');
+            alert(t('tutos_title_required'));
             return;
         }
 
         if (type === 'VIDEO' && !videoUrl.trim()) {
-            alert('Veuillez entrer une URL de vidéo');
+            alert(t('tutos_video_required'));
             return;
         }
 
         if (type === 'ARTICLE' && !content.trim()) {
-            alert('Veuillez entrer le contenu de l\'article');
+            alert(t('tutos_content_required'));
             return;
         }
 
@@ -74,15 +76,15 @@ export default function CreateTutorialModal({ visible, onClose, onSubmit }: Crea
                     <TouchableWithoutFeedback onPress={() => {}}>
                         <View style={styles.modalContent}>
                     <View style={styles.modalHeader}>
-                        <Text style={styles.modalTitle}>Publier un tutoriel</Text>
+                        <Text style={styles.modalTitle}>{t('tutos_publish_btn')}</Text>
                         <TouchableOpacity onPress={handleClose}>
                             <Ionicons name="close" size={24} color="#333" />
                         </TouchableOpacity>
                     </View>
-
+ 
                     <ScrollView style={styles.modalBody}>
                         {/* Type selection */}
-                        <Text style={styles.label}>Type</Text>
+                        <Text style={styles.label}>{t('tutos_type')}</Text>
                         <View style={styles.typeSelector}>
                             <TouchableOpacity
                                 style={[
@@ -102,10 +104,10 @@ export default function CreateTutorialModal({ visible, onClose, onSubmit }: Crea
                                         type === 'VIDEO' && styles.typeButtonTextActive,
                                     ]}
                                 >
-                                    Vidéo
+                                    {t('tutos_type_video')}
                                 </Text>
                             </TouchableOpacity>
-
+ 
                             <TouchableOpacity
                                 style={[
                                     styles.typeButton,
@@ -124,26 +126,26 @@ export default function CreateTutorialModal({ visible, onClose, onSubmit }: Crea
                                         type === 'ARTICLE' && styles.typeButtonTextActive,
                                     ]}
                                 >
-                                    Article
+                                    {t('tutos_type_article')}
                                 </Text>
                             </TouchableOpacity>
                         </View>
-
+ 
                         {/* Titre */}
-                        <Text style={styles.label}>Titre</Text>
+                        <Text style={styles.label}>{t('tutos_title')}</Text>
                         <TextInput
                             style={styles.input}
-                            placeholder="Ex: Comment réussir ses tomates"
+                            placeholder={t('tutos_title_placeholder')}
                             value={title}
                             onChangeText={setTitle}
                             placeholderTextColor="#111827"
                         />
-
+ 
                         {/* Description */}
-                        <Text style={styles.label}>Description (optionnel)</Text>
+                        <Text style={styles.label}>{t('tutos_desc')}</Text>
                         <TextInput
                             style={[styles.input, styles.textArea]}
-                            placeholder="Courte description du tutoriel..."
+                            placeholder={t('tutos_desc_placeholder')}
                             value={description}
                             onChangeText={setDescription}
                             multiline
@@ -151,35 +153,49 @@ export default function CreateTutorialModal({ visible, onClose, onSubmit }: Crea
                             textAlignVertical="top"
                             placeholderTextColor="#111827"
                         />
-
+ 
                         {/* Catégorie */}
-                        <Text style={styles.label}>Catégorie</Text>
+                        <Text style={styles.label}>{t('tutos_category')}</Text>
                         <View style={styles.categorySelector}>
-                            {['ASTUCES', 'DIY', 'TECHNIQUES'].map((cat) => (
-                                <TouchableOpacity
-                                    key={cat}
-                                    style={[
-                                        styles.categoryButton,
-                                        category === cat && styles.categoryButtonActive,
-                                    ]}
-                                    onPress={() => setCategory(cat as any)}
-                                >
-                                    <Text
+                            {['ASTUCES', 'DIY', 'TECHNIQUES'].map((cat) => {
+                                const getCategoryLabel = (c: string) => {
+                                    switch (c) {
+                                        case 'ASTUCES':
+                                            return t('tutos_cat_astuces');
+                                        case 'DIY':
+                                            return t('tutos_cat_diy');
+                                        case 'TECHNIQUES':
+                                            return t('tutos_cat_techniques');
+                                        default:
+                                            return c;
+                                    }
+                                };
+                                return (
+                                    <TouchableOpacity
+                                        key={cat}
                                         style={[
-                                            styles.categoryButtonText,
-                                            category === cat && styles.categoryButtonTextActive,
+                                            styles.categoryButton,
+                                            category === cat && styles.categoryButtonActive,
                                         ]}
+                                        onPress={() => setCategory(cat as any)}
                                     >
-                                        {cat}
-                                    </Text>
-                                </TouchableOpacity>
-                            ))}
+                                        <Text
+                                            style={[
+                                                styles.categoryButtonText,
+                                                category === cat && styles.categoryButtonTextActive,
+                                            ]}
+                                        >
+                                            {getCategoryLabel(cat)}
+                                        </Text>
+                                    </TouchableOpacity>
+                                );
+                            })}
                         </View>
-
+ 
                         {/* Champs spécifiques au type */}
                         {type === 'VIDEO' ? (
                             <>
-                                <Text style={styles.label}>URL de la vidéo</Text>
+                                <Text style={styles.label}>{t('tutos_video_url')}</Text>
                                 <TextInput
                                     style={styles.input}
                                     placeholder="https://youtube.com/..."
@@ -191,10 +207,10 @@ export default function CreateTutorialModal({ visible, onClose, onSubmit }: Crea
                             </>
                         ) : (
                             <>
-                                <Text style={styles.label}>Contenu</Text>
+                                <Text style={styles.label}>{t('tutos_content')}</Text>
                                 <TextInput
                                     style={[styles.input, styles.contentArea]}
-                                    placeholder="Rédigez votre article..."
+                                    placeholder={t('tutos_content_placeholder')}
                                     value={content}
                                     onChangeText={setContent}
                                     multiline
@@ -205,7 +221,7 @@ export default function CreateTutorialModal({ visible, onClose, onSubmit }: Crea
                             </>
                         )}
                     </ScrollView>
-
+ 
                     <TouchableOpacity
                         style={[styles.submitButton, submitting && styles.submitButtonDisabled]}
                         onPress={handleSubmit}
@@ -214,7 +230,7 @@ export default function CreateTutorialModal({ visible, onClose, onSubmit }: Crea
                         {submitting ? (
                             <ActivityIndicator color="white" />
                         ) : (
-                            <Text style={styles.submitButtonText}>Publier</Text>
+                            <Text style={styles.submitButtonText}>{t('tutos_publish')}</Text>
                         )}
                     </TouchableOpacity>
                         </View>
