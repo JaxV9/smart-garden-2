@@ -1,4 +1,5 @@
 import { useGardenContext } from '@/contexts/garden.context';
+import { useVegetablesContext } from '@/contexts/vegetables.context';
 import { usePlan } from '@/hooks/usePlan';
 import React, { useState } from 'react';
 import {
@@ -25,7 +26,8 @@ import { Touch } from './touch';
 import { ZoomItem } from './zoom';
 
 export const Plan = () => {
-    const { gardenVegetables } = useGardenContext()
+    const { gardenVegetables } = useGardenContext();
+    const { vegetablesContext } = useVegetablesContext();
     const { isPremium } = useUserContext();
     const { visible } = useTour();
     const { t } = useTranslation();
@@ -63,6 +65,81 @@ export const Plan = () => {
 
     const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
     const [newPlanName, setNewPlanName] = useState("");
+    const [incompatibleModalData, setIncompatibleModalData] = useState<{
+        selectedVegId?: string;
+        selectedVegName: string;
+        neighborVegName: string;
+    } | null>(null);
+
+    const handleSelectVegetableForCel = (selectedVegId?: string) => {
+        if (!selectedVegId || !celData) {
+            updateCelWithVege(selectedVegId);
+            return;
+        }
+
+        const currentSpace = gardenSpaces.find(s => s.spaceName === celData.spaceName);
+        if (!currentSpace) {
+            updateCelWithVege(selectedVegId);
+            return;
+        }
+
+        const selectedVeg = vegetablesContext.find(v => v.id === selectedVegId);
+        if (!selectedVeg) {
+            updateCelWithVege(selectedVegId);
+            return;
+        }
+
+        const norm = (s?: string) => (s ?? '').trim().toLowerCase();
+        const { rowIndex, colIndex } = celData;
+        const neighborsToCheck = [
+            { r: rowIndex - 1, c: colIndex },
+            { r: rowIndex + 1, c: colIndex },
+            { r: rowIndex, c: colIndex - 1 },
+            { r: rowIndex, c: colIndex + 1 },
+        ];
+
+        let badNeighborFound: any = null;
+
+        for (const pos of neighborsToCheck) {
+            if (
+                pos.r >= 0 &&
+                pos.r < currentSpace.area.length &&
+                pos.c >= 0 &&
+                pos.c < (currentSpace.area[pos.r]?.cols?.length ?? 0)
+            ) {
+                const neighborCel = currentSpace.area[pos.r].cols[pos.c];
+                if (neighborCel?.vegetableId) {
+                    const neighborVeg = vegetablesContext.find(v => v.id === neighborCel.vegetableId);
+                    if (neighborVeg) {
+                        const isBad =
+                            selectedVeg.bad_neighbors?.some(
+                                bn => norm(bn) === norm(neighborVeg.name) || norm(bn) === norm(neighborVeg.id)
+                            ) ||
+                            neighborVeg.bad_neighbors?.some(
+                                bn => norm(bn) === norm(selectedVeg.name) || norm(bn) === norm(selectedVeg.id)
+                            );
+
+                        if (isBad) {
+                            badNeighborFound = neighborVeg;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (badNeighborFound) {
+            const selectedVegName = t(`veg_name_${selectedVeg.id}` as any, selectedVeg.name);
+            const neighborVegName = t(`veg_name_${badNeighborFound.id}` as any, badNeighborFound.name);
+            setIncompatibleModalData({
+                selectedVegId,
+                selectedVegName,
+                neighborVegName,
+            });
+        } else {
+            updateCelWithVege(selectedVegId);
+        }
+    };
 
     React.useEffect(() => {
         if (!isPremiumActive && activePlan !== defaultPlanName && allPlans.indexOf(activePlan) > 0) {
@@ -219,7 +296,7 @@ export const Plan = () => {
                         <GardenVegeList
                             gardenVegetables={gardenVegetables}
                             closeIsUpdatingCel={closeIsUpdatingCel}
-                            updateCelWithVege={updateCelWithVege}
+                            updateCelWithVege={handleSelectVegetableForCel}
                             vegeId={celData?.vegeId}
                         />
                     ) : (
@@ -227,6 +304,61 @@ export const Plan = () => {
                     )}
                 </>
             )}
+
+            {/* MODAL CONFIRMATION INCOMPATIBILITE */}
+            <Modal
+                visible={!!incompatibleModalData}
+                transparent={true}
+                animationType="fade"
+                onRequestClose={() => setIncompatibleModalData(null)}
+            >
+                <View style={styles.modalOverlay}>
+                    <View style={styles.incompatibleModalCard}>
+                        <View style={styles.warningHeaderIcon}>
+                            <Ionicons name="warning" size={32} color="#EF4444" />
+                        </View>
+
+                        <Text style={styles.incompatibleModalTitle}>
+                            {t('plan_incompatible_title')}
+                        </Text>
+
+                        <Text style={styles.incompatibleModalDesc}>
+                            {t('plan_incompatible_desc')
+                                .replace('{{veg1}}', incompatibleModalData?.selectedVegName || '')
+                                .replace('{{veg2}}', incompatibleModalData?.neighborVegName || '')}
+                        </Text>
+
+                        <Text style={styles.incompatibleModalQuestion}>
+                            {t('plan_incompatible_question').replace('{{veg1}}', incompatibleModalData?.selectedVegName || '')}
+                        </Text>
+
+                        <View style={styles.incompatibleActionsRow}>
+                            <TouchableOpacity
+                                style={styles.incompatibleCancelBtn}
+                                onPress={() => setIncompatibleModalData(null)}
+                                activeOpacity={0.8}
+                            >
+                                <Text style={styles.incompatibleCancelText}>{t('btn_cancel')}</Text>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity
+                                style={styles.incompatibleConfirmBtn}
+                                onPress={() => {
+                                    if (incompatibleModalData) {
+                                        updateCelWithVege(incompatibleModalData.selectedVegId);
+                                        setIncompatibleModalData(null);
+                                    }
+                                }}
+                                activeOpacity={0.85}
+                            >
+                                <Text style={styles.incompatibleConfirmText}>
+                                    {t('plan_incompatible_place_anyway')}
+                                </Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
 
             {/* MODAL CREATION DE PLAN */}
             <Modal
@@ -473,6 +605,90 @@ const styles = StyleSheet.create({
         backgroundColor: '#5A7F54',
     },
     confirmBtnText: {
+        fontSize: 14,
+        fontWeight: '700',
+        color: '#FFFFFF',
+    },
+    // Incompatibility Modal Styles
+    incompatibleModalCard: {
+        backgroundColor: 'white',
+        borderRadius: 24,
+        padding: 24,
+        width: '100%',
+        maxWidth: 360,
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.15,
+        shadowRadius: 16,
+        elevation: 8,
+    },
+    warningHeaderIcon: {
+        width: 60,
+        height: 60,
+        borderRadius: 30,
+        backgroundColor: '#FEF2F2',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 16,
+        borderWidth: 1,
+        borderColor: '#FEE2E2',
+    },
+    incompatibleModalTitle: {
+        fontSize: 19,
+        fontWeight: '800',
+        color: '#991B1B',
+        textAlign: 'center',
+        marginBottom: 12,
+    },
+    incompatibleModalDesc: {
+        fontSize: 14,
+        lineHeight: 20,
+        color: '#475569',
+        textAlign: 'center',
+        marginBottom: 8,
+    },
+    incompatibleModalQuestion: {
+        fontSize: 14,
+        fontWeight: '700',
+        color: '#1E293B',
+        textAlign: 'center',
+        marginBottom: 24,
+    },
+    incompatibleActionsRow: {
+        flexDirection: 'row',
+        gap: 12,
+        width: '100%',
+    },
+    incompatibleCancelBtn: {
+        flex: 1,
+        height: 46,
+        borderRadius: 14,
+        backgroundColor: '#F1F5F9',
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderWidth: 1,
+        borderColor: '#E2E8F0',
+    },
+    incompatibleCancelText: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: '#475569',
+    },
+    incompatibleConfirmBtn: {
+        flex: 1,
+        height: 46,
+        borderRadius: 14,
+        backgroundColor: '#EF4444',
+        alignItems: 'center',
+        justifyContent: 'center',
+        shadowColor: '#EF4444',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
+        elevation: 3,
+    },
+    incompatibleConfirmText: {
         fontSize: 14,
         fontWeight: '700',
         color: '#FFFFFF',

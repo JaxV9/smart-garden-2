@@ -83,6 +83,10 @@ export const translations: Record<LanguageType, Record<string, string>> = {
         plan_no_spaces: "Vous n'avez pas encore d'espace dans ce plan de jardinage",
         plan_add_zone: 'Ajouter une zone / bac',
         plan_edit_name_placeholder: 'Nom de la zone',
+        plan_incompatible_title: 'Attention : Incompatibilité !',
+        plan_incompatible_desc: '{{veg1}} et {{veg2}} ne s\'associent pas bien ensemble à proximité.',
+        plan_incompatible_question: 'Voulez-vous quand même placer {{veg1}} à cet endroit ?',
+        plan_incompatible_place_anyway: 'Placer quand même',
         
         // Premium / VIP
         vip_title: 'Pass Smart Garden Ultra',
@@ -773,6 +777,10 @@ export const translations: Record<LanguageType, Record<string, string>> = {
         plan_no_spaces: 'You do not have any spaces in this garden plan yet',
         plan_add_zone: 'Add a zone / planter box',
         plan_edit_name_placeholder: 'Zone name',
+        plan_incompatible_title: 'Warning: Incompatibility!',
+        plan_incompatible_desc: '{{veg1}} and {{veg2}} are poor companions and may hinder each other\'s growth.',
+        plan_incompatible_question: 'Do you still want to place {{veg1}} here?',
+        plan_incompatible_place_anyway: 'Place anyway',
         
         // Premium / VIP
         vip_title: 'Smart Garden Ultra Pass',
@@ -1463,6 +1471,10 @@ export const translations: Record<LanguageType, Record<string, string>> = {
         plan_no_spaces: 'Aún no tienes espacios en este plan de huerto',
         plan_add_zone: 'Añadir una zona / maceta',
         plan_edit_name_placeholder: 'Nombre de la zona',
+        plan_incompatible_title: '¡Atención: Incompatibilidad!',
+        plan_incompatible_desc: '{{veg1}} y {{veg2}} son plantas incompatibles y pueden afectar su crecimiento.',
+        plan_incompatible_question: '¿Aún quieres colocar {{veg1}} aquí?',
+        plan_incompatible_place_anyway: 'Colocar de todos modos',
         
         // Premium / VIP
         vip_title: 'Pase Smart Garden Ultra',
@@ -2153,6 +2165,10 @@ export const translations: Record<LanguageType, Record<string, string>> = {
         plan_no_spaces: 'Non hai ancora nessuno spazio in questo piano di giardinaggio',
         plan_add_zone: 'Aggiungi una zona / fioriera',
         plan_edit_name_placeholder: 'Nome della zona',
+        plan_incompatible_title: 'Attenzione: Incompatibilità!',
+        plan_incompatible_desc: '{{veg1}} e {{veg2}} sono piante incompatibili e rischiano di ostacolare la crescita reciproca.',
+        plan_incompatible_question: 'Vuoi comunque posizionare {{veg1}} qui?',
+        plan_incompatible_place_anyway: 'Posiziona comunque',
         
         // Premium / VIP
         vip_title: 'Pass Smart Garden Ultra',
@@ -2843,6 +2859,10 @@ export const translations: Record<LanguageType, Record<string, string>> = {
         plan_no_spaces: '在此花园规划中您还没有任何区域',
         plan_add_zone: '添加区域 / 种植槽',
         plan_edit_name_placeholder: '区域名称',
+        plan_incompatible_title: '警告：植物不兼容！',
+        plan_incompatible_desc: '{{veg1}} 与 {{veg2}} 属于互克植物，可能会影响彼此生长。',
+        plan_incompatible_question: '您仍要在此处种植 {{veg1}} 吗？',
+        plan_incompatible_place_anyway: '仍然放置',
         
         // Premium / VIP
         vip_title: 'Smart Garden Ultra 特权通票',
@@ -3532,6 +3552,10 @@ export const translations: Record<LanguageType, Record<string, string>> = {
         plan_no_spaces: 'この菜園計画にはまだエリアが登録されていません',
         plan_add_zone: 'エリア / 栽培容器を追加',
         plan_edit_name_placeholder: 'エリア名',
+        plan_incompatible_title: '警告：相性がよくありません！',
+        plan_incompatible_desc: '{{veg1}} と {{veg2}} は相性が悪く、お互いの生育に影響を与える可能性があります。',
+        plan_incompatible_question: 'それでもここに {{veg1}} を配置しますか？',
+        plan_incompatible_place_anyway: 'それでも配置する',
         
         // Premium / VIP
         vip_title: 'Smart Garden Ultra パス',
@@ -4222,6 +4246,10 @@ export const translations: Record<LanguageType, Record<string, string>> = {
         plan_no_spaces: 'ليس لديك أي مساحات في مخطط الحديقة هذا بعد',
         plan_add_zone: 'إضافة منطقة / حوض زراعة',
         plan_edit_name_placeholder: 'اسم المنطقة',
+        plan_incompatible_title: 'تنبيه: عدم توافق النباتات!',
+        plan_incompatible_desc: '{{veg1}} و {{veg2}} نباتات غير متوافقة وقد تؤثر سلباً على نمو بعضها البعض.',
+        plan_incompatible_question: 'هل لا تزال تريد وضع {{veg1}} هنا؟',
+        plan_incompatible_place_anyway: 'وضعه على أي حال',
         
         // Premium / VIP
         vip_title: 'اشتراك Smart Garden Ultra',

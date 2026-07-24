@@ -14,10 +14,20 @@ export function VegetableHeader({
   insetsTop: number;
 }) {
   const { t } = useTranslation();
+  const [hasError, setHasError] = React.useState(false);
+
+  React.useEffect(() => {
+    setHasError(false);
+  }, [imageUri]);
+
   return (
     <View style={styles.coverWrapper}>
-      {imageUri ? (
-        <Image source={{ uri: imageUri }} style={styles.cover} />
+      {imageUri && !hasError ? (
+        <Image
+          source={{ uri: imageUri }}
+          style={styles.cover}
+          onError={() => setHasError(true)}
+        />
       ) : (
         <View style={[styles.cover, styles.coverPlaceholder]}>
           <Text style={styles.placeholderText}>{t('doc_image_unavailable', 'Image indisponible')}</Text>

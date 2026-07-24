@@ -15,6 +15,12 @@ export function PlantCard({
   onPress?: () => void;
 }) {
   const { t } = useTranslation();
+  const [hasError, setHasError] = React.useState(false);
+
+  React.useEffect(() => {
+    setHasError(false);
+  }, [imageUri]);
+
   return (
     <Pressable
       style={styles.plantCard}
@@ -22,11 +28,12 @@ export function PlantCard({
       disabled={!onPress}
       accessibilityRole={onPress ? "button" : undefined}
     >
-      {imageUri ? (
+      {imageUri && !hasError ? (
         <Image
           source={{ uri: imageUri }}
           style={styles.plantImage}
           resizeMode="cover"
+          onError={() => setHasError(true)}
         />
       ) : (
         <View style={[styles.plantImage, styles.plantPlaceholder]}>

@@ -26,11 +26,18 @@ const getDifficultyStyle = (difficulty?: string) => {
     return styles.badgeNeutral;
 };
 
+import { useState, useEffect } from 'react';
+
 export const VegetableCard = ({ vegetable, callBack }: VegetableProps) => {
     const { t } = useTranslation();
+    const [hasError, setHasError] = useState(false);
     const rawUri = (vegetable?.images?.[0] as unknown as string) ?? '';
     // Supabase paths sometimes end up with double slashes like "/garden//tomate.png" which can 404.
     const imageUri = rawUri ? rawUri.replace(/([^:]\/\/+)\/+/g, '$1') : '';
+
+    useEffect(() => {
+        setHasError(false);
+    }, [imageUri]);
 
     const scientificName = getScientificName(vegetable);
     const difficulty = vegetable?.difficulty ?? '';
@@ -40,15 +47,17 @@ export const VegetableCard = ({ vegetable, callBack }: VegetableProps) => {
     return (
         <TouchableOpacity onPress={callBack} style={styles.card} activeOpacity={0.9}>
             <View style={styles.imageWrapper}>
-                {!!imageUri && (
+                {!!imageUri && !hasError ? (
                     <Image
                         source={{ uri: imageUri }}
                         style={styles.image}
                         resizeMode="cover"
-                        onError={(e) => {
-                            console.log('Image load error:', imageUri, e?.nativeEvent);
-                        }}
+                        onError={() => setHasError(true)}
                     />
+                ) : (
+                    <View style={styles.imagePlaceholder}>
+                        <Ionicons name="leaf-outline" size={44} color="#5A7F54" />
+                    </View>
                 )}
 
                 {!!difficulty && (
@@ -113,6 +122,14 @@ const styles = StyleSheet.create({
     image: {
         width: '100%',
         height: '100%',
+    },
+
+    imagePlaceholder: {
+        width: '100%',
+        height: '100%',
+        backgroundColor: '#F3F4F6',
+        justifyContent: 'center',
+        alignItems: 'center',
     },
 
     badge: {
